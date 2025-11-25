@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --accent1: #1d2671;
+      --accent2: #c33764;
+      --bg: #f5f7fb;
+      --text-dark: #1a1a1a;
+      --white: #fff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f0f1b;
+      --white: #1b1b2f;
+      --text-dark: #f5f5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 10px;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      background: var(--white);
+      width: 95%;
+      max-width: 750px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+      padding: 35px 25px 45px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    section {
+      margin-bottom: 35px;
+      background: var(--bg);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent1);
+      margin-bottom: 15px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1.5px solid #ccc;
+      outline: none;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    input:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 6px rgba(195, 55, 100, 0.25);
+    }
+
+    button {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color: var(--white);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(29, 38, 113, 0.25);
+    }
+
+    /* Forgot password link */
+    .forgot-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+      color: var(--accent2);
+    }
+
+    /* Toggle switch */
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent2);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .color-options {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .color-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .color-btn.active {
+      border: 2px solid #000;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      margin-top: 20px;
+    }
+
+    /* Forgot Password Modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content input {
+      margin-top: 10px;
+    }
+
+    .close-btn {
+      background: #ccc;
+      color: #000;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #bbb;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px 18px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Settings</h1>
+
+    <!-- Account Settings -->
+    <section>
+      <h2>🔐 Account Settings</h2>
+      <input type="password" id="currentPass" placeholder="Current Password" required />
+      <input type="password" id="newPass" placeholder="New Password" required />
+      <input type="password" id="confirmPass" placeholder="Confirm New Password" required />
+      <button id="resetPassBtn">Reset Password</button>
+      <p id="passMsg" style="font-size:14px; margin-top:8px;"></p>
+
+      <p class="forgot-link" id="forgotLink">Forgot your password? Reset via email</p>
+    </section>
+
+    <!-- Notification Settings -->
+    <section>
+      <h2>🔔 Notification Settings</h2>
+      <div class="toggle">
+        <label>Email Notifications</label>
+        <label class="switch">
+          <input type="checkbox" id="emailToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle">
+        <label>Portal Notifications</label>
+        <label class="switch">
+          <input type="checkbox" id="portalToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Theme Settings -->
+    <section>
+      <h2>🎨 Theme & Display</h2>
+      <div class="toggle">
+        <label>Dark Mode</label>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <p style="font-weight:600; margin-top:10px;">Accent Color</p>
+      <div class="color-options">
+        <div class="color-btn" data-color="#1d2671,#c33764" style="background: linear-gradient(135deg,#1d2671,#c33764);"></div>
+        <div class="color-btn" data-color="#0072ff,#00c6ff" style="background: linear-gradient(135deg,#0072ff,#00c6ff);"></div>
+        <div class="color-btn" data-color="#11998e,#38ef7d" style="background: linear-gradient(135deg,#11998e,#38ef7d);"></div>
+        <div class="color-btn" data-color="#ff416c,#ff4b2b" style="background: linear-gradient(135deg,#ff416c,#ff4b2b);"></div>
+      </div>
+    </section>
+
+    <!-- App Info / Support -->
+    <section>
+      <h2>ℹ App Info & Support</h2>
+      <p><strong>App:</strong> CampusTrack</p>
+      <p><strong>Version:</strong> 1.0.0</p>
+      <p><strong>Developed by:</strong> Venky Yadav 💻</p>
+      <p><strong>Support:</strong> campus.support@gmail.com</p>
+      <p style="margin-top:10px;">CampusTrack helps students manage attendance, marks, and academics in one place.</p>
+    </section>
+
+    <footer>CampusTrack © 2025 — All rights reserved.</footer>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal" id="forgotModal">
+    <div class="modal-content">
+      <h3>Reset Password via Email</h3>
+      <p style="font-size:14px;color:#555;">Enter your registered email address:</p>
+      <input type="email" id="resetEmail" placeholder="Your registered email" required />
+      <button id="sendResetBtn" style="margin-top:10px;">Send Reset Link</button>
+      <p id="emailMsg" style="font-size:13px;margin-top:8px;"></p>
+      <button class="close-btn" id="closeModalBtn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Password Reset
+    document.getElementById("resetPassBtn").addEventListener("click", () => {
+      const curr = document.getElementById("currentPass").value.trim();
+      const newp = document.getElementById("newPass").value.trim();
+      const conf = document.getElementById("confirmPass").value.trim();
+      const msg = document.getElementById("passMsg");
+
+      if (!curr || !newp || !conf) {
+        msg.textContent = "Please fill in all fields.";
+        msg.style.color = "red";
+        return;
+      }
+      if (newp !== conf) {
+        msg.textContent = "New passwords do not match.";
+        msg.style.color = "red";
+        return;
+      }
+      msg.textContent = "✅ Password reset successful!";
+      msg.style.color = "green";
+      document.getElementById("currentPass").value = "";
+      document.getElementById("newPass").value = "";
+      document.getElementById("confirmPass").value = "";
+    });
+
+    // Forgot Password Modal
+    const forgotLink = document.getElementById("forgotLink");
+    const modal = document.getElementById("forgotModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const sendResetBtn = document.getElementById("sendResetBtn");
+    const emailMsg = document.getElementById("emailMsg");
+
+    forgotLink.addEventListener("click", () => {
+      modal.style.display = "flex";
+      emailMsg.textContent = "";
+      document.getElementById("resetEmail").value = "";
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    sendResetBtn.addEventListener("click", () => {
+      const email = document.getElementById("resetEmail").value.trim();
+      if (!email) {
+        emailMsg.textContent = "Please enter your registered email.";
+        emailMsg.style.color = "red";
+        return;
+      }
+      emailMsg.textContent = "📧 Password reset link has been sent to your email address.";
+      emailMsg.style.color = "green";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    // Notification Toggles
+    const emailToggle = document.getElementById("emailToggle");
+    const portalToggle = document.getElementById("portalToggle");
+
+    emailToggle.checked = localStorage.getItem("emailNoti") === "true";
+    portalToggle.checked = localStorage.getItem("portalNoti") === "true";
+
+    emailToggle.addEventListener("change", () => {
+      localStorage.setItem("emailNoti", emailToggle.checked);
+    });
+    portalToggle.addEventListener("change", () => {
+      localStorage.setItem("portalNoti", portalToggle.checked);
+    });
+
+    // Dark Mode
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    darkModeToggle.checked = localStorage.getItem("theme") === "dark";
+    document.documentElement.setAttribute("data-theme", darkModeToggle.checked ? "dark" : "light");
+
+    darkModeToggle.addEventListener("change", () => {
+      const theme = darkModeToggle.checked ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+    });
+
+    // Accent Color Selector
+    const colorButtons = document.querySelectorAll(".color-btn");
+    const savedAccent = localStorage.getItem("accentColors");
+    if (savedAccent) {
+      const [a1, a2] = savedAccent.split(",");
+      document.documentElement.style.setProperty("--accent1", a1);
+      document.documentElement.style.setProperty("--accent2", a2);
+    }
+
+    colorButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        colorButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const [a1, a2] = btn.dataset.color.split(",");
+        document.documentElement.style.setProperty("--accent1", a1);
+        document.documentElement.style.setProperty("--accent2", a2);
+        localStorage.setItem("accentColors", btn.dataset.color);
+      });
+    });
+  </script>
+</body>
+</html>

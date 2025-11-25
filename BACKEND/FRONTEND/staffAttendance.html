@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff • Attendance Selection</title>
+  <style>
+    :root {
+      --brand: #2f80ed;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --bg: #f6f8fc;
+      --border: #e5e7eb;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0, 0, 0, .08);
+    }
+    * { box-sizing: border-box }
+    body {
+      margin: 0;
+      font-family: Poppins, system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: min(820px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px 24px;
+    }
+    h2 { margin: 0 0 6px; font-size: 22px; }
+    p.sub { margin: 0 0 18px; color: var(--muted); font-size: 14px }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr } }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #fbfcff;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+    }
+    label { font-weight: 600; font-size: 14px; color: #374151 }
+    select, input[type="date"] {
+      appearance: none;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14.5px;
+      color: #111827;
+      outline: none;
+    }
+    .actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 10px }
+    .btn {
+      border: none;
+      background: var(--brand);
+      color: #fff;
+      padding: 12px 18px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Attendance – Selection</h2>
+    <p class="sub">Choose the context and date to give attendance.</p>
+
+    <div class="grid">
+      <div class="field">
+        <label for="department">Department</label>
+        <select id="department">
+          <option value="" disabled selected>Select department</option>
+          <option>B.Tech</option>
+          <option>Bio-Tech</option>
+          <option>Degree</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="branch">Branch</label>
+        <select id="branch">
+          <option value="" disabled selected>Select branch</option>
+          <option>CSE AI</option>
+          <option>CSE</option>
+          <option>MECH</option>
+          <option>CIVIL</option>
+          <option>ECE</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="section">Section</label>
+        <select id="section">
+          <option value="" disabled selected>Select section</option>
+          <option>BA</option><option>BB</option><option>BC</option><option>BD</option>
+          <option>BE</option><option>BF</option><option>BG</option><option>BH</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="period">Period</label>
+        <select id="period">
+          <option value="" disabled selected>Select period</option>
+          <option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option>
+        </select>
+      </div>
+
+      <!-- ✅ NEW Date Selector -->
+      <div class="field" style="grid-column: span 2;">
+        <label for="date">Select Date</label>
+        <input type="date" id="date" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="continueBtn">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    const dep = document.getElementById('department');
+    const br  = document.getElementById('branch');
+    const sec = document.getElementById('section');
+    const per = document.getElementById('period');
+    const date = document.getElementById('date');
+    const btn = document.getElementById('continueBtn');
+
+    function allFilled(){
+      return dep.value && br.value && sec.value && per.value && date.value;
+    }
+
+    function updateBtn(){ btn.disabled = !allFilled(); }
+
+    [dep, br, sec, per, date].forEach(el => el.addEventListener('change', updateBtn));
+    updateBtn();
+
+    btn.addEventListener('click', () => {
+      if(!allFilled()) return;
+
+      const meta = {
+        department: dep.value,
+        branch: br.value,
+        section: sec.value,
+        period: per.value,
+        date: date.value  // ✅ Save selected date
+      };
+
+      localStorage.setItem('attendanceMeta', JSON.stringify(meta));
+      window.location.href = 'staffAttendanceGiven.html';
+    });
+  </script>
+</body>
+</html>

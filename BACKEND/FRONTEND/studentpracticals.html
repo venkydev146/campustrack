@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Practicals</title>
+
+  <style>
+    :root {
+      --bg: #f7faff;
+      --card: #ffffff;
+      --accent: #2f80ed;
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #d9d9d9;
+      --radius: 14px;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 16px;
+    }
+
+    .back {
+      align-self: flex-start;
+      margin-left: 12px;
+      font-size: 26px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: 0.2s;
+      user-select: none;
+    }
+
+    .back:hover {
+      transform: translateX(-4px);
+    }
+
+    h2 {
+      margin: 12px 0 24px;
+      text-align: center;
+      font-size: 26px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .table-container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    th, td {
+      text-align: center;
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    td {
+      color: var(--muted);
+      background: #fff;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    tr:hover td {
+      background: #e8f0fe;
+      color: var(--text);
+    }
+
+    /* 🎨 Marks color coding */
+    .mark-green {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .mark-yellow {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    .mark-red {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    /* 🎨 Responsive */
+    @media (max-width: 700px) {
+      th, td {
+        font-size: 13px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="back" onclick="window.history.back()">&#8592;</div>
+  <h2>Practical Marks</h2>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Semester</th>
+          <th>Subject Name</th>
+          <th>Marks</th>
+        </tr>
+      </thead>
+      <tbody id="practicalsTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Dummy practicals data
+    const practicals = [
+      { code: "EBCS22P01", semester: "5th", name: "Computer Networks Lab", marks: 92 },
+      { code: "EBAI22P02", semester: "5th", name: "Soft Computing Lab", marks: 88 },
+      { code: "EBAI22P03", semester: "5th", name: "Intelligent Multi Agent and Expert System Lab", marks: 67 },
+    ];
+
+    const tableBody = document.getElementById("practicalsTable");
+
+    practicals.forEach(practical => {
+      let markClass = "";
+      if (practical.marks >= 90) markClass = "mark-green";
+      else if (practical.marks >= 70) markClass = "mark-yellow";
+      else markClass = "mark-red";
+
+      const row = `
+        <tr>
+          <td>${practical.code}</td>
+          <td>${practical.semester}</td>
+          <td>${practical.name}</td>
+          <td class="${markClass}">${practical.marks}</td>
+        </tr>
+      `;
+      tableBody.innerHTML += row;
+    });
+  </script>
+</body>
+</html>

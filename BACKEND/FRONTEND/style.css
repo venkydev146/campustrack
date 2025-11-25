@@ -1,0 +1,179 @@
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', system-ui, sans-serif; }
+
+body {
+  background:#ffffff;            /* plain white like your mock */
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.main-container {
+  width:min(520px, 92vw);
+  text-align:center;
+}
+
+.main-container h2 {
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:0.5px;
+  color:#111;
+  margin-bottom:28px;
+}
+
+.button-group {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:22px;
+}
+
+.pill {
+  width:240px;
+  padding:16px 0;
+  font-size:22px;
+  font-weight:700;
+  color:#fff;
+  background:#3b82f6;           /* blue like your screenshot */
+  border:none;
+  border-radius:14px;            /* rounded corners */
+  cursor:pointer;
+  transition:transform .12s ease, filter .12s ease;
+}
+
+.pill:active { transform:scale(0.98); }
+.pill:hover { filter:brightness(0.95); }
+/* Registration Page */
+.register-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.form-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1.8px solid #000;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 600;
+  outline: none;
+}
+
+.sign-btn {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sign-btn:hover {
+  background: #006ae6;
+}
+
+.login-text {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.login-text a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Small Send OTP button */
+.otp-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.otp-btn:hover {
+  background: #005fcc;
+}
+/* Login Page */
+.login-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.login-container h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 25px;
+}
+
+.otp-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.forgot-text {
+  font-size: 14px;
+  color: #111;
+}
+
+.otp-small-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.otp-small-btn:hover {
+  background: #005fcc;
+}

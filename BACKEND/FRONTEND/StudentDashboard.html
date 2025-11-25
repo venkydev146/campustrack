@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Dashboard - CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- Theme & Reset ---------- */
+    :root{
+      --sidebar-bg: #153863;
+      --sidebar-width: 260px;
+      --surface: #ffffff;
+      --muted: #6b7280;
+      --accent: #5b3be6;
+      --card-bg: #f6f8fb;
+      --radius: 14px;
+      --text: #0b1220;
+      --shadow: 0 8px 30px rgba(12,18,30,0.05);
+
+      /* Mobile (M2) font sizes */
+      --title-mobile: 22px;
+      --body-mobile: 15px;
+      --small-mobile: 13.5px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: #f4f6f8;
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    /* ---------- Layout ---------- */
+    .app {
+      display:flex;
+      min-height:100vh;
+      gap:28px;
+      padding:28px;
+      align-items:flex-start;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width:var(--sidebar-width);
+      min-width:var(--sidebar-width);
+      background:linear-gradient(180deg,var(--sidebar-bg), #102944);
+      color:#fff;
+      border-radius:18px;
+      padding:22px 18px;
+      box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      position:relative;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:700;
+      font-size:20px;
+      margin-bottom:6px;
+    }
+
+    .brand .logo {
+      width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,0.08);
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+      font-size:20px;
+    }
+
+    .nav {
+      margin-top:6px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding-top:10px;
+    }
+
+    .nav a {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:12px 12px;
+      border-radius:10px;
+      color:rgba(255,255,255,0.95);
+      font-weight:600;
+      font-size:15px;
+    }
+
+    .nav a:hover { background: rgba(255,255,255,0.04) }
+    .nav a.active { background: rgba(255,255,255,0.08); color:#fff }
+
+    .nav .icon {
+      width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.04);
+      font-weight:700;
+    }
+
+    .logout {
+      margin-top:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:600;
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      color:rgba(255,255,255,0.95);
+    }
+
+    .logout:hover { background: rgba(255,255,255,0.04) }
+
+    /* Main content */
+    .main {
+      flex:1;
+      background:var(--surface);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+      min-height:520px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+
+    .top-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .title {
+      font-size:36px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .actions {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .icon-btn {
+      width:44px;height:44px;border-radius:999px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;
+      box-shadow: 0 2px 6px rgba(12,18,30,0.04);
+      cursor:pointer;
+    }
+
+    /* Profile + stats */
+    .profile-area {
+      display:flex;
+      gap:22px;
+      align-items:center;
+      padding:10px 0 6px;
+    }
+
+    .avatar {
+      width:96px;height:96px;border-radius:999px;object-fit:cover;border:6px solid #fff;box-shadow:0 6px 18px rgba(12,18,30,0.06);
+      background:#eee;
+    }
+
+    .profile-info {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .student-name { font-size:24px; font-weight:700; }
+    .student-meta { color:var(--muted); font-weight:600; display:flex; gap:18px; align-items:center; font-size:15px }
+
+    /* Cards grid */
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:18px;
+      align-items:start;
+    }
+
+    .card {
+      background:var(--card-bg);
+      padding:18px;
+      border-radius:12px;
+      box-shadow: 0 6px 18px rgba(12,18,30,0.02);
+    }
+
+    .card.attendance { grid-column: span 2; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; min-height:150px }
+    .attendance .ring {
+      width:140px;height:140px;border-radius:999px;
+      display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--text);
+      background: conic-gradient(#2ec4b6 calc(var(--pct,75) * 1%), #e6eef1 0);
+      position:relative;
+    }
+    .attendance .ring::before{
+      content:"";
+      position:absolute; width:84px;height:84px;border-radius:999px;background:#fff;
+      display:block;
+    }
+    .attendance .ring .value{
+      position:relative; z-index:1; font-weight:700; font-size:20px;
+    }
+
+    .card.metrics { display:flex; flex-direction:column; gap:12px; justify-content:center; min-height:150px }
+
+    .small-cards { display:flex; gap:12px; flex-wrap:wrap; }
+    .stat{
+      background:#fff; border-radius:10px; padding:14px; flex:1; min-width:130px; text-align:left;
+      box-shadow: 0 4px 12px rgba(12,18,30,0.03);
+    }
+    .stat h4{font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:700}
+    .stat .value{font-size:24px;font-weight:800;color:var(--text)}
+
+    /* Upcoming classes + resources area (cards below) */
+    .lower-grid { display:grid; grid-template-columns: 1fr 340px; gap:18px; margin-top:6px; align-items:start }
+    .box { background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(12,18,30,0.03) }
+
+    .box h3{margin-bottom:12px;font-size:18px}
+
+    .classes-list{display:flex;flex-direction:column;gap:10px}
+    .class-pill{padding:12px;border-radius:10px;color:#fff;font-weight:700}
+
+    .resources-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
+    /* Make resource tiles clickable */
+    .resource-tile{ border-radius:10px;padding:14px;font-weight:700; color:#fff; cursor:pointer; display:flex;align-items:center;justify-content:center; text-align:center; min-height:54px; }
+
+    /* ---------- Responsive: mobile / narrow (M2) ---------- */
+    @media (max-width:1000px){
+      .grid { grid-template-columns: 1fr; }
+      .card.attendance { grid-column: span 1; }
+      .lower-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width:720px){
+      /* apply M2 mobile font scaling */
+      .main { padding:18px; border-radius:10px; min-height:100vh; }
+      .title { font-size: var(--title-mobile); }
+      .student-name { font-size: 20px; }
+      .student-meta { font-size: var(--body-mobile); gap:10px; flex-wrap:wrap; }
+      body, .main, .box, .card { font-size: var(--body-mobile); }
+      .avatar { width:76px; height:76px; border-width:4px; }
+      .attendance .ring { width:120px; height:120px; }
+      .attendance .ring::before { width:72px; height:72px; }
+      .attendance .ring .value { font-size:18px; }
+      .lower-grid { gap:12px; }
+      .resources-grid{ grid-template-columns: repeat(2,1fr); gap:8px; }
+      .resource-tile{ min-height:56px; font-size:var(--small-mobile); }
+      .sidebar { left:-320px; position:fixed; top:12px; bottom:12px; z-index:40; transition:left .25s ease; }
+      .sidebar.open{ left:12px; }
+    }
+
+    /* helper */
+    .hidden-mobile{display:inline-block}
+    @media (max-width:720px){ .hidden-mobile{display:none} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="brand">
+        <div class="logo">CT</div>
+        <div>CampusTrack</div>
+      </div>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="StudentDashboard.html" class="active"><span class="icon">🏠</span> Dashboard</a>
+        <a href="studentAttendanceSelection.html"><span class="icon">📘</span> Attendance</a>
+        <a href="studentMarksselection.html"><span class="icon">📊</span>  Marks</a>
+        <a href="studentresources.html"><span class="icon">📚</span> Resources</a>
+        <a href="studentcommunication.html"><span class="icon">💬</span> Communication</a>
+        <a href="studentsettings.html"><span class="icon">⚙</span> Settings</a>
+      </nav>
+
+      <div class="logout" id="logoutBtn" title="Logout">
+        <span style="font-size:18px">⤴</span>
+        <span>Logout</span>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="mainContent" role="main">
+      <div class="top-row">
+        <div style="display:flex;align-items:center;gap:18px;">
+          <button id="hamb" class="icon-btn hidden-mobile" title="Menu" aria-label="Toggle menu" style="display:none">☰</button>
+          <div class="title" id="pageTitle">Student Dashboard</div>
+        </div>
+        <div class="actions" aria-hidden="false">
+          <div class="icon-btn" title="Notifications" aria-label="Notifications">🔔</div>
+          <div class="icon-btn" title="Profile" aria-label="Profile">👤</div>
+        </div>
+      </div>
+
+      <!-- Profile area -->
+      <section class="profile-area" aria-labelledby="profileHeading">
+        <img id="avatar" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile picture" class="avatar">
+        <div class="profile-info">
+          <div class="student-name" id="studentName">Student Name</div>
+          <div class="student-meta">
+            <div><strong>Register Number</strong>&nbsp;&nbsp;<span id="studentReg">—</span></div>
+            <div style="margin-left:6px;"><strong>Department</strong>&nbsp;&nbsp;<span id="studentDept">—</span></div>
+          </div>
+          <div class="student-meta" style="margin-top:6px;">
+            <div><strong>Branch</strong>&nbsp;&nbsp;<span id="studentBranch">—</span></div>
+            <div style="margin-left:12px;"><strong>Section</strong>&nbsp;&nbsp;<span id="studentSection">—</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top stats grid -->
+      <section class="grid" aria-hidden="false">
+        <div class="card attendance" aria-label="Attendance">
+          <div style="font-weight:700;color:var(--muted);font-size:16px">Attendance</div>
+          <div class="ring" id="attendanceRing" style="--pct:75;">
+            <span class="value" id="attendancePct">--%</span>
+          </div>
+        </div>
+
+        <div class="card metrics" aria-label="Marks">
+          <div style="font-weight:700;color:var(--muted);font-size:16px">Internal Marks</div>
+          <div style="font-size:32px;font-weight:800;color:#f39c12" id="marksValue">--</div>
+          <div style="color:var(--muted);font-size:14px">Average</div>
+        </div>
+
+        <div class="card" aria-label="Feedback">
+          <div style="font-weight:700;color:var(--muted);font-size:16px">Feedback</div>
+          <div style="margin-top:10px;color:var(--muted)">No Recent Feedback</div>
+        </div>
+
+        <div class="card" aria-label="Notifications count">
+          <div style="font-weight:700;color:var(--muted);font-size:16px">Notifications</div>
+          <div style="margin-top:10px;font-size:22px;font-weight:800" id="notifCount">0</div>
+        </div>
+      </section>
+
+      <!-- lower area -->
+      <section class="lower-grid" aria-hidden="false">
+        <div class="box">
+          <h3>Upcoming Classes</h3>
+          <div class="classes-list" id="classesList">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <div class="class-pill" style="background:#2fb6e2">Mathematics <div style="font-size:12px;font-weight:600;margin-top:6px">03:00 - 10:30</div></div>
+              <div class="class-pill" style="background:#ff9f43">Physics <div style="font-size:12px;font-weight:600;margin-top:6px">11:00 - 12:30</div></div>
+              <div class="class-pill" style="background:#6b5dfc">Chemistry <div style="font-size:12px;font-weight:600;margin-top:6px">14:00 - 15:30</div></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="box" aria-label="Resources">
+          <h3>Resources</h3>
+          <div class="resources-grid">
+            <div class="resource-tile" style="background:#19a59b;" role="link" tabindex="0" onclick="location.href='studentNotes.html'">Notes</div>
+
+            <!-- Announcements clickable -->
+            <div class="resource-tile" style="background:#f6a623;" role="link" tabindex="0" id="announcementsTile">Announcements</div>
+
+            <div class="resource-tile" style="background:#664ef6;" role="link" tabindex="0" onclick="location.href='studentVideos.html'">Videos</div>
+            <div class="resource-tile" style="background:#2ba6ff;" role="link" tabindex="0" onclick="location.href='studentLinks.html'">Links</div>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      // Element refs
+      const avatar = document.getElementById('avatar');
+      const studentName = document.getElementById('studentName');
+      const studentReg = document.getElementById('studentReg');
+      const studentDept = document.getElementById('studentDept');
+      const studentBranch = document.getElementById('studentBranch');
+      const studentSection = document.getElementById('studentSection');
+      const attendancePct = document.getElementById('attendancePct');
+      const attendanceRing = document.getElementById('attendanceRing');
+      const marksValue = document.getElementById('marksValue');
+      const notifCount = document.getElementById('notifCount');
+      const announcementsTile = document.getElementById('announcementsTile');
+
+      // Try different localStorage keys (login used "student", earlier code used "studentData")
+      function readStudentFromLocalStorage() {
+        const keys = ['studentData', 'student'];
+        for (const k of keys) {
+          try {
+            const raw = localStorage.getItem(k);
+            if (!raw) continue;
+            const obj = JSON.parse(raw);
+            if (obj && (obj.registerNumber || obj.registerNumber === 0 || obj.registerNo)) {
+              // Normalize property names if necessary
+              return { sourceKey: k, data: normalizeStudent(obj) };
+            }
+          } catch (e) {
+            // continue trying next key
+            console.warn('Failed parsing localStorage', k, e);
+          }
+        }
+        return null;
+      }
+
+      // Normalize student fields to expected names
+      function normalizeStudent(obj){
+        return {
+          name: obj.name || obj.studentName || obj.fullName || '',
+          phone: obj.phone || obj.mobile || '',
+          email: obj.email || obj.mail || '',
+          registerNumber: obj.registerNumber || obj.registerNo || obj.regNo || obj.register_number || '',
+          department: obj.department || obj.dept || '',
+          branch: obj.branch || '',
+          section: obj.section || '',
+          photo: obj.photo || obj.avatar || obj.profilePic || ''
+        };
+      }
+
+      // Save canonical key so other pages can read
+      function saveCanonical(student){
+        try {
+          localStorage.setItem('studentData', JSON.stringify(student));
+        } catch(e){ console.warn('Could not save studentData', e); }
+      }
+
+      // Populate UI
+      function populateUI(student){
+        if (student.photo) {
+          // if it's a base64 data or absolute url, set it
+          avatar.src = student.photo;
+        } else {
+          avatar.src = avatar.src; // keep default
+        }
+        studentName.textContent = student.name || 'Student Name';
+        studentReg.textContent = student.registerNumber || '—';
+        studentDept.textContent = student.department || '—';
+        studentBranch.textContent = student.branch || '—';
+        studentSection.textContent = student.section || '—';
+
+        // demo stats; if your backend provides these later, fill accordingly
+        const attendance = (typeof student.attendance !== 'undefined') ? student.attendance : 75;
+        const marks = (typeof student.marks !== 'undefined') ? student.marks : 85;
+        const notifications = (typeof student.notifications !== 'undefined') ? student.notifications : 3;
+
+        // Update attendance display
+        attendancePct.textContent = attendance + '%';
+        // set ring fill by CSS custom property (0-100)
+        attendanceRing.style.setProperty('--pct', attendance);
+
+        marksValue.textContent = marks;
+        notifCount.textContent = notifications;
+      }
+
+      // Guest state
+      function showGuestState(){
+        studentName.textContent = 'Welcome!';
+        studentReg.textContent = 'Not registered';
+        studentDept.textContent = '--';
+        studentBranch.textContent = '--';
+        studentSection.textContent = '--';
+        attendancePct.textContent = '--%';
+        marksValue.textContent = '--';
+        notifCount.textContent = '0';
+
+        // brief prompt
+        const main = document.getElementById('mainContent');
+        if (!document.getElementById('guestMsg')){
+          const box = document.createElement('div');
+          box.id = 'guestMsg';
+          box.style.marginTop = '6px';
+          box.style.background = '#fff7e9';
+          box.style.border = '1px solid #f5e1c9';
+          box.style.padding = '12px 14px';
+          box.style.borderRadius = '10px';
+          box.style.fontWeight = '600';
+          box.textContent = 'No student profile found. Please register or login to view your dashboard.';
+          const actions = document.createElement('div');
+          actions.style.marginTop = '8px';
+          actions.innerHTML = '<a href="studentregistration.html" style="margin-right:12px;font-weight:700;color:var(--accent)">Register</a> <a href="studentLogin.html" style="font-weight:700;color:var(--accent)">Login</a>';
+          box.appendChild(actions);
+          main.insertBefore(box, main.firstChild);
+        }
+      }
+
+      // Initialization
+      (function init(){
+        const found = readStudentFromLocalStorage();
+        if (found && found.data) {
+          populateUI(found.data);
+          // store normalized canonical copy
+          saveCanonical(found.data);
+        } else {
+          showGuestState();
+        }
+      })();
+
+      // Announcements tile => navigate
+      announcementsTile.addEventListener('click', () => {
+        window.location.href = 'studentNotification.html';
+      });
+      announcementsTile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.location.href = 'studentNotification.html';
+        }
+      });
+
+      // Sidebar mobile hamburger
+      const sidebar = document.getElementById('sidebar');
+      const ham = document.getElementById('hamb');
+      function updateHamVisibility(){
+        if (window.innerWidth <= 720){
+          ham.style.display = 'block';
+          sidebar.classList.remove('open');
+        } else {
+          ham.style.display = 'none';
+          sidebar.classList.remove('open');
+        }
+      }
+      updateHamVisibility();
+      window.addEventListener('resize', updateHamVisibility);
+      ham.addEventListener('click', ()=> sidebar.classList.toggle('open'));
+
+      // Close sidebar on outside clicks on mobile
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth > 720) return;
+        if (!sidebar.classList.contains('open')) return;
+        if (sidebar.contains(e.target) || ham.contains(e.target)) return;
+        sidebar.classList.remove('open');
+      });
+
+      // Logout clears saved studentData (local test)
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('studentData');
+        localStorage.removeItem('student'); // clear both to be safe
+        alert('Logged out (local).');
+        location.reload();
+      });
+
+      // Ensure keyboard access for resource tiles
+      document.querySelectorAll('.resource-tile').forEach(el => {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            el.click();
+          }
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>

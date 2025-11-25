@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verify Staff OTP</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #00bfa6, #0077b6);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    .otp-box {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      width: 360px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #0077b6;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      text-align: center;
+      letter-spacing: 4px;
+    }
+
+    input:focus {
+      border-color: #0077b6;
+      box-shadow: 0 0 5px rgba(0, 119, 182, 0.3);
+    }
+
+    button {
+      background: linear-gradient(90deg, #0077b6, #00bfa6);
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #00bfa6, #0077b6);
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="otp-box">
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit code sent to your phone.</p>
+    <input type="text" id="otp" placeholder="Enter OTP" maxlength="6" required />
+    <button id="verifyBtn">Verify</button>
+  </div>
+
+  <script>
+    document.getElementById("verifyBtn").addEventListener("click", async function () {
+      const otp = document.getElementById("otp").value.trim();
+      const phone = localStorage.getItem("staffPhone");
+
+      if (!otp || !phone) {
+        alert("⚠ Missing OTP or phone number. Please try registering again.");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:4000/verify-staff-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, otp }),
+        });
+
+        const result = await res.json();
+        alert(result.message || result.error);
+
+        if (res.ok) {
+          localStorage.setItem("staff", JSON.stringify(result.staff));
+          window.location.href = "staffDashboard.html";
+        }
+      } catch (err) {
+        console.error("❌ Verification error:", err);
+        alert("❌ Failed to connect to the server. Please check your backend.");
+      }
+    });
+  </script>
+</body>
+</html>

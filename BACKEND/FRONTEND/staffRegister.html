@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff Registration</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #00bfa6, #0077b6); /* new teal-blue gradient */
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    #staffForm {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      width: 380px;
+      gap: 15px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #0077b6;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 12px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #0077b6;
+      box-shadow: 0 0 5px rgba(0, 119, 182, 0.3);
+    }
+
+    button {
+      background: linear-gradient(90deg, #0077b6, #00bfa6);
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #00bfa6, #0077b6);
+      transform: scale(1.03);
+    }
+
+    /* ✨ Bottom text */
+    .bottom-text {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .bottom-text a {
+      color: #0077b6;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .bottom-text a:hover {
+      color: #00bfa6;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="staffForm">
+    <h2>Staff Registration</h2>
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="text" id="phone" placeholder="Phone Number (+91...)" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <button type="submit">Send OTP</button>
+
+    <p class="bottom-text">
+      Already have an account? <a href="staffLogin.html">Login</a>
+    </p>
+  </form>
+
+  <script>
+    document.getElementById("staffForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        email: document.getElementById("email").value,
+      };
+
+      try {
+        const res = await fetch("http://localhost:4000/send-staff-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+        alert(result.message || result.error);
+
+        if (res.ok) {
+          localStorage.setItem("staffPhone", data.phone);
+          window.location.href = "staffRegisterOtp.html"; // navigate to OTP page
+        }
+      } catch (err) {
+        console.error("❌ Error sending OTP:", err);
+        alert("❌ Failed to connect to server. Please check if backend is running.");
+      }
+    });
+  </script>
+</body>
+</html>

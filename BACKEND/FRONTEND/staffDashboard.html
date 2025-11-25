@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Dashboard</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background: #f5f7fb;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #2f80ed;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    .menu {
+      width: 100%;
+    }
+
+    .menu a {
+      display: block;
+      padding: 14px 30px;
+      text-decoration: none;
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .menu a:hover {
+      background: #1b63c5;
+      padding-left: 40px;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      padding: 40px;
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      color: #2f80ed;
+      font-weight: 700;
+    }
+
+    .header button {
+      background: #2f80ed;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .header button:hover {
+      background: #1b63c5;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #f8faff;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+      transition: 0.3s;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: #eaf2ff;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      color: #2f80ed;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Control Panel</h2>
+    <div class="menu">
+      <a href="staffDashboard.html">🏠 Dashboard</a>
+      <a href="staffAttendance.html">🗓 Attendance</a>
+      <a href="staffInternals.html">🧾 Internals</a>
+      <a href="staffReport.html">📊 Reports</a>
+      <a href="staffSubjects.html">📚 Subjects</a>
+      <a href="#">⚙ Settings</a>
+    </div>
+  </div>
+
+  <!-- Main Section -->
+  <div class="main">
+    <div class="header">
+      <h1>Welcome, <span id="staffName">Staff</span></h1>
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <div class="cards">
+      <div class="card" onclick="navigateTo('staffAttendance.html')">
+        <h3>📅 Attendance</h3>
+        <p>Manage and view student attendance records</p>
+      </div>
+
+      <div class="card" onclick="navigateTo('staffInternals.html')">
+        <h3>🧮 Internals</h3>
+        <p>Update and analyze internal exam marks</p>
+      </div>
+
+      <div class="card" onclick="navigateTo('staffReport.html')">
+        <h3>📈 Reports</h3>
+        <p>View department performance analytics</p>
+      </div>
+
+      <div class="card" onclick="navigateTo('staffSubjects.html')">
+        <h3>📚 Subjects</h3>
+        <p>Manage and update assigned subjects</p>
+      </div>
+
+      <div class="card" onclick="navigateTo('#')">
+        <h3>⚙ Settings</h3>
+        <p>Change your profile details and preferences</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Display staff name from localStorage
+    const staff = JSON.parse(localStorage.getItem("staff"));
+    if (staff && staff.name) {
+      document.getElementById("staffName").innerText = staff.name.toUpperCase();
+    }
+
+    // ✅ Reusable Navigation
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    // ✅ Logout
+    function logout() {
+      localStorage.removeItem("staff");
+      window.location.href = "staffLogin.html";
+    }
+  </script>
+</body>
+</html>

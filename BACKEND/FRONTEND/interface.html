@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusTrack</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      width: 100%;
+      background: url('Anna\ block.jpg') no-repeat center center;
+      background-size: contain; /* ensures full image fits */
+      background-color: black; /* adds border color around image */
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 1s ease;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: white;
+      font-size: 2.5rem;
+      text-align: center;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+      font-family: "Poppins", sans-serif;
+      padding: 0 15px;
+    }
+
+    .fade-out {
+      opacity: 0;
+    }
+
+    /* Make sure it fits all screen sizes */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      body {
+        background-size: contain; /* show full image on mobile */
+        background-position: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to CampusTrack</h1>
+
+  <script>
+    // Wait 4 seconds, then fade out and redirect
+    setTimeout(() => {
+      document.body.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = "index.html"; // Redirect to login page
+      }, 1000); // Wait for fade-out effect
+    }, 4000); // Display for 4 seconds
+  </script>
+</body>
+</html>

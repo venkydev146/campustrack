@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Internals</title>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      background: #eef3fa;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      color: #2f80ed;
+      font-size: 26px;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .selection-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 35px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+      transition: 0.3s;
+      background-color: #fff;
+      color: #333;
+    }
+
+    select:focus {
+      border-color: #2f80ed;
+      box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.2);
+    }
+
+    label {
+      font-size: 15px;
+      font-weight: 500;
+      margin-top: 5px;
+      align-self: flex-start;
+      color: #333;
+    }
+
+    .subject-info {
+      margin-top: 15px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      font-size: 15px;
+    }
+
+    .component-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 380px;
+      margin-top: 25px;
+    }
+
+    .component-card {
+      background: linear-gradient(135deg, #2f80ed, #6a11cb);
+      color: #fff;
+      padding: 18px 10px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .component-card:hover {
+      transform: translateY(-4px);
+      background: linear-gradient(135deg, #6a11cb, #2f80ed);
+    }
+
+    .component-card a {
+      text-decoration: none;
+      color: white;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 22px; }
+      .component-card { font-size: 15px; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Staff Internal Assessment Portal</h1>
+
+  <div class="selection-container">
+    <select id="department">
+      <option value="">Select Department</option>
+      <option value="B.Tech">B.Tech</option>
+      <option value="Bio-Tech">Bio-Tech</option>
+      <option value="Degree">Degree</option>
+    </select>
+
+    <select id="branch">
+      <option value="">Select Branch</option>
+      <option value="CSE-AI">CSE-AI</option>
+      <option value="DS-AI">DS-AI</option>
+      <option value="CSE">CSE</option>
+      <option value="MECH">MECH</option>
+      <option value="CIVIL">CIVIL</option>
+      <option value="ECE">ECE</option>
+    </select>
+
+    <select id="section">
+      <option value="">Select Section</option>
+      <option value="BA">BA</option>
+      <option value="BB">BB</option>
+      <option value="BC">BC</option>
+      <option value="BD">BD</option>
+      <option value="BE">BE</option>
+      <option value="BF">BF</option>
+      <option value="BG">BG</option>
+      <option value="BH">BH</option>
+    </select>
+
+    <!-- Subject Selection -->
+    <select id="subject">
+      <option value="">Select Subject</option>
+      <option value="COA">Computer Organization and Architecture</option>
+      <option value="CN">Computer Networks</option>
+      <option value="SC">Soft Computing</option>
+      <option value="PE">Program Elective</option>
+      <option value="OE">Open Elective</option>
+      <option value="FL">Foreign Language</option>
+    </select>
+
+    <!-- Dynamic Sub Subject Dropdown (only for PE, OE, FL) -->
+    <select id="subSubject" style="display:none;"></select>
+
+    <!-- Subject Code Display -->
+    <div class="subject-info">
+      <strong>Subject Code:</strong> <span id="subjectCode">—</span>
+    </div>
+  </div>
+
+  <div class="component-container">
+    <div class="component-card"><a href="staffCat1.html">CAT 1</a></div>
+    <div class="component-card"><a href="staffCat2.html">CAT 2</a></div>
+    <div class="component-card"><a href="staffCat3.html">CAT 3</a></div>
+    <div class="component-card"><a href="staffAssignment.html">Assignments</a></div>
+    <div class="component-card"><a href="staffSeminar.html">Seminar</a></div>
+  </div>
+
+  <script>
+    const subjectDropdown = document.getElementById("subject");
+    const subSubjectDropdown = document.getElementById("subSubject");
+    const subjectCode = document.getElementById("subjectCode");
+
+    const subjects = {
+      COA: { name: "Computer Organization and Architecture", code: "EBCS22006" },
+      CN: { name: "Computer Networks", code: "EBCS22007" },
+      SC: { name: "Soft Computing", code: "EBCS22005" },
+      PE: {
+        name: "Program Elective",
+        sub: {
+          "Image Processing": "EBCS22E01",
+          "Geographical Information Systems": "EBCS22E02",
+          "Component Based Technology": "EBCS22E04",
+          "Wireless and Mobile Networking": "EBCS22E07",
+        },
+      },
+      OE: {
+        name: "Open Elective",
+        sub: {
+          "E-Waste Management": "EBCS22E07",
+          "Fundamentals of Sensors": "EBCS22E07",
+          "Electrical Safety for Engineers": "EBCS22E07",
+          "Bio Medical Instrumentation": "EBCS22E07",
+          "Industrial Robots Sustainable Energy": "EBCS22E07",
+          "Industrial Engineering": "EBCS22E07",
+          "Food and Nutrition": "EBCS22E07",
+        },
+      },
+      FL: {
+        name: "Foreign Language",
+        sub: {
+          Spanish: "EBCS3456",
+          German: "EBCS4598",
+          French: "EBCS5567",
+          Japanese: "EBCS6789",
+        },
+      },
+    };
+
+    subjectDropdown.addEventListener("change", () => {
+      const selected = subjectDropdown.value;
+      subSubjectDropdown.style.display = "none";
+      subjectCode.textContent = "—";
+
+      if (subjects[selected]) {
+        const sub = subjects[selected].sub;
+        if (sub) {
+          subSubjectDropdown.innerHTML = <option value="">Select ${subjects[selected].name}</option>;
+          for (const [name, code] of Object.entries(sub)) {
+            subSubjectDropdown.innerHTML += <option value="${code}">${name}</option>;
+          }
+          subSubjectDropdown.style.display = "block";
+        } else {
+          subjectCode.textContent = subjects[selected].code;
+        }
+      }
+    });
+
+    subSubjectDropdown.addEventListener("change", () => {
+      const code = subSubjectDropdown.value;
+      subjectCode.textContent = code || "—";
+    });
+  </script>
+</body>
+</html>

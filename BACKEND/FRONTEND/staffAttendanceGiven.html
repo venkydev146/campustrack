@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff • Give Attendance</title>
+  <style>
+    :root {
+      --brand: #2f80ed;
+      --text: #111827;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --bg: #f6f8fc;
+      --border: #e5e7eb;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0, 0, 0, .08);
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", system-ui, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .wrap {
+      width: min(1080px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px 24px;
+    }
+
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef4ff;
+      color: #1e3a8a;
+      border: 1px solid #dbe6ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    thead th {
+      background: #f3f6ff;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 12px 10px;
+      text-align: left;
+    }
+
+    tbody td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 10px;
+      font-size: 14.5px;
+    }
+
+    tbody tr:hover td {
+      background: #fafcff;
+    }
+
+    .att {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    input[type="radio"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+      transition: all .2s ease;
+      position: relative;
+    }
+
+    input[value="P"]:checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    input[value="A"]:checked {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .bar {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn.primary { background: var(--brand); color: #fff; }
+    .btn.ghost { background: #fff; border: 1px solid var(--border); color: #374151; }
+
+    /* Popup Styles */
+    .popup-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.3s;
+    }
+
+    .popup {
+      background: #fff;
+      padding: 30px 25px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+      text-align: center;
+      width: 340px;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(-20px);
+      transition: 0.3s;
+    }
+
+    .popup-bg.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .popup-bg.active .popup {
+      transform: translateY(0);
+    }
+
+    .popup h3 {
+      margin: 0 0 10px;
+      color: var(--brand);
+      font-size: 20px;
+    }
+
+    .popup p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    #absenteesList {
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      text-align: left;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    .popup .close-btn {
+      background: var(--brand);
+      color: #fff;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 14px;
+      cursor: pointer;
+    }
+
+    @media(max-width:700px) {
+      .wrap { padding: 20px; }
+      table, thead, tbody, th, td, tr { font-size: 13px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="meta" id="metaView"></div>
+      <span class="badge">Attendance Sheet</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:70px;">S.No</th>
+          <th style="width:220px;">Register Number</th>
+          <th>Student Name</th>
+          <th style="width:280px;">Attendance</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="bar">
+      <button class="btn ghost" id="backBtn">Back</button>
+      <button class="btn primary" id="saveBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Popup summary -->
+  <div class="popup-bg" id="popupBg">
+    <div class="popup">
+      <h3>📋 Attendance Summary</h3>
+      <p id="totalStudents"></p>
+      <p id="presentCount"></p>
+      <p id="absentCount"></p>
+      <p id="attendanceGiven"></p>
+      <p id="remainingCount"></p>
+      <div id="absenteesList"></div>
+      <button class="close-btn" id="closePopup">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Load all selected data (including date)
+    const meta = JSON.parse(localStorage.getItem('attendanceMeta') || 'null');
+    const metaView = document.getElementById('metaView');
+
+    if (!meta) {
+      metaView.innerHTML = '<span class="pill">No selection found. Returning…</span>';
+      setTimeout(() => window.location.href = 'staffAttendance.html', 1200);
+    } else {
+      ['department', 'branch', 'section', 'period', 'date'].forEach(k => {
+        if (meta[k]) {
+          const pill = document.createElement('span');
+          pill.className = 'pill';
+          // ✅ Format date nicely
+          const value = k === 'date'
+            ? new Date(meta[k]).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+            : meta[k];
+          pill.textContent = `${k[0].toUpperCase() + k.slice(1)}: ${value}`;
+          metaView.appendChild(pill);
+        }
+      });
+    }
+
+    // ✅ Generate student list (temporary demo data)
+    const tbody = document.getElementById('tbody');
+    function randomName() {
+      const first = ['Arun', 'Bhavana', 'Charan', 'Dinesh', 'Eesha', 'Farhan', 'Gayathri', 'Harish', 'Ishita', 'Jai', 'Kavya', 'Laksh', 'Manoj', 'Nisha', 'Omkar', 'Pooja', 'Qadir', 'Rahul', 'Sana', 'Tarun', 'Uma', 'Varun', 'Waseem', 'Yash', 'Zoya'];
+      const last = ['K', 'R', 'S', 'T', 'N', 'A', 'B', 'C', 'D'];
+      return first[Math.floor(Math.random() * first.length)] + ' ' + last[Math.floor(Math.random() * last.length)];
+    }
+    const base = 231211101500;
+    const students = Array.from({ length: 20 }).map((_, i) => ({ sno: i + 1, reg: String(base + i), name: randomName().toUpperCase() }));
+
+    students.forEach(stu => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${stu.sno}</td>
+        <td>${stu.reg}</td>
+        <td>${stu.name}</td>
+        <td>
+          <div class="att">
+            <label class="option"><input type="radio" name="att_${stu.reg}" value="P"> Present</label>
+            <label class="option"><input type="radio" name="att_${stu.reg}" value="A"> Absent</label>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'staffAttendance.html');
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      let present = 0, absent = 0, attendanceGiven = 0;
+      const absentees = [];
+
+      students.forEach(stu => {
+        const val = (document.querySelector(`input[name="att_${stu.reg}"]:checked`) || {}).value;
+        if (val === 'P') {
+          present++; attendanceGiven++;
+        } else if (val === 'A') {
+          absent++; attendanceGiven++;
+          absentees.push(stu.reg);
+        }
+      });
+
+      const total = students.length;
+      const remaining = total - attendanceGiven;
+
+      document.getElementById('totalStudents').textContent = `Total Students: ${total}`;
+      document.getElementById('presentCount').textContent = `Present: ${present}`;
+      document.getElementById('absentCount').textContent = `Absent: ${absent}`;
+      document.getElementById('attendanceGiven').textContent = `Attendance Given: ${attendanceGiven}`;
+      document.getElementById('remainingCount').textContent = `Remaining: ${remaining}`;
+      document.getElementById('absenteesList').innerHTML =
+        absentees.length > 0
+          ?` <strong>Absentees List (Register Numbers):</strong><br>${absentees.join(', ')}`
+          : `<strong>Absentees List:</strong> None 🎉`;
+
+      document.getElementById('popupBg').classList.add('active');
+    });
+
+    document.getElementById('closePopup').addEventListener('click', () => {
+      document.getElementById('popupBg').classList.remove('active');
+    });
+  </script>
+</body>
+</html>

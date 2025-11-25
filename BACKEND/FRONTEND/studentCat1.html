@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Theory Marks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#ffffff;
+      --accent:#2f80ed;
+      --text:#111;
+      --muted:#444;
+      --border:#e6e6e6;
+      --radius:14px;
+      --shadow:0 6px 18px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:32px 14px 60px;
+    }
+    .back{align-self:flex-start;margin-left:6px;font-size:26px;color:var(--accent);cursor:pointer;user-select:none}
+    h2{margin:8px 0 24px;font-weight:600;color:var(--accent)}
+    .table-wrap{
+      width:100%;
+      max-width:960px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    table{width:100%;border-collapse:collapse}
+    thead{background:linear-gradient(90deg,#2f80ed,#2563eb);color:#fff}
+    th,td{padding:14px 12px;text-align:center;border-bottom:1px solid var(--border)}
+    th{letter-spacing:.35px;font-size:13px}
+    td{color:var(--muted);font-size:15px;background:#fff}
+    tr:hover td{background:#f3f7ff;color:var(--text)}
+    select{
+      padding:8px 10px;border:1px solid #cfd6e4;border-radius:10px;
+      background:#fff;color:var(--text);font:inherit;outline:none;
+    }
+    @media (max-width:720px){
+      th,td{font-size:13px;padding:10px}
+    }
+  </style>
+</head>
+<body>
+  <div class="back" onclick="history.back()">&#8592;</div>
+  <h2>CAT-1 Marks</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>SUBJECT CODE</th>
+          <th>Semester</th>
+          <th>SUBJECT NAME</th>
+          <th>MARKS</th>
+        </tr>
+      </thead>
+      <tbody id="marksTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const semester = localStorage.getItem("selectedSemester") || "4"; // fallback
+
+        // Base rows to render
+        const subjects = [
+          { code: "EBCS22006", name: "Computer Organization and Architecture", marks: 78 },
+          { code: "EBCS22007", name: "Computer Networks", marks: 92 },
+          { code: "EBAI22005", name: "Soft Computing", marks: 89 },
+           { code: "EBAI22ET3", name: "Intelligent Multi Agent & Expert System", marks: 89},
+          { code: "PROGRAM ELECTIVE",         name: "Program Elective", marks: 96 },   // dropdown
+          { code: "OPEN ELECTIVE",         name: "Open Elective",    marks: 94 },   // dropdown
+          { code: "FOREIGN LANGUAGE",         name: "Foreign Language", marks: 90 }    // dropdown
+        ];
+
+        // Program Elective → code map
+        const PROGRAM_ELECTIVES = {
+          "Image Processing": "EBCS22E01",
+          "Geographical Information Systems": "EBCS22E02",
+          "Component Based Technology": "EBCS22E04",
+          "Wireless and Mobile Networking": "EBCS22E07"
+        };
+
+        // Open Elective (single code for all)
+        const OPEN_ELECTIVES = [
+          "E-waste Management",
+          "Fundamentals of Sensors",
+          "Electrical Safety for Engineers",
+          "Bio Medical Instrumentation",
+          "Industrial Robots Sustainable Energy",
+          "Industrial Engineering",
+          "Food and Nutrition"
+        ];
+        const OPEN_ELECTIVE_CODE = "EBCS22E07";
+
+        // Foreign Language → code map (placeholder codes)
+        const FOREIGN_LANG = {
+          "Spanish":  "1243",
+          "German":   "4598",
+          "French":   "9821",
+          "Japanese": "6742"
+        };
+
+        const tbody = document.getElementById("marksTable");
+        if (!tbody) throw new Error("marksTable tbody not found");
+
+        // Helper to build a <select>
+        const makeSelect = (placeholder, options) => {
+          const sel = document.createElement("select");
+          const ph = document.createElement("option");
+          ph.disabled = true; ph.selected = true; ph.textContent = placeholder;
+          sel.appendChild(ph);
+          options.forEach(optText => {
+            const opt = document.createElement("option");
+            opt.value = optText;
+            opt.textContent = optText;
+            sel.appendChild(opt);
+          });
+          return sel;
+        };
+
+        // Render rows
+        subjects.forEach(sub => {
+          const tr = document.createElement("tr");
+
+          // Code
+          const tdCode = document.createElement("td");
+          tdCode.textContent = sub.code;
+          tr.appendChild(tdCode);
+
+          // Component = "<n> Semester"
+          const tdComp = document.createElement("td");
+          tdComp.textContent =` ${semester} Semester`;
+          tr.appendChild(tdComp);
+
+          // Name (or dropdowns)
+          const tdName = document.createElement("td");
+
+          if (sub.name === "Program Elective") {
+            const sel = makeSelect("Select Program Elective", Object.keys(PROGRAM_ELECTIVES));
+            sel.addEventListener("change", () => {
+              tdCode.textContent = PROGRAM_ELECTIVES[sel.value];
+            });
+            tdName.appendChild(sel);
+
+          } else if (sub.name === "Open Elective") {
+            const sel = makeSelect("Select Open Elective", OPEN_ELECTIVES);
+            sel.addEventListener("change", () => {
+              tdCode.textContent = OPEN_ELECTIVE_CODE; // same code for all choices
+            });
+            tdName.appendChild(sel);
+
+          } else if (sub.name === "Foreign Language") {
+            const sel = makeSelect("Select Language", Object.keys(FOREIGN_LANG));
+            sel.addEventListener("change", () => {
+              tdCode.textContent = FOREIGN_LANG[sel.value];
+            });
+            tdName.appendChild(sel);
+
+          } else {
+            tdName.textContent = sub.name;
+          }
+          tr.appendChild(tdName);
+
+          // Marks
+          const tdMarks = document.createElement("td");
+          tdMarks.textContent = sub.marks;
+          tr.appendChild(tdMarks);
+
+          tbody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error("Theory page error:", e);
+        const tbody = document.getElementById("marksTable");
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="4" style="color:#b00020">Failed to load table. Check console.</td></tr>`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

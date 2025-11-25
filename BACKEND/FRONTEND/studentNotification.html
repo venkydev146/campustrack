@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Announcements – CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body{
+      margin:0;
+      font-family:"Inter",sans-serif;
+      background:#f4f6f8;
+      padding:20px;
+    }
+
+    /* Header */
+    .header{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:22px;
+    }
+
+    .back-btn{
+      background:#153863;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      border:none;
+    }
+
+    h1{
+      margin:0;
+      font-size:24px;
+      font-weight:700;
+      color:#0b1220;
+    }
+
+    /* Announcement card */
+    .card{
+      background:#ffffff;
+      padding:18px;
+      border-radius:14px;
+      box-shadow:0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom:14px;
+      border-left:6px solid #f6a623;
+    }
+
+    .card h2{
+      margin:0;
+      font-size:18px;
+      font-weight:700;
+      color:#153863;
+    }
+
+    .card p{
+      margin:8px 0 6px;
+      color:#555;
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .date{
+      font-size:12px;
+      color:#888;
+      margin-top:6px;
+    }
+
+    /* Empty state */
+    .empty{
+      margin-top:40px;
+      text-align:center;
+      color:#666;
+      font-size:16px;
+      font-weight:600;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width:700px){
+      .card{
+        padding:16px;
+      }
+      h1{ font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="header">
+    <button class="back-btn" onclick="window.location.href='StudentDashboard.html'">← Back</button>
+    <h1>Announcements</h1>
+  </div>
+
+  <!-- Container where notifications will load -->
+  <div id="notifContainer"></div>
+
+  <script>
+    // Load student data
+    const student = JSON.parse(localStorage.getItem('studentData'));
+
+    if(!student){
+      alert("Please login first!");
+      window.location.href = "studentLogin.html";
+    }
+
+    const regNo = student.registerNumber;
+    const container = document.getElementById("notifContainer");
+
+    // Fetch notifications from backend
+    async function loadNotifications(){
+      try{
+        const res = await fetch(`http://localhost:3000/notifications/${regNo}`);
+        const data = await res.json();
+
+        if(!data || data.length === 0){
+          container.innerHTML = <div class="empty">No announcements available right now.</div>;
+          return;
+        }
+
+        // Create announcement cards
+        data.forEach(n => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          card.innerHTML = `
+            <h2>📢 ${n.title}</h2>
+            <p>${n.message}</p>
+            <div class="date">Posted on: ${n.date}</div>
+          `;
+
+          container.appendChild(card);
+        });
+
+      }catch(err){
+        container.innerHTML = <div class="empty">Error loading announcements.</div>;
+        console.error(err);
+      }
+    }
+
+    loadNotifications();
+  </script>
+
+</body>
+</html>

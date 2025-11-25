@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Choose — Student or Staff</title>
+  <style>
+    /* --------------- Reset & variables --------------- */
+    :root{
+      --glass-bg: rgba(255,255,255,0.12);    /* translucent card fill (adjust for more/less opacity) */
+      --glass-border: rgba(255,255,255,0.35);
+      --glass-shadow: 0 10px 30px rgba(6,10,26,0.45);
+      --accent-start: #2f80ed;
+      --accent-end: #6a11cb;
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.85);
+      --max-content-width: 980px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Inter", sans-serif;
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      /* Full-screen background image (your college building with logo embedded) */
+      background-image: url('VOC\ block.jpg'); /* <-- put your image file here (college building with logo) */
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    /* A subtle overlay to slightly darken the background for contrast */
+    .bg-overlay{
+      position:fixed;
+      inset:0;
+      background: linear-gradient(rgba(5,10,20,0.22), rgba(5,10,20,0.22));
+      pointer-events:none;
+      z-index:0;
+    }
+
+    /* Main centered container */
+    .shell{
+      position:relative;
+      z-index:2; /* above background */
+      width:100%;
+      max-width:var(--max-content-width);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:28px;
+    }
+
+    /* card grid */
+    .card-wrap{
+      display:flex;
+      gap:24px;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      padding:28px;
+      /* center on small screens and keep some breathing room */
+    }
+
+    /* Glass card style */
+    .card {
+      flex: 1 1 320px; /* flexible, min 320px */
+      max-width:380px;
+      background: var(--glass-bg);
+      border-radius:16px;
+      padding:26px;
+      color:var(--text);
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(8px) saturate(120%);
+      -webkit-backdrop-filter: blur(8px) saturate(120%);
+      transition: transform .22s ease, box-shadow .22s ease;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
+      text-align:center;
+      cursor:pointer;
+      min-height: auto; /* auto height as requested */
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card:focus,
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(6,10,26,0.6);
+    }
+
+    /* subtle inner glow line (rounded) */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      border-radius:16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .card h3{
+      font-size:20px;
+      margin-top:6px;
+      margin-bottom:6px;
+      color:var(--text);
+      font-weight:700;
+      letter-spacing:0.2px;
+    }
+    .card p{
+      color:rgba(255,255,255,0.9);
+      font-size:14px;
+      line-height:1.45;
+      margin-bottom:6px;
+    }
+
+    .card .btn {
+      display:inline-block;
+      padding:10px 20px;
+      border-radius:10px;
+      font-weight:700;
+      text-decoration:none;
+      color:#fff;
+      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+      box-shadow: 0 6px 18px rgba(45,15,80,0.22);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: transform .18s ease, opacity .18s ease;
+      margin-top:8px;
+    }
+    .card .btn:active{ transform: translateY(1px) }
+
+    /* Keep cards slightly less transparent on mobile: apply a darker glass on small screens */
+    @media (max-width:540px){
+      .card{
+        background: rgba(0,0,0,0.28);   /* stronger contrast for phones */
+        border: 1px solid rgba(255,255,255,0.22);
+        backdrop-filter: blur(10px);
+        padding:20px;
+        max-width:520px;
+      }
+    }
+
+    /* Stack cards on very small screens */
+    @media (max-width:880px){
+      .card-wrap{
+        flex-direction:column;
+        padding:18px;
+      }
+      .card{
+        width:100%;
+        max-width:680px;
+      }
+    }
+
+    /* Title area above cards (transparent label) */
+    .intro{
+      width:100%;
+      text-align:center;
+      margin-bottom:6px;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding:0 18px;
+    }
+    .intro h1{
+      font-size:28px;
+      color: #fff;
+      text-shadow: 0 6px 20px rgba(0,0,0,0.45);
+      margin-bottom:4px;
+    }
+    .intro p{
+      color: rgba(255,255,255,0.9);
+      font-size:14px;
+      max-width:780px;
+    }
+
+    /* small helper for keyboard focus */
+    .card:focus{ outline: 3px solid rgba(255,255,255,0.12) }
+
+  </style>
+</head>
+<body>
+  <!-- Slight overlay so the background image (with logo) remains visible but cards are readable -->
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <div class="shell" role="main">
+    <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
+      <div class="intro" aria-hidden="false">
+        <h1>Student Management System</h1>
+        <p>Choose your role to continue — Student or Staff. (Cards are interactive — tap / press Enter.)</p>
+      </div>
+
+      <div class="card-wrap" role="navigation" aria-label="Choose role">
+        <!-- Student -->
+        <div class="card" id="card-student" tabindex="0" role="button" aria-label="Continue as Student">
+          <div style="width:72px;height:72px;border-radius:14px;background:linear-gradient(180deg,#2f80ed,#6a11cb);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;box-shadow: 0 6px 16px rgba(45,15,80,0.18);">
+            S
+          </div>
+          <h3>Student</h3>
+          <p>Access your dashboard, view attendance, and check marks.</p>
+          <a class="btn" id="student-btn" href="studentregistration.html" aria-label="Continue as student">Continue as Student</a>
+        </div>
+
+        <!-- Staff -->
+        <div class="card" id="card-staff" tabindex="0" role="button" aria-label="Continue as Staff">
+          <div style="width:72px;height:72px;border-radius:14px;background:linear-gradient(180deg,#1db98b,#f39c12);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;box-shadow: 0 6px 16px rgba(20,40,30,0.18);">
+            T
+          </div>
+          <h3>Staff</h3>
+          <p>Manage student records, attendance, and academic data.</p>
+          <a class="btn" id="staff-btn" href="staffRegister.html" aria-label="Continue as staff">Continue as Staff</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Click & keyboard support for entire cards
+    const go = (url) => { window.location.href = url; };
+
+    const studentCard = document.getElementById('card-student');
+    const staffCard = document.getElementById('card-staff');
+    const studentBtn = document.getElementById('student-btn');
+    const staffBtn = document.getElementById('staff-btn');
+
+    // Make entire card clickable
+    studentCard.addEventListener('click', (e) => {
+      // If clicked the inner anchor, let it handle naturally
+      if (e.target === studentBtn) return;
+      go('studentregistration.html');
+    });
+    staffCard.addEventListener('click', (e) => {
+      if (e.target === staffBtn) return;
+      go('staffRegister.html');
+    });
+
+    // keyboard accessibility
+    studentCard.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('studentregistration.html'); }
+    });
+    staffCard.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('staffRegister.html'); }
+    });
+
+    // anchor fallback handlers (prevents default when JS intercepts)
+    studentBtn.addEventListener('click', (e) => { e.preventDefault(); go('studentregistration.html'); });
+    staffBtn.addEventListener('click', (e) => { e.preventDefault(); go('staffRegister.html'); });
+
+    // Optional: Reduce heavy transforms on very low-end devices
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (mq && mq.matches) {
+        document.querySelectorAll('.card').forEach(c => c.style.transition = 'none');
+      }
+    } catch (err) {}
+  </script>
+</body>
+</html>

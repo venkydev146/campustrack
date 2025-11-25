@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Login</title>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    form {
+      background: #ffffffd9; /* soft white transparency */
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      color: #222;
+      font-size: 26px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    input {
+      padding: 12px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #2575fc;
+      box-shadow: 0 0 8px rgba(37, 117, 252, 0.3);
+    }
+
+    .login-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(90deg, #2575fc, #6a11cb);
+      transition: 0.3s;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      transform: scale(1.03);
+    }
+
+    .forgot-text {
+      font-size: 14px;
+      margin-top: -5px;
+    }
+
+    .forgot-text a {
+      color: #2575fc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-text a:hover {
+      text-decoration: underline;
+      color: #6a11cb;
+    }
+
+    .bottom-text {
+      font-size: 14px;
+      color: #444;
+      margin-top: 10px;
+    }
+
+    .bottom-text a {
+      color: #2575fc;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .bottom-text a:hover {
+      color: #6a11cb;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="loginForm">
+    <h2>Student Login</h2>
+
+    <input type="text" id="regno" placeholder="Register Number" required />
+    <input type="password" id="regpass" placeholder="Register Password" required />
+
+    <button type="submit" class="login-btn">Login</button>
+
+    <p class="forgot-text">
+      Forgot your password? <a href="reset.html">Reset</a>
+    </p>
+
+    <p class="bottom-text">
+      Don’t have an account? <a href="studentregistration.html">Sign Up</a>
+    </p>
+  </form>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const registerNumber = document.getElementById("regno").value.trim();
+      const registerPassword = document.getElementById("regpass").value.trim();
+
+      if (!registerNumber || !registerPassword) {
+        alert("Please enter both register number and password.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/student-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ registerNumber, registerPassword })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.student) {
+          alert("✅ Login successful!");
+
+          // store result.student as studentData
+          localStorage.setItem("studentData", JSON.stringify(result.student));
+
+          // redirect
+          window.location.href = "studentDashboard.html";
+        } else {
+          alert(result.error || "⚠ Login failed!");
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("❌ Failed to connect to server. Make sure backend is running.");
+      }
+    });
+  </script>
+
+</body>
+</html>

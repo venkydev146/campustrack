@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Subject-wise Attendance</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<style>
+    body {
+  font-family: Arial;
+  background: #f2f3f7;
+  padding: 20px;
+}
+
+.container {
+  width: 400px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+button {
+  background: #007bff;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #0056c1;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.present {
+  color: green;
+  font-weight: bold;
+}
+
+.absent {
+  color: red;
+  font-weight: bold;
+}
+</style>
+<body>
+
+<div class="container">
+
+  <h2>📘 Subject-wise Attendance</h2>
+
+  <!-- Subject Dropdown -->
+  <label>Select Subject:</label>
+  <select id="subjectSelect">
+    <option value="">-- Select Subject --</option>
+    <option value="Design and Analysis of Algorithm">DAA</option>
+    <option value="Operating System">Operating System</option>
+    <option value="Statistics">Statistics</option>
+    <option value="Microprocessor and Microcontroller">Microprocessor</option>
+    <option value="Indian Traditional Knowledge">ITK</option>
+  </select>
+
+  <button id="fetchBtn">Get Attendance</button>
+
+  <!-- Table -->
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<script>
+    const studentId = localStorage.getItem("studentId"); 
+// Or manually: const studentId = "YOUR_STUDENT_ID";
+
+document.getElementById("fetchBtn").addEventListener("click", () => {
+  const subjectName = document.getElementById("subjectSelect").value;
+
+  if (!subjectName) {
+    alert("Please select a subject");
+    return;
+  }
+
+  fetch(`http://localhost:3000/student-attendance/${studentId}/${subjectName}`)
+    .then(res => res.json())
+    .then(data => displayAttendance(data.attendance))
+    .catch(err => console.log(err));
+});
+
+function displayAttendance(records) {
+  const tbody = document.querySelector("#attendanceTable tbody");
+  tbody.innerHTML = "";
+
+  if (records.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='2'>No attendance records found.</td></tr>";
+    return;
+  }
+
+  records.forEach(rec => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${rec.date}</td>
+        <td class="${rec.present ? 'present' : 'absent'}">
+          ${rec.present ? "Present ✔" : "Absent ✖"}
+        </td>
+      </tr>
+    `;
+  });
+}
+</script>
+</body>
+</html>

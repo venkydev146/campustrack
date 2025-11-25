@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Assignment Marks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f9fbff;
+      --card: #ffffff;
+      --accent: #2f80ed;
+      --text: #111;
+      --muted: #444;
+      --border: #e0e4ec;
+      --radius: 14px;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 16px 60px;
+    }
+
+    .back {
+      align-self: flex-start;
+      margin-left: 10px;
+      font-size: 26px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: 0.2s;
+      user-select: none;
+    }
+
+    .back:hover {
+      transform: translateX(-5px);
+    }
+
+    h2 {
+      margin: 10px 0 24px;
+      text-align: center;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 28px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      max-width: 1000px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    thead {
+      background: linear-gradient(90deg, #2f80ed, #2563eb);
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-size: 13px;
+    }
+
+    td {
+      background: #fff;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    tr:hover td {
+      background: #eef4ff;
+      color: var(--text);
+    }
+
+    select {
+      padding: 8px 10px;
+      border: 1px solid #cfd6e4;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      width: 90%;
+    }
+
+    @media (max-width: 720px) {
+      th,
+      td {
+        font-size: 13px;
+        padding: 10px;
+      }
+      select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="back" onclick="window.history.back()">&#8592;</div>
+  <h2>Assignment Marks</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject Code</th>
+          <th>Semester</th>
+          <th>Subject Name</th>
+          <th>Assignment 1</th>
+          <th>Assignment 2</th>
+          <th>Assignment 3</th>
+          <th>Total Marks</th>
+        </tr>
+      </thead>
+      <tbody id="marksTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const semester = localStorage.getItem("selectedSemester") || "5th";
+
+        // Subject data with multiple assignments
+        const subjects = [
+          { code: "EBCS22006", name: "Computer Organization and Architecture", a1: 24, a2: 22, a3: 28 },
+          { code: "EBCS22007", name: "Computer Networks", a1: 25, a2: 25, a3: 25 },
+          { code: "EBAI22005", name: "Soft Computing", a1: 23, a2: 24, a3: 22 },
+           { code: "EBAI22ET3", name: "Intelligent Multi Agent & Expert System", a1: 23, a2: 24, a3: 22 },
+          
+          { code: "PROGRAM ELECTIVE", name: "Program Elective", a1: 28, a2: 29, a3: 30 },
+          { code: "OPEN ELECTIVE", name: "Open Elective", a1: 27, a2: 28, a3: 30 },
+          { code: "FOREIGN LANGUAGE", name: "Foreign Language", a1: 29, a2: 28, a3: 30 }
+        ];
+
+        // Elective and language mappings
+        const PROGRAM_ELECTIVES = {
+          "Image Processing": "EBCS22E01",
+          "Geographical Information Systems": "EBCS22E02",
+          "Component Based Technology": "EBCS22E04",
+          "Wireless and Mobile Networking": "EBCS22E07"
+        };
+
+        const OPEN_ELECTIVES = [
+          "E-waste Management",
+          "Fundamentals of Sensors",
+          "Electrical Safety for Engineers",
+          "Bio Medical Instrumentation",
+          "Industrial Robots Sustainable Energy",
+          "Industrial Engineering",
+          "Food and Nutrition"
+        ];
+        const OPEN_ELECTIVE_CODE = "EBCS22E07";
+
+        const FOREIGN_LANG = {
+          Spanish: "1243",
+          German: "4598",
+          French: "9821",
+          Japanese: "6742"
+        };
+
+        const tbody = document.getElementById("marksTable");
+
+        // Helper for dropdowns
+        const makeSelect = (placeholder, options) => {
+          const select = document.createElement("select");
+          const placeholderOption = document.createElement("option");
+          placeholderOption.disabled = true;
+          placeholderOption.selected = true;
+          placeholderOption.textContent = placeholder;
+          select.appendChild(placeholderOption);
+
+          options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+          });
+
+          return select;
+        };
+
+        // Render all subjects
+        subjects.forEach(sub => {
+          const tr = document.createElement("tr");
+
+          // Subject code
+          const tdCode = document.createElement("td");
+          tdCode.textContent = sub.code;
+          tr.appendChild(tdCode);
+
+          // Component (semester)
+          const tdComp = document.createElement("td");
+          tdComp.textContent = `${semester} Semester`;
+          tr.appendChild(tdComp);
+
+          // Subject name (with dropdowns for electives)
+          const tdName = document.createElement("td");
+
+          if (sub.name === "Program Elective") {
+            const select = makeSelect("Select Program Elective", Object.keys(PROGRAM_ELECTIVES));
+            select.addEventListener("change", () => {
+              tdCode.textContent = PROGRAM_ELECTIVES[select.value];
+            });
+            tdName.appendChild(select);
+
+          } else if (sub.name === "Open Elective") {
+            const select = makeSelect("Select Open Elective", OPEN_ELECTIVES);
+            select.addEventListener("change", () => {
+              tdCode.textContent = OPEN_ELECTIVE_CODE;
+            });
+            tdName.appendChild(select);
+
+          } else if (sub.name === "Foreign Language") {
+            const select = makeSelect("Select Language", Object.keys(FOREIGN_LANG));
+            select.addEventListener("change", () => {
+              tdCode.textContent = FOREIGN_LANG[select.value];
+            });
+            tdName.appendChild(select);
+
+          } else {
+            tdName.textContent = sub.name;
+          }
+
+          tr.appendChild(tdName);
+
+          // Assignment 1–3 and total
+          const tdA1 = document.createElement("td");
+          const tdA2 = document.createElement("td");
+          const tdA3 = document.createElement("td");
+          const tdTotal = document.createElement("td");
+
+          tdA1.textContent = sub.a1;
+          tdA2.textContent = sub.a2;
+          tdA3.textContent = sub.a3;
+
+          const total = sub.a1 + sub.a2 + sub.a3;
+          tdTotal.textContent = total;
+
+          tr.appendChild(tdA1);
+          tr.appendChild(tdA2);
+          tr.appendChild(tdA3);
+          tr.appendChild(tdTotal);
+
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error("Error loading assignments:", err);
+        const tbody = document.getElementById("marksTable");
+        if (tbody)
+          tbody.innerHTML = `<tr><td colspan="7" style="color:#b00020">Error loading data</td></tr>`;
+      }
+    });
+  </script>
+</body>
+</html>

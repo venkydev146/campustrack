@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify OTP</title>
+
+  <!-- Professional Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* 🌈 Overall Page */
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(135deg, #2b5876, #4e4376);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    /* 🧾 OTP Box */
+    .otp-box {
+      background: #fff;
+      padding: 40px 35px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      width: 380px;
+      gap: 18px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .otp-box h2 {
+      color: #2b5876;
+      font-weight: 600;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .otp-box p {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    /* 🔢 OTP Inputs */
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .otp-inputs input {
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
+      text-align: center;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .otp-inputs input:focus {
+      border-color: #4e4376;
+      box-shadow: 0 0 8px rgba(78, 67, 118, 0.3);
+    }
+
+    /* 🚀 Buttons */
+    button {
+      background: linear-gradient(90deg, #2b5876, #4e4376);
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #4e4376, #2b5876);
+      transform: scale(1.05);
+    }
+
+    /* 🔄 Resend OTP */
+    .resend {
+      font-size: 14px;
+      color: #444;
+      margin-top: 8px;
+    }
+
+    .resend a {
+      color: #2b5876;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .resend a:hover {
+      color: #4e4376;
+      text-decoration: underline;
+    }
+
+    /* 📱 Responsive */
+    @media (max-width: 450px) {
+      .otp-box {
+        width: 90%;
+        padding: 25px 20px;
+      }
+
+      .otp-inputs input {
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="otp-box">
+    <h2>OTP Verification</h2>
+    <p>Enter the 6-digit OTP sent to your registered email or phone.</p>
+
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+      <input type="text" maxlength="1" />
+    </div>
+
+    <button onclick="verifyOTP()">Verify OTP</button>
+
+    <p class="resend">Didn’t receive the OTP? <a href="#" onclick="resendOTP()">Resend OTP</a></p>
+  </div>
+
+  <script>
+    // Move to next field automatically
+    const inputs = document.querySelectorAll(".otp-inputs input");
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+    });
+
+    // Simulated OTP Verification
+    function verifyOTP() {
+      const otp = Array.from(inputs).map(i => i.value).join("");
+      if (otp.length === 6) {
+        alert("✅ OTP Verified Successfully!");
+        window.location.href = "resetPassword.html"; // navigate to next step
+      } else {
+        alert("⚠ Please enter a valid 6-digit OTP!");
+      }
+    }
+
+    // Simulated Resend
+    function resendOTP() {
+      alert("📨 New OTP sent successfully!");
+    }
+  </script>
+</body>
+</html>

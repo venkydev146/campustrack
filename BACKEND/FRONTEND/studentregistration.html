@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --accent1:#1d2671;
+      --accent2:#c33764;
+      --white:#fff;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Inter",sans-serif;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:40px 10px;
+    }
+
+    .container{
+      width:90%;
+      max-width:820px;
+      background:var(--white);
+      border-radius:18px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.18);
+      overflow:hidden;
+      text-align:center;
+      animation:fadeIn .5s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(-12px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    .header{
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color:var(--white);
+      padding:18px;
+      font-size:22px;
+      font-weight:600;
+    }
+
+    .profile-section{
+      margin-top:22px;
+      padding: 0 20px 10px;
+    }
+
+    .profile-pic{
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      object-fit:cover;
+      border:4px solid var(--accent2);
+      display:block;
+      margin:0 auto 10px;
+      background:#f2f2f2;
+    }
+
+    .upload-btn{
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color:#fff;
+      padding:8px 14px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    form{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:22px 34px 34px;
+      text-align:left;
+    }
+
+    input, select{
+      padding:12px;
+      border:1.5px solid #d0d0d0;
+      border-radius:10px;
+      font-size:15px;
+      outline:none;
+      width:100%;
+    }
+
+    input:focus, select:focus{
+      border-color:var(--accent2);
+      box-shadow:0 0 6px rgba(195,55,100,0.18);
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .col{
+      flex:1;
+    }
+
+    button[type="submit"]{
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color:#fff;
+      font-size:16px;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    button[type="submit"]:disabled{
+      opacity:0.7;
+      cursor:not-allowed;
+    }
+
+    .bottom-links{
+      text-align:center;
+      margin:18px 0 26px;
+      font-size:14px;
+      color:#333;
+    }
+
+    .bottom-links a{
+      color:var(--accent2);
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    .msg{
+      text-align:center;
+      margin-top:8px;
+      font-size:14px;
+      padding:8px 14px;
+      border-radius:8px;
+    }
+
+    .msg.success{ background: #e6ffef; color: #06623b; border:1px solid #bff0c9; }
+    .msg.error{ background: #ffecec; color: #8b1e1e; border:1px solid #f1c2c2; }
+
+    @media (max-width:600px){
+      .container{ padding-bottom:16px }
+      .header{ font-size:18px }
+      .profile-pic{ width:100px; height:100px }
+      form{ padding:18px 18px 28px }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <div class="header">Student Registration</div>
+
+    <div class="profile-section">
+      <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile preview" class="profile-pic">
+      <input type="file" id="photoInput" accept="image/*" style="display:none;">
+      <div style="text-align:center; margin-top:6px;">
+        <button type="button" class="upload-btn" id="uploadBtn">Upload Photo</button>
+      </div>
+    </div>
+
+    <form id="studentForm" autocomplete="off" novalidate>
+      <input type="text" id="name" placeholder="Student Name" required>
+      <input type="text" id="phone" placeholder="Phone Number" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <div class="row">
+        <div class="col">
+          <input type="text" id="father" placeholder="Father Name" required>
+        </div>
+        <div class="col">
+          <input type="text" id="mother" placeholder="Mother Name" required>
+        </div>
+      </div>
+      <input type="text" id="parentsPhone" placeholder="Parents Phone Number" required>
+      <div class="row">
+        <div class="col">
+          <input type="text" id="regNo" placeholder="Register Number" required>
+        </div>
+        <div class="col">
+          <input type="password" id="regPass" placeholder="Register Password" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <select id="department" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="B.Tech">B.Tech</option>
+            <option value="Bio-Tech">Bio-Tech</option>
+            <option value="Degree">Degree</option>
+          </select>
+        </div>
+        <div class="col">
+          <select id="branch" required>
+            <option value="" disabled selected>Select Branch</option>
+            <option value="CSE AI">CSE AI</option>
+            <option value="CSE">CSE</option>
+            <option value="Data Science AI">Data Science AI</option>
+            <option value="MECH">Mechanical</option>
+            <option value="CIVIL">Civil</option>
+            <option value="ECE">ECE</option>
+            <option value="IT">IT</option>
+          </select>
+        </div>
+      </div>
+
+      <select id="section" required>
+        <option value="" disabled selected>Select Section</option>
+        <option value="BA">BA</option>
+        <option value="BB">BB</option>
+        <option value="BC">BC</option>
+        <option value="BD">BD</option>
+        <option value="BE">BE</option>
+        <option value="BF">BF</option>
+         <option value="BF">BG</option>
+          <option value="BF">BH</option>
+      </select>
+      <select name="" id="" required>
+         <option value="">Slot</option>
+        <option value="">A</option>
+         <option value="">B</option>
+      </select>
+
+      <button type="submit" id="submitBtn">Sign In</button>
+
+      <div id="messageArea" aria-live="polite"></div>
+    </form>
+
+    <div class="bottom-links">
+      Already have an account? <a href="studentLogin.html">Login</a>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const photoInput = document.getElementById('photoInput');
+      const profilePic = document.getElementById('profilePic');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const form = document.getElementById('studentForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const msgArea = document.getElementById('messageArea');
+      let uploadedPhoto = '';
+
+      uploadBtn.addEventListener('click', () => photoInput.click());
+
+      photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt){
+          profilePic.src = evt.target.result;
+          uploadedPhoto = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      function showMessage(text, type='success'){
+        msgArea.innerHTML = '';
+        const div = document.createElement('div');
+        div.className = 'msg ' + (type === 'error' ? 'error' : 'success');
+        div.textContent = text;
+        msgArea.appendChild(div);
+        setTimeout(() => {
+          if (msgArea.contains(div)) msgArea.removeChild(div);
+        }, 6000);
+      }
+
+      function resetForm(){
+        form.reset();
+        const selects = form.querySelectorAll('select');
+        selects.forEach(s => s.selectedIndex = 0);
+        profilePic.src = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+        uploadedPhoto = '';
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const requiredIds = ['name','phone','email','father','mother','parentsPhone','regNo','regPass','department','branch','section'];
+        for (const id of requiredIds){
+          const el = document.getElementById(id);
+          if (!el || !el.value.trim()){
+            showMessage('Please fill all required fields.', 'error');
+            el && el.focus();
+            return;
+          }
+        }
+
+        const payload = {
+          name: document.getElementById('name').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          father: document.getElementById('father').value.trim(),
+          mother: document.getElementById('mother').value.trim(),
+          parentsPhone: document.getElementById('parentsPhone').value.trim(),
+          registerNumber: document.getElementById('regNo').value.trim(),
+          registerPassword: document.getElementById('regPass').value,
+          department: document.getElementById('department').value,
+          branch: document.getElementById('branch').value,
+          section: document.getElementById('section').value,
+          photo: uploadedPhoto || profilePic.src
+        };
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registering...';
+
+        try {
+          const res = await fetch("http://localhost:3000/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await res.json();
+
+          if (!res.ok) {
+            const errMsg = result.error || result.message || 'Registration failed';
+            showMessage(errMsg, 'error');
+          } else {
+            showMessage(result.message || 'Registration successful!', 'success');
+
+            // ✅ Save student data to localStorage (excluding password)
+            const studentToStore = {
+              name: payload.name,
+              phone: payload.phone,
+              email: payload.email,
+              registerNumber: payload.registerNumber,
+              department: payload.department,
+              branch: payload.branch,
+              section: payload.section,
+              photo: payload.photo
+            };
+            localStorage.setItem("studentData", JSON.stringify(studentToStore));
+
+            // ✅ Redirect to Dashboard
+            setTimeout(() => {
+              window.location.href = "StudentDashboard.html";
+            }, 1000);
+          }
+        } catch (err) {
+          console.error('Registration error:', err);
+          showMessage('Failed to connect to server. Make sure backend is running.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

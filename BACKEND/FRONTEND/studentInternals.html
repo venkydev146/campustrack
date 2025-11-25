@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Dashboard</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f7f9fc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      color: #2f80ed;
+      margin-bottom: 40px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .btn-container {
+      display: flex;
+      flex-direction: column; /* ✅ vertical arrangement */
+      gap: 20px; /* spacing between buttons */
+      align-items: center;
+    }
+
+    button {
+      background: linear-gradient(90deg, #2575fc, #6a11cb);
+      border: none;
+      color: white;
+      font-size: 16px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 220px; /* ✅ fixed width for uniform look */
+      font-weight: 600;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Student Dashboard</h1>
+
+  <div class="btn-container">
+    <button onclick="navigateTo('studentCat1.html')">CAT 1</button>
+    <button onclick="navigateTo('studentCat2.html')">CAT 2</button>
+    <button onclick="navigateTo('studentCat3.html')">CAT 3</button>
+    <button onclick="navigateTo('studentAssignment.html')">Assignment</button>
+    <button onclick="navigateTo('studentSeminar.html')">Seminar</button>
+  </div>
+
+  <script>
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staff Login</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+
+    #staffLoginForm {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      width: 380px;
+      gap: 15px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: #2575fc;
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    input {
+      padding: 12px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    button {
+      background: linear-gradient(90deg, #2575fc, #6a11cb);
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+    }
+
+    .bottom-text {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .bottom-text a {
+      color: #2575fc;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .bottom-text a:hover {
+      color: #6a11cb;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="staffLoginForm">
+    <h2>Staff Login</h2>
+    <p>Enter your registered phone number to receive OTP.</p>
+    <input type="text" id="phone" placeholder="Phone Number (+91...)" required />
+    <button type="submit">Send OTP</button>
+
+    <p class="bottom-text">
+      New user? <a href="staffRegister.html">Register here</a>
+    </p>
+  </form>
+
+  <script>
+  document.getElementById("staffLoginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!phone) {
+      alert("⚠ Please enter your phone number");
+      return;
+    }
+
+    try {
+      // 🔥 FIXED — Using relative URL (no localhost)
+ const res = await fetch("http://localhost:4000/send-staff-login-otp", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ phone })
+});
+
+      const result = await res.json();
+      alert(result.message || result.error);
+
+      if (res.ok) {
+        localStorage.setItem("staffPhone", phone);
+        window.location.href = "verifyStaffLoginOtp.html";
+      }
+    } catch (err) {
+      console.error("❌ Error sending OTP:", err);
+      alert("Failed to connect to server. Please try again later.");
+    }
+  });
+</script>
+</body>
+</html>

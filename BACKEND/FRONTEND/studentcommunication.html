@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communication - CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent1: #1d2671;
+      --accent2: #c33764;
+      --white: #ffffff;
+      --text-dark: #1a1a1a;
+      --shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-dark);
+    }
+
+    .container {
+      background: var(--white);
+      width: 90%;
+      max-width: 650px;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--accent1);
+      font-size: 15px;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-family: "Inter", sans-serif;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent2);
+      box-shadow: 0 0 6px rgba(195, 55, 100, 0.25);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 130px;
+      line-height: 1.5;
+    }
+
+    button {
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      color: var(--white);
+      font-weight: 600;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 14px rgba(29, 38, 113, 0.25);
+      letter-spacing: 0.3px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(29, 38, 113, 0.35);
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(29, 38, 113, 0.25);
+    }
+
+    .msg {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .msg.success {
+      background: #e6ffef;
+      color: #06623b;
+      border: 1px solid #bff0c9;
+    }
+
+    .msg.error {
+      background: #ffecec;
+      color: #8b1e1e;
+      border: 1px solid #f1c2c2;
+    }
+
+    footer {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 28px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Communication</h1>
+
+    <form id="feedbackForm">
+      <div>
+        <label for="staffName">Staff Name</label>
+        <input type="text" id="staffName" placeholder="Enter staff name" required>
+      </div>
+
+      <div>
+        <label for="staffEmail">Staff Email</label>
+        <input type="email" id="staffEmail" placeholder="Enter staff email" required>
+      </div>
+
+      <div>
+        <label for="feedback">Your Feedback</label>
+        <textarea id="feedback" placeholder="Write your feedback to the teacher..." required></textarea>
+      </div>
+
+      <button type="submit">Send Feedback</button>
+
+      <div id="messageArea"></div>
+    </form>
+
+    <footer>
+      CampusTrack © 2025
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('feedbackForm');
+    const messageArea = document.getElementById('messageArea');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('staffName').value.trim();
+      const email = document.getElementById('staffEmail').value.trim();
+      const feedback = document.getElementById('feedback').value.trim();
+
+      if (!name || !email || !feedback) {
+        showMessage('Please fill in all fields.', 'error');
+        return;
+      }
+
+      // Simulated send process (you can connect to backend later)
+      showMessage('Feedback sent successfully!', 'success');
+      form.reset();
+    });
+
+    function showMessage(text, type = 'success') {
+      messageArea.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'msg ' + (type === 'error' ? 'error' : 'success');
+      div.textContent = text;
+      messageArea.appendChild(div);
+      setTimeout(() => {
+        if (messageArea.contains(div)) messageArea.removeChild(div);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
