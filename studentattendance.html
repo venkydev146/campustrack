@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusTrack — Attendance</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* ════════════════════════════════════════════
+       DESIGN TOKENS — matches CampusTrack system
+    ════════════════════════════════════════════ */
+    :root {
+      --navy:       #0f1f3d;
+      --indigo:     #2d4a8a;
+      --blue:       #3b66c4;
+      --sky:        #5b8ef0;
+      --accent:     #e8a020;
+      --white:      #ffffff;
+      --off-white:  #f7f8fc;
+      --surface:    #ffffff;
+      --border:     #dde3f0;
+      --border-hi:  #c2cfea;
+      --text-dark:  #0f1f3d;
+      --text-mid:   #3a4a6b;
+      --text-soft:  #7a89a8;
+      --text-xs:    #b0bbd4;
+      --teal:       #00b69b;
+      --teal-dk:    #009982;
+      --teal-lt:    #e6faf7;
+      --violet:     #6d4af5;
+      --rose:       #f0284a;
+      --rose-lt:    #fff0f3;
+
+      --r-sm:       8px;
+      --r-md:       14px;
+      --r-lg:       20px;
+      --r-xl:       26px;
+
+      --sh-sm:      0 2px 10px rgba(15,31,61,0.07), 0 1px 3px rgba(15,31,61,0.05);
+      --sh-md:      0 6px 28px rgba(15,31,61,0.10), 0 2px 8px rgba(15,31,61,0.06);
+      --sh-card:    0 8px 40px rgba(15,31,61,0.13), 0 2px 8px rgba(15,31,61,0.07);
+      --sh-blue:    0 8px 28px rgba(59,102,196,0.30), 0 2px 8px rgba(59,102,196,0.14);
+      --sh-teal:    0 8px 28px rgba(0,182,155,0.28), 0 2px 8px rgba(0,182,155,0.13);
+
+      --t:          0.24s cubic-bezier(0.4, 0, 0.2, 1);
+      --t-spring:   0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ── Reset ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 16px 52px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Page background ─────────────────────────── */
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 55% at 10% 2%,   rgba(59,102,196,0.11) 0%, transparent 58%),
+        radial-gradient(ellipse 55% 45% at 92% 98%,  rgba(232,160,32,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 38% at 80% 12%,  rgba(109,74,245,0.06) 0%, transparent 50%),
+        linear-gradient(158deg, #eef1f9 0%, #f7f8fc 52%, #fdf7ef 100%);
+      z-index: -2;
+    }
+
+    /* Animated blobs */
+    .blob {
+      position: fixed; border-radius: 50%; z-index: -1; pointer-events: none;
+      animation: blobDrift var(--dur, 16s) ease-in-out infinite alternate;
+    }
+    .blob-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(59,102,196,0.07), transparent 70%);
+      top: -140px; left: -120px; --dur: 15s;
+    }
+    .blob-2 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(232,160,32,0.07), transparent 70%);
+      bottom: -90px; right: -90px; --dur: 19s;
+    }
+    .blob-3 {
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(109,74,245,0.06), transparent 70%);
+      top: 45%; left: 62%; --dur: 23s;
+    }
+    @keyframes blobDrift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(38px,28px) scale(1.09); }
+    }
+
+    /* ── Back button ─────────────────────────────── */
+    .back-btn {
+      position: fixed; top: 20px; left: 22px;
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: var(--r-sm);
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--text-mid); font-size: 13px; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      box-shadow: var(--sh-sm); z-index: 50;
+      transition: all var(--t);
+      animation: fadeDown 0.5s 0.05s both;
+    }
+    .back-btn:hover {
+      border-color: var(--blue); color: var(--blue);
+      background: rgba(59,102,196,0.04);
+      transform: translateX(-3px); box-shadow: var(--sh-md);
+    }
+    .back-btn svg { width: 14px; height: 14px; }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════════════════════════════════════════════
+       PAGE WRAPPER
+    ════════════════════════════════════════════ */
+    .page-wrapper { width: 100%; max-width: 560px; }
+
+    /* ── Card Header ─────────────────────────────── */
+    .card-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 60%, var(--blue) 100%);
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 38px 40px 34px;
+      position: relative; overflow: hidden;
+      animation: slideUp 0.5s 0.10s both;
+    }
+    /* Decorative rings */
+    .card-header::before {
+      content: ''; position: absolute;
+      width: 310px; height: 310px; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -88px; right: -68px; pointer-events: none;
+    }
+    .card-header::after {
+      content: ''; position: absolute;
+      width: 170px; height: 170px; border-radius: 50%;
+      background: rgba(232,160,32,0.09);
+      bottom: -58px; left: 18px; pointer-events: none;
+    }
+    /* Dot-grid texture */
+    .ch-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    /* Badge */
+    .ch-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(232,160,32,0.18); border: 1px solid rgba(232,160,32,0.34);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 5px 13px; border-radius: 40px;
+      margin-bottom: 16px; position: relative; z-index: 1;
+    }
+    .ch-badge svg { width: 11px; height: 11px; fill: var(--accent); }
+    /* Title */
+    .card-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(22px, 4.5vw, 30px); font-weight: 800;
+      color: var(--white); line-height: 1.18; letter-spacing: -0.02em;
+      position: relative; z-index: 1;
+    }
+    .card-header h1 em { font-style: italic; color: rgba(255,255,255,0.54); font-weight: 500; }
+    .card-header p {
+      margin-top: 8px; font-size: 13.5px;
+      color: rgba(255,255,255,0.48); line-height: 1.5;
+      position: relative; z-index: 1;
+    }
+    /* Top-right icon */
+    .ch-icon {
+      position: absolute; top: 34px; right: 38px; z-index: 1;
+      width: 46px; height: 46px; border-radius: 14px;
+      background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.14);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ch-icon svg { width: 22px; height: 22px; color: rgba(255,255,255,0.68); }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Card Body ───────────────────────────────── */
+    .card-body {
+      background: var(--surface);
+      border-radius: 0 0 var(--r-xl) var(--r-xl);
+      box-shadow: var(--sh-card);
+      padding: 30px 36px 36px;
+      animation: slideUp 0.5s 0.18s both;
+    }
+
+    /* ── Quick stat pills ─────────────────────────── */
+    .stat-strip {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
+    .stat-pill {
+      flex: 1; min-width: 88px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 13px 14px;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+    .stat-pill:hover { border-color: var(--border-hi); box-shadow: var(--sh-sm); }
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px; font-weight: 800; color: var(--text-dark);
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .stat-val.good { color: var(--teal); }
+    .stat-val.warn { color: var(--accent); }
+    .stat-val.bad  { color: var(--rose); }
+    .stat-val.info { color: var(--blue); }
+    .stat-lbl {
+      font-size: 10.5px; font-weight: 700; color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    /* ── Section divider ─────────────────────────── */
+    .divider {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider span {
+      font-size: 10.5px; font-weight: 700; color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.10em; white-space: nowrap;
+    }
+
+    /* ════════════════════════════════════════════
+       OPTION CARDS
+    ════════════════════════════════════════════ */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .option-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      border-radius: var(--r-lg); overflow: hidden;
+      cursor: pointer; border: none; background: none;
+      text-align: left; font-family: 'DM Sans', sans-serif;
+      outline: none; padding: 0;
+      transition: transform var(--t), box-shadow var(--t);
+      animation: cardPop var(--t-spring) both;
+    }
+    .option-card:nth-child(1) { animation-delay: 0.24s; }
+    .option-card:nth-child(2) { animation-delay: 0.32s; }
+    @keyframes cardPop {
+      from { opacity: 0; transform: scale(0.91) translateY(14px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .option-card:hover { transform: translateY(-6px) scale(1.02); }
+    .option-card:active { transform: translateY(-2px) scale(0.985); transition-duration: 0.10s; }
+
+    /* Background layer */
+    .oc-bg   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    /* Dot texture */
+    .oc-dots {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.085) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+    /* Shine on hover */
+    .oc-shine {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 58%);
+      opacity: 0; transition: opacity var(--t);
+    }
+    .option-card:hover .oc-shine { opacity: 1; }
+    /* Glow ring on hover */
+    .oc-ring {
+      position: absolute; inset: -1px; z-index: 3; pointer-events: none;
+      border-radius: var(--r-lg); border: 1.5px solid rgba(255,255,255,0.18);
+      opacity: 0; transition: opacity var(--t);
+    }
+    .option-card:hover .oc-ring { opacity: 1; }
+
+    /* Content */
+    .oc-content {
+      position: relative; z-index: 4;
+      padding: 26px 22px 22px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    /* Icon */
+    .oc-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.24);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      transition: transform var(--t), background var(--t);
+      flex-shrink: 0;
+    }
+    .option-card:hover .oc-icon { transform: scale(1.10) rotate(-5deg); background: rgba(255,255,255,0.28); }
+    .oc-icon svg { width: 23px; height: 23px; color: #fff; }
+
+    /* Text */
+    .oc-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17.5px; font-weight: 800; color: #fff;
+      letter-spacing: -0.01em; line-height: 1.2;
+    }
+    .oc-desc {
+      font-size: 12.5px; color: rgba(255,255,255,0.65);
+      line-height: 1.55; margin-top: 3px;
+    }
+
+    /* CTA chip */
+    .oc-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 40px;
+      font-size: 12px; font-weight: 700; color: #fff;
+      width: fit-content;
+      transition: background var(--t), padding-right var(--t);
+    }
+    .oc-cta svg { width: 11px; height: 11px; transition: transform var(--t); }
+    .option-card:hover .oc-cta { background: rgba(255,255,255,0.26); padding-right: 18px; }
+    .option-card:hover .oc-cta svg { transform: translateX(4px); }
+
+    /* Monthly — indigo/blue */
+    .oc-monthly .oc-bg {
+      background: linear-gradient(140deg, #1e3575 0%, #2d4a8a 45%, #3b66c4 80%, #5b8ef0 100%);
+    }
+    .oc-monthly { box-shadow: var(--sh-blue); }
+    .oc-monthly:hover { box-shadow: 0 20px 52px rgba(59,102,196,0.38), 0 4px 12px rgba(59,102,196,0.18); }
+
+    /* Overall — teal/emerald */
+    .oc-overall .oc-bg {
+      background: linear-gradient(140deg, #075e52 0%, #009982 45%, #00b69b 80%, #2dd4bf 100%);
+    }
+    .oc-overall { box-shadow: var(--sh-teal); }
+    .oc-overall:hover { box-shadow: 0 20px 52px rgba(0,182,155,0.36), 0 4px 12px rgba(0,182,155,0.18); }
+
+    /* Ripple */
+    .oc-ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      transform: scale(0); pointer-events: none; z-index: 10;
+      animation: ripple 0.58s linear;
+    }
+    @keyframes ripple { to { transform: scale(4.5); opacity: 0; } }
+
+    /* ── Info banner ──────────────────────────────── */
+    .info-banner {
+      margin-top: 22px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(59,102,196,0.07), rgba(109,74,245,0.05));
+      border: 1.5px solid rgba(59,102,196,0.13);
+      border-radius: var(--r-md);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .ib-icon {
+      width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+      background: rgba(59,102,196,0.11);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .ib-icon svg { width: 16px; height: 16px; color: var(--blue); }
+    .ib-text strong { font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; }
+    .ib-text span { font-size: 12px; color: var(--text-soft); margin-top: 2px; display: block; line-height: 1.5; }
+
+    /* ── Footer ───────────────────────────────────── */
+    .page-footer {
+      margin-top: 26px; text-align: center;
+      animation: slideUp 0.5s 0.40s both;
+    }
+    .page-footer p { font-size: 12.5px; color: var(--text-soft); }
+    .page-footer a { color: var(--blue); font-weight: 600; text-decoration: none; }
+    .page-footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ───────────────────────────────── */
+    @media (max-width: 540px) {
+      .card-header { padding: 28px 22px 24px; }
+      .card-body   { padding: 22px 18px 26px; }
+      .ch-icon     { display: none; }
+      .options-grid { grid-template-columns: 1fr; gap: 14px; }
+      .back-btn { top: 14px; left: 14px; font-size: 12px; padding: 7px 12px; }
+    }
+    @media (max-width: 360px) {
+      .stat-pill { min-width: 70px; padding: 11px 10px; }
+      .stat-val  { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="blob blob-1" aria-hidden="true"></div>
+<div class="blob blob-2" aria-hidden="true"></div>
+<div class="blob blob-3" aria-hidden="true"></div>
+
+<!-- Back nav -->
+<a href="studentdashboard.html" class="back-btn" aria-label="Return to Dashboard">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+  Dashboard
+</a>
+
+<!-- ─────────────────────────────────────────
+     MAIN CONTENT
+───────────────────────────────────────── -->
+<div class="page-wrapper" role="main">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="ch-dots" aria-hidden="true"></div>
+
+    <div class="ch-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+
+    <div class="ch-badge">
+      <svg viewBox="0 0 20 20"><path d="M10 2L3 5v5c0 4.418 3.134 8.56 7 9.95C13.866 18.56 17 14.418 17 10V5l-7-3z"/></svg>
+      Academic Portal
+    </div>
+
+    <h1>Attendance<br><em>Track your presence</em></h1>
+    <p>Select a view to explore your attendance — monthly breakdown or semester summary.</p>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+
+    <!-- Stat pills (populated from localStorage) -->
+    <div class="stat-strip" aria-label="Attendance summary">
+      <div class="stat-pill">
+        <span class="stat-val good" id="statPct">75%</span>
+        <span class="stat-lbl">Overall</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-val info" id="statPresent">66</span>
+        <span class="stat-lbl">Present</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-val warn" id="statAbsent">22</span>
+        <span class="stat-lbl">Absent</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-val" id="statTotal">88</span>
+        <span class="stat-lbl">Total</span>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider" aria-hidden="true"><span>Choose View</span></div>
+
+    <!-- Option cards -->
+    <div class="options-grid" role="group" aria-label="Attendance view options">
+
+      <!-- Monthly -->
+      <button
+        class="option-card oc-monthly"
+        onclick="goTo('studentattendance_monthly.html', this, event)"
+        aria-label="View Monthly Attendance"
+      >
+        <div class="oc-bg" aria-hidden="true"></div>
+        <div class="oc-dots" aria-hidden="true"></div>
+        <div class="oc-shine" aria-hidden="true"></div>
+        <div class="oc-ring" aria-hidden="true"></div>
+        <div class="oc-content">
+          <div class="oc-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <rect x="7" y="14" width="3" height="3" rx="0.5"/>
+              <rect x="14" y="14" width="3" height="3" rx="0.5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="oc-title">Monthly</div>
+            <div class="oc-desc">Browse day-by-day attendance for any month this semester.</div>
+          </div>
+          <div class="oc-cta">
+            View details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      <!-- Overall -->
+      <button
+        class="option-card oc-overall"
+        onclick="goTo('studentattendance_overall.html', this, event)"
+        aria-label="View Overall Attendance"
+      >
+        <div class="oc-bg" aria-hidden="true"></div>
+        <div class="oc-dots" aria-hidden="true"></div>
+        <div class="oc-shine" aria-hidden="true"></div>
+        <div class="oc-ring" aria-hidden="true"></div>
+        <div class="oc-content">
+          <div class="oc-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6"  y1="20" x2="6"  y2="14"/>
+              <line x1="2"  y1="20" x2="22" y2="20"/>
+            </svg>
+          </div>
+          <div>
+            <div class="oc-title">Overall</div>
+            <div class="oc-desc">Full semester summary with subject-wise performance metrics.</div>
+          </div>
+          <div class="oc-cta">
+            View details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+
+    </div>
+
+    <!-- Info banner -->
+    <div class="info-banner">
+      <div class="ib-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8"  x2="12"   y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="ib-text">
+        <strong>Minimum 75% attendance required</strong>
+        <span>Students below the threshold may be detained from semester examinations. Speak with your faculty advisor for guidance.</span>
+      </div>
+    </div>
+
+  </div><!-- /.card-body -->
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <p>Last synced: <span id="syncTime">—</span> &nbsp;·&nbsp; <a href="studentdashboard.html">← Back to Dashboard</a></p>
+  </div>
+
+</div><!-- /.page-wrapper -->
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Auth guard ─────────────────────────────── */
+(function() {
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.replace('studentlogin.html');
+  }
+})();
+
+/* ── Load stats from localStorage ─────────────── */
+(function() {
+  try {
+    const raw = localStorage.getItem('studentData');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const a = d.attend || d.attendance || {};
+
+    const pct     = a.percentage ?? d.attendancePercentage ?? null;
+    const present = a.present    ?? d.classesPresent       ?? null;
+    const absent  = a.absent     ?? d.classesAbsent        ?? null;
+    const total   = a.total      ?? d.totalClasses         ?? null;
+
+    if (pct     !== null) set('statPct',     pct + '%');
+    if (present !== null) set('statPresent', present);
+    if (absent  !== null) set('statAbsent',  absent);
+    if (total   !== null) set('statTotal',   total);
+
+    // Dynamic color for overall %
+    if (pct !== null) {
+      const el = document.getElementById('statPct');
+      if (el) el.className = 'stat-val ' + (pct >= 85 ? 'good' : pct >= 75 ? 'warn' : 'bad');
+    }
+  } catch (_) {}
+
+  // Sync timestamp
+  const now = new Date();
+  set('syncTime', now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+})();
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+/* ── Navigate with ripple feedback ─────────────── */
+function goTo(url, btn, evt) {
+  // Spawn ripple at click position
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x    = (evt ? evt.clientX - rect.left : rect.width  / 2) - size / 2;
+  const y    = (evt ? evt.clientY - rect.top  : rect.height / 2) - size / 2;
+  const rpl  = document.createElement('span');
+  rpl.className = 'oc-ripple';
+  rpl.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+  btn.appendChild(rpl);
+  setTimeout(() => rpl.remove(), 620);
+
+  // Brief feedback delay → navigate
+  setTimeout(() => { window.location.href = url; }, 200);
+}
+
+/* ── Keyboard focus ring ────────────────────────── */
+document.addEventListener('keydown',   () => document.body.classList.add('kb'));
+document.addEventListener('mousedown', () => document.body.classList.remove('kb'));
+</script>
+
+<style>
+  body:not(.kb) *:focus { outline: none; }
+  body.kb *:focus-visible {
+    outline: 2.5px solid var(--blue);
+    outline-offset: 3px;
+    border-radius: var(--r-md);
+  }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assignment Marks — CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════
+       DESIGN TOKENS — CampusTrack System
+    ═══════════════════════════════════════════════ */
+    :root {
+      --navy:       #0f1f3d;
+      --indigo:     #2d4a8a;
+      --blue:       #3b66c4;
+      --blue-lt:    #eef1fd;
+      --blue-dk:    #1e3575;
+      --violet:     #6d4af5;
+      --violet-lt:  #f0ecff;
+      --accent:     #e8a020;
+      --accent-lt:  #fdf3e0;
+      --white:      #ffffff;
+      --off-white:  #f6f8fd;
+      --surface:    #ffffff;
+      --surface2:   #f8faff;
+      --border:     #dde3f0;
+      --border-hi:  #c2cfea;
+      --text-dark:  #0f1f3d;
+      --text-mid:   #3a4a6b;
+      --text-soft:  #7a89a8;
+      --text-xs:    #b0bbd4;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --green-bd:   #bbf7d0;
+      --amber:      #d97706;
+      --amber-bg:   #fffbeb;
+      --amber-bd:   #fde68a;
+      --red:        #dc2626;
+      --red-bg:     #fff1f2;
+      --red-bd:     #fecdd3;
+      --teal:       #00b69b;
+      --teal-lt:    #e6faf7;
+      --r-sm:       8px;
+      --r-md:       14px;
+      --r-lg:       20px;
+      --r-xl:       26px;
+      --sh-xs:      0 1px 4px rgba(15,31,61,0.06);
+      --sh-sm:      0 2px 10px rgba(15,31,61,0.07), 0 1px 3px rgba(15,31,61,0.04);
+      --sh-md:      0 6px 28px rgba(15,31,61,0.10), 0 2px 8px rgba(15,31,61,0.05);
+      --sh-card:    0 8px 40px rgba(15,31,61,0.11), 0 2px 8px rgba(15,31,61,0.06);
+      --t:          0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Reset ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--text-mid);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ── Ambient background ─────────────────────── */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 5%  0%,  rgba(59,102,196,0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 52% 42% at 96% 100%, rgba(232,160,32,0.07) 0%, transparent 52%),
+        radial-gradient(ellipse 50% 36% at 80% 6%,  rgba(109,74,245,0.05) 0%, transparent 48%),
+        linear-gradient(158deg, #eef1f9 0%, #f6f8fd 52%, #fdf8f2 100%);
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ═══════════════════════════════════════════════
+       TOPBAR
+    ═══════════════════════════════════════════════ */
+    .topbar {
+      height: 62px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--sh-xs);
+      display: flex; align-items: center;
+      padding: 0 28px; gap: 14px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .tb-back {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: var(--r-sm);
+      background: var(--surface2); border: 1.5px solid var(--border);
+      color: var(--text-soft); font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all var(--t); flex-shrink: 0;
+    }
+    .tb-back:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .tb-back svg { width: 13px; height: 13px; }
+    .tb-crumbs {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--text-soft);
+    }
+    .tb-crumbs .sep { color: var(--text-xs); }
+    .tb-crumbs .active { color: var(--text-dark); font-weight: 600; }
+    .tb-spacer { flex: 1; }
+    .tb-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--indigo), var(--violet));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; color: #fff;
+      border: 2px solid var(--border); cursor: pointer; transition: border-color var(--t);
+      flex-shrink: 0;
+    }
+    .tb-avatar:hover { border-color: var(--indigo); }
+
+    /* ═══════════════════════════════════════════════
+       PAGE
+    ═══════════════════════════════════════════════ */
+    .page {
+      max-width: 1060px; margin: 0 auto;
+      padding: 28px 20px 0;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Page heading ───────────────────────────── */
+    .page-heading {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 0.46s 0.06s both;
+    }
+    .ph-left {}
+    .ph-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.10em;
+      margin-bottom: 6px;
+    }
+    .ph-eyebrow svg { width: 12px; height: 12px; }
+    .ph-left h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .ph-left p { font-size: 13.5px; color: var(--text-soft); margin-top: 4px; }
+    .ph-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    .btn-ghost {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: var(--r-sm);
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--text-mid); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all var(--t); font-family: inherit;
+    }
+    .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .btn-ghost svg { width: 14px; height: 14px; }
+
+    .btn-primary {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: var(--r-sm);
+      background: linear-gradient(135deg, var(--indigo), var(--blue));
+      border: none; color: #fff; font-size: 13px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(59,102,196,0.30);
+      transition: all var(--t); font-family: inherit;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,102,196,0.40); }
+    .btn-primary svg { width: 14px; height: 14px; }
+
+    /* ═══════════════════════════════════════════════
+       STAT STRIP
+    ═══════════════════════════════════════════════ */
+    .stat-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      animation: fadeUp 0.46s 0.12s both;
+    }
+    .stat-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r-lg); padding: 16px 18px;
+      box-shadow: var(--sh-xs);
+      display: flex; align-items: center; gap: 12px;
+      transition: box-shadow var(--t), border-color var(--t);
+    }
+    .stat-box:hover { box-shadow: var(--sh-sm); border-color: var(--border-hi); }
+    .stat-box-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .stat-box-icon svg { width: 18px; height: 18px; }
+    .sbi-blue   { background: var(--blue-lt);   color: var(--blue);   }
+    .sbi-green  { background: var(--green-bg);  color: var(--green);  }
+    .sbi-amber  { background: var(--amber-bg);  color: var(--amber);  }
+    .sbi-violet { background: var(--violet-lt); color: var(--violet); }
+    .sbi-teal   { background: var(--teal-lt);   color: var(--teal);   }
+    .stat-box-val {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px; font-weight: 500;
+      color: var(--text-dark); letter-spacing: -0.01em; line-height: 1;
+      font-variant-numeric: tabular-nums;
+      display: flex; align-items: baseline; gap: 1px;
+    }
+    .stat-box-val.green { color: var(--green); }
+    .stat-box-val.amber { color: var(--amber); }
+    .stat-box-val.blue  { color: var(--blue);  }
+    .stat-box-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-soft); margin-top: 3px; }
+
+    /* ═══════════════════════════════════════════════
+       MAIN TABLE CARD
+    ═══════════════════════════════════════════════ */
+    .table-card {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--sh-card);
+      overflow: hidden;
+      animation: fadeUp 0.46s 0.18s both;
+    }
+
+    /* Card top header — navy gradient */
+    .tc-head {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 60%, var(--blue) 100%);
+      padding: 20px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; position: relative; overflow: hidden;
+    }
+    .tc-head::before {
+      content: ''; position: absolute;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -80px; right: -60px; pointer-events: none;
+    }
+    .tc-head-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.065) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .tc-head-left { position: relative; z-index: 1; }
+    .tc-head-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.01em;
+    }
+    .tc-head-sub { font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 2px; }
+    .tc-head-right { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; }
+    .tc-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 13px; border-radius: 40px;
+      font-size: 11.5px; font-weight: 700;
+      background: rgba(232,160,32,0.18); border: 1px solid rgba(232,160,32,0.30);
+      color: var(--accent);
+    }
+    .tc-tag svg { width: 11px; height: 11px; }
+
+    /* Table scroll */
+    .table-scroll { overflow-x: auto; }
+    .table-scroll::-webkit-scrollbar { height: 5px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ── Assignment table ───────────────────────── */
+    .assign-table {
+      width: 100%; border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    /* Column header */
+    .assign-table thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--border);
+    }
+    .assign-table thead th {
+      padding: 12px 18px;
+      font-size: 10.5px; font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      text-align: left; white-space: nowrap;
+    }
+    .assign-table thead th.th-center { text-align: center; }
+    .assign-table thead th.th-right  { text-align: right;  }
+
+    /* Rows */
+    .assign-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--t), transform var(--t);
+      animation: rowIn 0.38s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    .assign-table tbody tr:last-child { border-bottom: none; }
+    .assign-table tbody tr:nth-child(even) { background: rgba(246,248,253,0.70); }
+    .assign-table tbody tr:hover {
+      background: var(--blue-lt) !important;
+      transform: translateX(2px);
+    }
+    /* elective rows — subtle tint */
+    .assign-table tbody tr.elective-row { background: rgba(248,250,255,0.90); }
+    .assign-table tbody tr.elective-row:hover { background: var(--blue-lt) !important; }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .assign-table tbody tr:nth-child(1) { animation-delay: 0.10s; }
+    .assign-table tbody tr:nth-child(2) { animation-delay: 0.14s; }
+    .assign-table tbody tr:nth-child(3) { animation-delay: 0.18s; }
+    .assign-table tbody tr:nth-child(4) { animation-delay: 0.22s; }
+    .assign-table tbody tr:nth-child(5) { animation-delay: 0.26s; }
+    .assign-table tbody tr:nth-child(6) { animation-delay: 0.30s; }
+    .assign-table tbody tr:nth-child(7) { animation-delay: 0.34s; }
+
+    .assign-table tbody td {
+      padding: 14px 18px;
+      font-size: 13.5px; color: var(--text-mid);
+      vertical-align: middle;
+    }
+
+    /* Row index */
+    .td-idx {
+      font-size: 12px; font-weight: 600; color: var(--text-xs);
+      text-align: center; min-width: 36px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Subject code pill */
+    .code-pill {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--blue-lt); border: 1px solid rgba(59,102,196,0.16);
+      font-size: 11.5px; font-weight: 600; color: var(--indigo);
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap; letter-spacing: 0.02em;
+      transition: all var(--t);
+    }
+    .code-pill.elective {
+      background: var(--violet-lt); border-color: rgba(109,74,245,0.18);
+      color: var(--violet);
+    }
+
+    /* Semester cell */
+    .sem-cell {
+      font-size: 12.5px; color: var(--text-soft); font-weight: 500;
+      white-space: nowrap;
+    }
+    .sem-num {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--text-dark);
+      display: block; line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .sem-label { font-size: 11px; color: var(--text-xs); margin-top: 1px; }
+
+    /* Subject name cell */
+    .subj-name {
+      font-size: 13.5px; font-weight: 600; color: var(--text-dark);
+    }
+    .subj-type { font-size: 11px; color: var(--text-soft); margin-top: 2px; font-weight: 500; }
+
+    /* Custom select (for elective rows) */
+    .select-wrap { position: relative; display: inline-block; }
+    .select-wrap::after {
+      content: '';
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent; border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-soft);
+      pointer-events: none; transition: border-top-color var(--t);
+    }
+    .select-wrap:focus-within::after { border-top-color: var(--blue); }
+    .styled-select {
+      appearance: none; -webkit-appearance: none;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 7px 30px 7px 11px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px; font-weight: 500;
+      color: var(--text-mid);
+      cursor: pointer; outline: none;
+      min-width: 172px;
+      transition: border-color var(--t), box-shadow var(--t), background var(--t);
+    }
+    .styled-select:hover { border-color: var(--border-hi); background: var(--surface2); }
+    .styled-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59,102,196,0.12);
+      background: var(--white);
+    }
+    .styled-select option { background: var(--white); color: var(--text-dark); }
+
+    /* Assignment score cell */
+    .score-cell { text-align: center; }
+    .score-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 48px; padding: 5px 12px; border-radius: var(--r-md);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-dark);
+      font-variant-numeric: tabular-nums;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      transition: all var(--t);
+    }
+    .score-badge.high   { background: var(--green-bg); border-color: var(--green-bd); color: #0f6530; }
+    .score-badge.mid    { background: var(--amber-bg); border-color: var(--amber-bd); color: #7c4a03; }
+    .score-badge.low    { background: var(--red-bg);   border-color: var(--red-bd);   color: #991b1b; }
+
+    /* Total cell */
+    .total-cell { text-align: right; }
+    .total-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 56px; padding: 6px 14px; border-radius: var(--r-md);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+    .total-badge.high   { background: var(--green-bg); border: 1.5px solid var(--green-bd); color: #0f6530; }
+    .total-badge.mid    { background: var(--amber-bg); border: 1.5px solid var(--amber-bd); color: #7c4a03; }
+    .total-badge.low    { background: var(--red-bg);   border: 1.5px solid var(--red-bd);   color: #991b1b; }
+
+    /* ── Footer total row ───────────────────────── */
+    .tfoot-row {
+      background: var(--surface2) !important;
+      border-top: 2px solid var(--border) !important;
+    }
+    .tfoot-row td {
+      font-weight: 700; color: var(--text-mid);
+      padding-top: 14px !important; padding-bottom: 14px !important;
+    }
+    .tfoot-row .total-badge {
+      font-size: 16px; font-weight: 700;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    /* ── Legend ─────────────────────────────────── */
+    .legend-row {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .leg-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-soft); font-weight: 600; }
+    .leg-dot  { width: 10px; height: 10px; border-radius: 3px; }
+    .leg-dot.h { background: var(--green); }
+    .leg-dot.m { background: var(--amber); }
+    .leg-dot.l { background: var(--red); }
+
+    /* ── Insight banner ─────────────────────────── */
+    .insight-banner {
+      padding: 14px 18px; margin: 0 24px 24px;
+      background: linear-gradient(135deg, rgba(59,102,196,0.07), rgba(109,74,245,0.05));
+      border: 1.5px solid rgba(59,102,196,0.13);
+      border-radius: var(--r-md);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .ib-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      background: rgba(59,102,196,0.10);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ib-icon svg { width: 15px; height: 15px; color: var(--blue); }
+    .ib-text { flex: 1; font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+    .ib-text strong { color: var(--text-dark); }
+
+    /* ── Page footer ────────────────────────────── */
+    .page-footer {
+      text-align: center; margin-top: 30px;
+      font-size: 12px; color: var(--text-xs); font-weight: 500;
+    }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 900px) {
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .topbar { padding: 0 14px; }
+      .page   { padding: 18px 14px 0; }
+      .page-heading { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .stat-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .tc-head { padding: 16px 18px; }
+      .assign-table tbody td { padding: 12px 12px; }
+      .assign-table thead th { padding: 10px 12px; }
+      .styled-select { min-width: 140px; font-size: 12px; }
+      .tb-crumbs { display: none; }
+      .insight-banner { margin: 0 14px 14px; }
+      .legend-row { padding: 12px 16px; gap: 12px; }
+    }
+    @media (max-width: 400px) {
+      .stat-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════ TOPBAR ══════ -->
+  <header class="topbar">
+    <a href="studentmarks.html" class="tb-back">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 2L4 7l5 5"/>
+      </svg>
+      Back
+    </a>
+    <div class="tb-crumbs">
+      <span>Internals</span>
+      <span class="sep">›</span>
+      <span class="active">Assignment Marks</span>
+    </div>
+    <div class="tb-spacer"></div>
+    <div class="tb-avatar">AK</div>
+  </header>
+
+  <!-- ══════ PAGE ══════ -->
+  <div class="page">
+
+    <!-- Page Heading -->
+    <div class="page-heading">
+      <div class="ph-left">
+        <div class="ph-eyebrow">
+          <svg viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="4" height="4" rx="1"/><rect x="7" y="1" width="4" height="4" rx="1"/><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="7" y="7" width="4" height="4" rx="1"/></svg>
+          Internal Assessment
+        </div>
+        <h1>Assignment Marks</h1>
+        <p>Detailed subject-wise assignment performance — 5th Semester · Even 2024–25</p>
+      </div>
+      <div class="ph-right">
+        <button class="btn-ghost" onclick="window.print()">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="1" width="8" height="4" rx="1"/>
+            <path d="M3 5H1a1 1 0 00-1 1v4h2v3h8v-3h2V6a1 1 0 00-1-1h-2"/>
+            <rect x="3" y="9" width="8" height="4" rx="1"/>
+          </svg>
+          Print
+        </button>
+        <button class="btn-primary">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 1v8M3.5 6l3.5 3.5L10.5 6"/><path d="M1 11h12"/>
+          </svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Stat Strip -->
+    <div class="stat-strip">
+      <div class="stat-box">
+        <div class="stat-box-icon sbi-blue">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="2" y="2" width="14" height="14" rx="2"/>
+            <path d="M5 9h8M5 6h8M5 12h5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-box-val blue" id="stat-subjects">7</div>
+          <div class="stat-box-lbl">Subjects</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-icon sbi-green">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <polyline points="2,10 6,6 10,9 16,3"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-box-val green" id="stat-avg">—</div>
+          <div class="stat-box-lbl">Avg Total Score</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-icon sbi-amber">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <polygon points="9,2 11.5,7 17,7.5 13,11.5 14.5,17 9,14 3.5,17 5,11.5 1,7.5 6.5,7"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-box-val amber" id="stat-highest">—</div>
+          <div class="stat-box-lbl">Highest Total</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-icon sbi-violet">
+          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="9" cy="9" r="7"/>
+            <path d="M9 5v4l2.5 2.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-box-val">90</div>
+          <div class="stat-box-lbl">Max Possible</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+      <!-- Dark header -->
+      <div class="tc-head">
+        <div class="tc-head-dots"></div>
+        <div class="tc-head-left">
+          <div class="tc-head-title">Assignment — Subject-wise Breakdown</div>
+          <div class="tc-head-sub">5th Semester · Even Semester 2024–25 · 3 Assignments per Subject</div>
+        </div>
+        <div class="tc-head-right">
+          <div class="tc-tag">
+            <svg viewBox="0 0 11 11" fill="currentColor"><circle cx="5.5" cy="5.5" r="3"/></svg>
+            Max 30 per Assignment
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-scroll">
+        <table class="assign-table" id="assignTable">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Subject Code</th>
+              <th>Sem</th>
+              <th>Subject Name</th>
+              <th class="th-center">Assign 1</th>
+              <th class="th-center">Assign 2</th>
+              <th class="th-center">Assign 3</th>
+              <th class="th-right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- generated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Insight banner -->
+      <div class="insight-banner" id="insightBanner">
+        <div class="ib-icon">
+          <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="7.5" cy="7.5" r="6"/>
+            <path d="M7.5 5v3.5M7.5 10.5v.5"/>
+          </svg>
+        </div>
+        <div class="ib-text" id="insightText">Loading performance summary…</div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend-row">
+        <span style="font-size:11.5px;font-weight:700;color:var(--text-xs);text-transform:uppercase;letter-spacing:.08em">Score Key</span>
+        <div class="leg-item"><div class="leg-dot h"></div>High (&gt; 80%)</div>
+        <div class="leg-item"><div class="leg-dot m"></div>Medium (60–80%)</div>
+        <div class="leg-item"><div class="leg-dot l"></div>Low (&lt; 60%)</div>
+      </div>
+    </div>
+
+    <div class="page-footer">CampusTrack Academic System · v2.4.1 · Even Semester 2024–25</div>
+  </div>
+
+ <script>
+    /* ═══════════════════════════════════════════
+       DATA
+    ═══════════════════════════════════════════ */
+    const ROWS = [
+      {
+        code: 'EBCS22006', type: 'fixed',
+        name: 'Computer Organization and Architecture',
+        sub: 'Core Theory',
+        a1: 24, a2: 22, a3: 28
+      },
+      {
+        code: 'EBCS22007', type: 'fixed',
+        name: 'Computer Networks',
+        sub: 'Core Theory',
+        a1: 25, a2: 25, a3: 25
+      },
+      {
+        code: 'EBAI22005', type: 'fixed',
+        name: 'Soft Computing',
+        sub: 'Core Theory',
+        a1: 23, a2: 24, a3: 22
+      },
+      {
+        code: 'EBAI22ET3', type: 'fixed',
+        name: 'Intelligent Multi Agent & Expert System',
+        sub: 'Core Theory',
+        a1: 23, a2: 24, a3: 22
+      },
+      {
+        code: 'PROG ELECTIVE', type: 'elective',
+        selectId: 'sel-pe',
+        label: 'Program Elective',
+        options: [
+          { label: 'Select Program Elective', code: 'PROG ELECTIVE' },
+          { label: 'Machine Learning',        code: 'ML4001' },
+          { label: 'Deep Learning',           code: 'DL4002' },
+          { label: 'Computer Vision',         code: 'CV4003' },
+          { label: 'NLP',                     code: 'NLP4004' },
+        ],
+        a1: 28, a2: 29, a3: 30
+      },
+      {
+        code: 'OPEN ELECTIVE', type: 'elective',
+        selectId: 'sel-oe',
+        label: 'Open Elective',
+        options: [
+          { label: 'Select Open Elective', code: 'OPEN ELECTIVE' },
+          { label: 'Cyber Security',       code: 'CS5001' },
+          { label: 'IoT Applications',     code: 'IOT5002' },
+          { label: 'Blockchain',           code: 'BC5003' },
+          { label: 'Data Analytics',       code: 'DA5004' },
+        ],
+        a1: 27, a2: 28, a3: 30
+      },
+      {
+        code: 'FOREIGN LANG', type: 'elective',
+        selectId: 'sel-fl',
+        label: 'Foreign Language',
+        options: [
+          { label: 'Select Language', code: 'FOREIGN LANG' },
+          { label: 'French',          code: 'FR6001' },
+          { label: 'German',          code: 'DE6002' },
+          { label: 'Japanese',        code: 'JA6003' },
+          { label: 'Spanish',         code: 'ES6004' },
+        ],
+        a1: 29, a2: 28, a3: 30
+      },
+    ];
+
+    const MAX_EACH = 30;
+
+    /* ═══════════════════════════════════════════
+       SCORE TIER HELPERS
+    ═══════════════════════════════════════════ */
+    function tier(score, max) {
+      const pct = score / max;
+      if (pct > 0.80) return 'high';
+      if (pct >= 0.60) return 'mid';
+      return 'low';
+    }
+
+    function tierTotal(total, max) {
+      const pct = total / max;
+      if (pct > 0.80) return 'high';
+      if (pct >= 0.60) return 'mid';
+      return 'low';
+    }
+
+    /* ═══════════════════════════════════════════
+       RENDER TABLE
+    ═══════════════════════════════════════════ */
+    function render() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      let grandTotal = 0;
+      let grandMax   = 0;
+
+      ROWS.forEach((row, i) => {
+        const total  = row.a1 + row.a2 + row.a3;
+        const maxRow = MAX_EACH * 3;
+        grandTotal  += total;
+        grandMax    += maxRow;
+
+        const tr = document.createElement('tr');
+        if (row.type === 'elective') tr.classList.add('elective-row');
+        tr.style.animationDelay = `${0.10 + i * 0.04}s`;
+
+        /* Name cell — fixed subject vs elective dropdown */
+        const nameCell = row.type === 'fixed'
+          ? `<span class="subj-name">${row.name}</span>
+             <span class="subj-type">${row.sub}</span>`
+          : `<div class="select-wrap">
+               <select
+                 class="styled-select"
+                 id="${row.selectId}"
+                 onchange="onSelectChange('${row.selectId}')">
+                 ${row.options.map(o =>
+                   `<option value="${o.code}">${o.label}</option>`
+                 ).join('')}
+               </select>
+             </div>`;
+
+        const codeCls = row.type === 'elective' ? 'code-pill elective' : 'code-pill';
+        const pillId  = row.type === 'elective' ? `pill-${row.selectId}` : '';
+        const sno     = String(i + 1).padStart(2, '0');
+
+        tr.innerHTML = `
+          <td class="td-idx">${sno}</td>
+          <td><span class="${codeCls}" id="${pillId}">${row.code}</span></td>
+          <td>
+            <span class="sem-num">5</span>
+            <span class="sem-label">Semester</span>
+          </td>
+          <td>${nameCell}</td>
+          <td class="score-cell">
+            <span class="score-badge ${tier(row.a1, MAX_EACH)}">${row.a1}</span>
+          </td>
+          <td class="score-cell">
+            <span class="score-badge ${tier(row.a2, MAX_EACH)}">${row.a2}</span>
+          </td>
+          <td class="score-cell">
+            <span class="score-badge ${tier(row.a3, MAX_EACH)}">${row.a3}</span>
+          </td>
+          <td class="total-cell">
+            <span class="total-badge ${tierTotal(total, maxRow)}">${total}</span>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      /* Grand total footer row */
+      const tfootPct = Math.round((grandTotal / grandMax) * 100);
+      const tfoot = document.createElement('tr');
+      tfoot.className = 'tfoot-row';
+      tfoot.innerHTML = `
+        <td colspan="4" style="padding-left:18px;font-size:13px;font-weight:700;color:var(--text-mid)">
+          Grand Total — All Subjects
+        </td>
+        <td colspan="3" style="text-align:center;font-size:12px;color:var(--text-soft);font-weight:600">
+          ${tfootPct}% overall completion
+        </td>
+        <td class="total-cell">
+          <span class="total-badge ${tierTotal(grandTotal, grandMax)}">${grandTotal}</span>
+        </td>
+      `;
+      tbody.appendChild(tfoot);
+
+      updateStats(grandTotal, grandMax);
+      updateInsight(grandTotal, grandMax, tfootPct);
+    }
+
+    /* ═══════════════════════════════════════════
+       ELECTIVE SELECT — updates code pill live
+    ═══════════════════════════════════════════ */
+    function onSelectChange(selectId) {
+      /* Find the matching row */
+      const row = ROWS.find(r => r.selectId === selectId);
+      if (!row) return;
+
+      const selectEl = document.getElementById(selectId);
+      const pillEl   = document.getElementById(`pill-${selectId}`);
+      if (!selectEl || !pillEl) return;
+
+      /* Update pill text to selected code */
+      const selectedCode = selectEl.value;
+      pillEl.textContent = selectedCode;
+
+      /* Spring pop animation on the pill */
+      pillEl.style.animation = 'none';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          pillEl.style.animation = 'codePop 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+        });
+      });
+    }
+
+    /* ═══════════════════════════════════════════
+       STAT CARDS
+    ═══════════════════════════════════════════ */
+    function updateStats(grandTotal, grandMax) {
+      const avg     = Math.round(grandTotal / ROWS.length);
+      const highest = Math.max(...ROWS.map(r => r.a1 + r.a2 + r.a3));
+      document.getElementById('stat-subjects').textContent = ROWS.length;
+      document.getElementById('stat-avg').textContent      = avg;
+      document.getElementById('stat-highest').textContent  = highest;
+    }
+
+    /* ═══════════════════════════════════════════
+       INSIGHT BANNER
+    ═══════════════════════════════════════════ */
+    function updateInsight(total, max, pct) {
+      const text = document.getElementById('insightText');
+      let msg = '';
+      if (pct >= 90) {
+        msg = `<strong>Excellent performance!</strong> You've scored ${pct}% overall across all assignments this semester. Keep maintaining this consistency.`;
+      } else if (pct >= 75) {
+        msg = `<strong>Good standing.</strong> Overall assignment score is ${pct}%. A few targeted improvements could push you into the excellent range.`;
+      } else if (pct >= 60) {
+        msg = `<strong>Satisfactory, but room to grow.</strong> You're at ${pct}% — focus on Assignment 2 submissions which showed the most variation.`;
+      } else {
+        msg = `<strong>Attention needed.</strong> Your overall assignment percentage is ${pct}%. Consider revisiting submissions with your faculty.`;
+      }
+      text.innerHTML = msg;
+    }
+
+    /* ═══════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════ */
+    render();
+  </script>
+</body>
+</html>

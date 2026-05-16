@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Sheet — CampusTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════════ */
+    :root {
+      /* Colors */
+      --blue-50:  #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-200: #bfdbfe;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+
+      --green-50:  #f0fdf4;
+      --green-100: #dcfce7;
+      --green-200: #bbf7d0;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --green-700: #15803d;
+
+      --red-50:  #fff1f2;
+      --red-100: #ffe4e6;
+      --red-200: #fecdd3;
+      --red-500: #ef4444;
+      --red-600: #dc2626;
+      --red-700: #b91c1c;
+
+      --amber-50:  #fffbeb;
+      --amber-100: #fef3c7;
+      --amber-500: #f59e0b;
+      --amber-600: #d97706;
+
+      --slate-50:  #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+
+      --white: #ffffff;
+      --shadow-xs:  0 1px 2px rgba(15,23,42,0.06);
+      --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.06);
+      --shadow-md:  0 4px 6px -1px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.06);
+      --shadow-lg:  0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -4px rgba(15,23,42,0.05);
+      --shadow-xl:  0 20px 25px -5px rgba(15,23,42,0.10), 0 8px 10px -6px rgba(15,23,42,0.06);
+      --shadow-2xl: 0 25px 50px -12px rgba(15,23,42,0.20);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --radius-2xl:24px;
+
+      --font-sans: "Plus Jakarta Sans", sans-serif;
+      --font-mono: "DM Mono", monospace;
+
+      --transition-fast:  0.15s cubic-bezier(0.4,0,0.2,1);
+      --transition-base:  0.22s cubic-bezier(0.4,0,0.2,1);
+      --transition-slow:  0.35s cubic-bezier(0.4,0,0.2,1);
+      --transition-spring:0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--slate-100);
+      color: var(--slate-800);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══════════════════════════════════════════
+       TOPBAR (STICKY)
+    ═══════════════════════════════════════════ */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .brand-mark {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+    }
+    .brand-mark svg { width: 16px; height: 16px; fill: white; }
+    .topbar-brand {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      letter-spacing: -0.01em;
+    }
+    .topbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--slate-200);
+    }
+    .topbar-page-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Context pills */
+    .context-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+      justify-content: flex-end;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px 4px 8px;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .pill-icon {
+      width: 14px; height: 14px;
+      opacity: 0.7;
+    }
+    .pill--blue   { background: var(--blue-50);  color: var(--blue-700);  border: 1px solid var(--blue-200);  }
+    .pill--slate  { background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200); }
+    .pill--violet { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .pill--amber  { background: var(--amber-50);  color: var(--amber-600); border: 1px solid var(--amber-100); }
+    .pill--green  { background: var(--green-50);  color: var(--green-700); border: 1px solid var(--green-200); }
+
+    /* ═══════════════════════════════════════════
+       MAIN LAYOUT
+    ═══════════════════════════════════════════ */
+    .main-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 80px;
+    }
+
+    /* Page heading row */
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+      animation: fadeSlideDown 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes fadeSlideDown {
+      from { opacity:0; transform:translateY(-16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .page-heading-text h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .page-heading-text p {
+      font-size: 0.82rem;
+      color: var(--slate-500);
+      margin-top: 3px;
+      font-weight: 400;
+    }
+    .heading-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       STATS STRIP
+    ═══════════════════════════════════════════ */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+      animation: fadeSlideDown 0.5s 0.08s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-xs);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    }
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .stat-card--total::before   { background: linear-gradient(90deg,#2563eb,#7c3aed); }
+    .stat-card--present::before { background: linear-gradient(90deg,#16a34a,#22c55e); }
+    .stat-card--absent::before  { background: linear-gradient(90deg,#dc2626,#f87171); }
+    .stat-card--given::before   { background: linear-gradient(90deg,#d97706,#fbbf24); }
+    .stat-card--remaining::before { background: linear-gradient(90deg,#94a3b8,#cbd5e1); }
+
+    .stat-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate-400);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      transition: all var(--transition-base);
+    }
+    .stat-card--total   .stat-value { color: var(--blue-600); }
+    .stat-card--present .stat-value { color: var(--green-600); }
+    .stat-card--absent  .stat-value { color: var(--red-600); }
+    .stat-card--given   .stat-value { color: var(--amber-600); }
+    .stat-card--remaining .stat-value { color: var(--slate-500); }
+
+    /* Progress bar inside stat card */
+    .stat-progress {
+      margin-top: 8px;
+      height: 3px;
+      background: var(--slate-100);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .stat-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .stat-card--present .stat-progress-fill { background: var(--green-500); }
+    .stat-card--absent  .stat-progress-fill { background: var(--red-500); }
+    .stat-card--given   .stat-progress-fill { background: var(--amber-500); }
+
+    /* ═══════════════════════════════════════════
+       TABLE CARD
+    ═══════════════════════════════════════════ */
+    .table-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      animation: fadeSlideDown 0.5s 0.14s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .table-card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .table-card-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--slate-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .table-card-title-icon {
+      width: 28px; height: 28px;
+      background: var(--blue-50);
+      border-radius: var(--radius-sm);
+      display: grid;
+      place-items: center;
+    }
+    .table-card-title-icon svg { width: 14px; height: 14px; color: var(--blue-600); }
+    .table-card-subtitle {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      font-weight: 400;
+    }
+    .selection-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .selection-bar-track {
+      width: 120px;
+      height: 6px;
+      background: var(--slate-100);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .selection-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-500), var(--blue-600));
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .selection-pct {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      min-width: 36px;
+    }
+
+    /* Table scroll wrapper */
+    .table-scroll {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 380px);
+      min-height: 200px;
+    }
+    .table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-scroll::-webkit-scrollbar-track { background: transparent; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 99px; }
+    .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--slate-300); }
+
+    /* Table */
+    .att-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+    .att-table thead tr {
+      background: var(--slate-50);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .att-table thead th {
+      padding: 11px 20px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate-400);
+      border-bottom: 1px solid var(--slate-100);
+      white-space: nowrap;
+    }
+    .att-table thead th.th-center { text-align: center; }
+    .att-table tbody tr {
+      border-bottom: 1px solid var(--slate-100);
+      transition: background var(--transition-fast);
+    }
+    .att-table tbody tr:last-child { border-bottom: none; }
+    .att-table tbody tr:hover { background: var(--slate-50); }
+    .att-table tbody tr.row--present { background: rgba(240,253,244,0.6); }
+    .att-table tbody tr.row--absent  { background: rgba(255,241,242,0.6); }
+    .att-table tbody tr.row--present:hover { background: rgba(220,252,231,0.7); }
+    .att-table tbody tr.row--absent:hover  { background: rgba(255,228,230,0.7); }
+    .att-table tbody td {
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      color: var(--slate-700);
+    }
+    .td-sno {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--slate-400);
+      width: 56px;
+    }
+    .td-regno {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--slate-600);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .td-name {
+      font-weight: 600;
+      color: var(--slate-800);
+    }
+    .td-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-right: 10px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      letter-spacing: 0;
+    }
+    .td-attendance { text-align: center; }
+
+    /* Radio pill group */
+    .radio-group {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .radio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-500);
+      transition: all var(--transition-fast);
+      user-select: none;
+      position: relative;
+    }
+    .radio-pill input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+    .radio-pill:hover {
+      border-color: var(--slate-300);
+      background: var(--slate-50);
+      transform: translateY(-1px);
+    }
+    .radio-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    /* Present pill selected */
+    .radio-pill--present:has(input:checked) {
+      background: var(--green-50);
+      border-color: var(--green-500);
+      color: var(--green-700);
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
+    }
+    .radio-pill--present:has(input:checked) .radio-dot {
+      background: var(--green-500);
+      border-color: var(--green-500);
+      box-shadow: 0 0 6px rgba(34,197,94,0.6);
+    }
+    /* Absent pill selected */
+    .radio-pill--absent:has(input:checked) {
+      background: var(--red-50);
+      border-color: var(--red-500);
+      color: var(--red-700);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+    }
+    .radio-pill--absent:has(input:checked) .radio-dot {
+      background: var(--red-500);
+      border-color: var(--red-500);
+      box-shadow: 0 0 6px rgba(239,68,68,0.6);
+    }
+
+    /* Fallback for browsers without :has support */
+    .radio-pill--present.selected {
+      background: var(--green-50);
+      border-color: var(--green-500);
+      color: var(--green-700);
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
+    }
+    .radio-pill--present.selected .radio-dot {
+      background: var(--green-500);
+      border-color: var(--green-500);
+    }
+    .radio-pill--absent.selected {
+      background: var(--red-50);
+      border-color: var(--red-500);
+      color: var(--red-700);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+    }
+    .radio-pill--absent.selected .radio-dot {
+      background: var(--red-500);
+      border-color: var(--red-500);
+    }
+
+    /* ═══════════════════════════════════════════
+       BOTTOM ACTION BAR
+    ═══════════════════════════════════════════ */
+    .action-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--slate-200);
+      box-shadow: 0 -4px 20px rgba(15,23,42,0.06);
+      animation: slideUpBar 0.5s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes slideUpBar {
+      from { transform: translateY(100%); opacity:0; }
+      to   { transform: translateY(0);   opacity:1; }
+    }
+    .action-bar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .action-bar-info {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+    }
+    .action-bar-info strong {
+      color: var(--slate-800);
+      font-weight: 700;
+    }
+    .action-bar-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      text-decoration: none;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--slate-600);
+      border: 1.5px solid var(--slate-200);
+    }
+    .btn--ghost:hover {
+      background: var(--slate-50);
+      border-color: var(--slate-300);
+      transform: translateY(-1px);
+    }
+
+    .btn--primary {
+      background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+      color: white;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn--primary::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+    }
+    .btn--primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37,99,235,0.45);
+    }
+    .btn--primary:active:not(:disabled) { transform: translateY(0); }
+    .btn--primary:disabled {
+      background: var(--slate-200);
+      color: var(--slate-400);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    .btn--primary:disabled::before { display: none; }
+
+    /* Shimmer on enabled save */
+    .btn--primary.ready::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      animation: btnShimmer 2s ease-in-out infinite;
+    }
+    @keyframes btnShimmer {
+      0%  { left: -100%; }
+      60% { left: 160%; }
+      100%{ left: 160%; }
+    }
+
+    /* ═══════════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(15,23,42,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-backdrop.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-2xl);
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+      opacity: 0;
+    }
+    .modal-backdrop.visible .modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .modal-header {
+      padding: 24px 24px 20px;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-header-icon {
+      width: 42px; height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--blue-50);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .modal-header-icon svg { width: 20px; height: 20px; color: var(--blue-600); }
+    .modal-header-text h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.02em;
+    }
+    .modal-header-text p {
+      font-size: 0.78rem;
+      color: var(--slate-400);
+      margin-top: 2px;
+    }
+    .modal-close-btn {
+      width: 28px; height: 28px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--slate-400);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .modal-close-btn:hover { background: var(--slate-100); color: var(--slate-600); }
+    .modal-close-btn svg { width: 16px; height: 16px; }
+
+    .modal-body { padding: 20px 24px; }
+
+    /* Stat rows in modal */
+    .modal-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .modal-stat {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-100);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+    .modal-stat-label {
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate-400);
+      margin-bottom: 4px;
+    }
+    .modal-stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .modal-stat--total   .modal-stat-value { color: var(--blue-600); }
+    .modal-stat--present .modal-stat-value { color: var(--green-600); }
+    .modal-stat--absent  .modal-stat-value { color: var(--red-600); }
+    .modal-stat--given   .modal-stat-value { color: var(--amber-600); }
+
+    /* Absentees section */
+    .modal-absentees-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--slate-500);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .absentee-count-badge {
+      background: var(--red-100);
+      color: var(--red-600);
+      border-radius: 50px;
+      padding: 1px 7px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .absentee-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .absentee-tag {
+      background: var(--red-50);
+      border: 1px solid var(--red-200);
+      color: var(--red-700);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+    .no-absentees {
+      font-size: 0.8rem;
+      color: var(--green-600);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--slate-100);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* ═══════════════════════════════════════════
+       ROW ANIMATION
+    ═══════════════════════════════════════════ */
+    .att-table tbody tr {
+      animation: rowIn 0.35s both;
+    }
+    @keyframes rowIn {
+      from { opacity:0; transform:translateX(-8px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+   @media (max-width: 768px) {
+  .topbar-inner { padding: 0 16px; }
+  .context-pills { display: none; }
+  .main-wrap { padding: 20px 16px 80px; }
+  .stats-strip { grid-template-columns: repeat(3, 1fr); }
+  .stat-card:nth-child(4),
+  .stat-card:nth-child(5) { display: none; }
+  .page-heading { flex-direction: column; align-items: flex-start; }
+  .action-bar-info { display: none; }
+  .table-card-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+  /* Hide S.No column on mobile */
+  .att-table th:nth-child(1),
+  .att-table td:nth-child(1) {
+    display: none;
+  }
+
+  /* Freeze Register No column — stays fixed while scrolling */
+  .att-table th:nth-child(2),
+  .att-table td:nth-child(2) {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: var(--white);
+    box-shadow: 3px 0 8px rgba(15,23,42,0.08);
+    min-width: 90px;
+  }
+
+  /* Thead frozen cell background */
+  .att-table thead th:nth-child(2) {
+    background: var(--slate-50);
+    z-index: 6;
+  }
+
+  /* Keep frozen cell color matching row state */
+  .att-table tbody tr.row--present td:nth-child(2) {
+    background: #f0fdf4;
+  }
+  .att-table tbody tr.row--absent td:nth-child(2) {
+    background: #fff1f2;
+  }
+  .att-table tbody tr:hover td:nth-child(2) {
+    background: var(--slate-50);
+  }
+
+    }
+    @media (max-width: 480px) {
+      .stats-strip { grid-template-columns: 1fr 1fr; }
+      .stat-card:nth-child(3) { display: none; }
+      .modal { border-radius: var(--radius-xl); }
+      .modal-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       STICKY TOPBAR
+  ══════════════════════════════════════ -->
+  <header class="topbar" role="banner">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span class="topbar-brand">CampusTrack</span>
+        <div class="topbar-divider" aria-hidden="true"></div>
+        <span class="topbar-page-label">Attendance Sheet</span>
+      </div>
+
+      <!-- Dynamic context pills injected by JS -->
+      <div class="context-pills" id="contextPills" role="list" aria-label="Selected class context"></div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════ -->
+  <main class="main-wrap" role="main">
+
+    <!-- Page heading -->
+    <div class="page-heading">
+      <div class="page-heading-text">
+        <h1>Mark Attendance</h1>
+        <p id="headingSubtitle">Loading class details…</p>
+      </div>
+      <div class="heading-actions">
+        <span id="completionBadge" style="font-size:0.75rem;font-weight:700;color:var(--slate-400);display:flex;align-items:center;gap:5px;">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <circle cx="6.5" cy="6.5" r="5.75" stroke="currentColor" stroke-width="1.3" stroke-opacity="0.5"/>
+            <path d="M4 6.5l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.5"/>
+          </svg>
+          <span id="completionBadgeText">0 of 20 marked</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip" role="region" aria-label="Attendance statistics">
+      <div class="stat-card stat-card--total">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card stat-card--present">
+        <div class="stat-label">Present</div>
+        <div class="stat-value" id="statPresent">0</div>
+        <div class="stat-progress"><div class="stat-progress-fill" id="barPresent" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card stat-card--absent">
+        <div class="stat-label">Absent</div>
+        <div class="stat-value" id="statAbsent">0</div>
+        <div class="stat-progress"><div class="stat-progress-fill" id="barAbsent" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card stat-card--given">
+        <div class="stat-label">Attendance Given</div>
+        <div class="stat-value" id="statGiven">0</div>
+        <div class="stat-progress"><div class="stat-progress-fill" id="barGiven" style="width:0%"></div></div>
+      </div>
+      <div class="stat-card stat-card--remaining">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="statRemaining">0</div>
+      </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="table-card">
+      <div class="table-card-header">
+        <div>
+          <div class="table-card-title">
+            <div class="table-card-title-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 2.5A.5.5 0 01.5 2h15a.5.5 0 010 1H.5A.5.5 0 010 2.5zm0 4A.5.5 0 01.5 6h15a.5.5 0 010 1H.5A.5.5 0 010 6.5zm0 4A.5.5 0 01.5 10h15a.5.5 0 010 1H.5A.5.5 0 010 10.5z"/></svg>
+            </div>
+            Student Roll List
+          </div>
+          <div class="table-card-subtitle">Select Present or Absent for each student</div>
+        </div>
+        <div class="selection-progress-wrap" aria-label="Marking progress">
+          <div class="selection-bar-track">
+            <div class="selection-bar-fill" id="selectionBarFill"></div>
+          </div>
+          <span class="selection-pct" id="selectionPct" aria-live="polite">0%</span>
+        </div>
+      </div>
+
+      <div class="table-scroll" role="region" aria-label="Student attendance table">
+        <table class="att-table" aria-label="Student attendance list">
+          <thead>
+            <tr>
+              <th class="th-center" scope="col">S.No</th>
+              <th scope="col">Register No.</th>
+              <th scope="col">Student Name</th>
+              <th class="th-center" scope="col">Attendance</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <!-- Injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══════════════════════════════════════
+       BOTTOM ACTION BAR
+  ══════════════════════════════════════ -->
+  <div class="action-bar" role="navigation" aria-label="Page actions">
+    <div class="action-bar-inner">
+      <div class="action-bar-info">
+        <strong id="actionBarStatus">0 of 20</strong> students marked &nbsp;·&nbsp; All fields required to save
+      </div>
+      <div class="action-bar-right">
+        <button class="btn btn--ghost" id="btnBack" aria-label="Go back to attendance selection">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 3L5 8l5 5"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn btn--primary" id="btnSave" disabled aria-disabled="true" aria-label="Save attendance record">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13 10v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2M8 2v8M5 7l3 3 3-3"/>
+          </svg>
+          Save Attendance
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SUMMARY MODAL
+  ══════════════════════════════════════ -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="modal-header-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <h2 id="modalTitle">Attendance Summary</h2>
+            <p id="modalSubtitle">Ready to save</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="modalCloseX" aria-label="Close modal">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M3 3l10 10M13 3L3 13"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-stats">
+          <div class="modal-stat modal-stat--total">
+            <div class="modal-stat-label">Total Students</div>
+            <div class="modal-stat-value" id="mStatTotal">—</div>
+          </div>
+          <div class="modal-stat modal-stat--present">
+            <div class="modal-stat-label">Present</div>
+            <div class="modal-stat-value" id="mStatPresent">—</div>
+          </div>
+          <div class="modal-stat modal-stat--absent">
+            <div class="modal-stat-label">Absent</div>
+            <div class="modal-stat-value" id="mStatAbsent">—</div>
+          </div>
+          <div class="modal-stat modal-stat--given">
+            <div class="modal-stat-label">Attendance Given</div>
+            <div class="modal-stat-value" id="mStatGiven">—</div>
+          </div>
+        </div>
+
+        <div class="modal-absentees-heading">
+          Absentees
+          <span class="absentee-count-badge" id="absenteeBadge">0</span>
+        </div>
+        <div class="absentee-list" id="absenteeList" aria-live="polite"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn--ghost" id="modalCloseBtn" aria-label="Close summary">Close</button>
+        <button class="btn btn--primary ready" id="modalConfirmBtn" aria-label="Confirm and submit attendance">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2.5 8.5l4 4 7-8"/>
+          </svg>
+          Confirm & Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════════ -->
+ <script>
+(() => {
+  'use strict';
+
+  const BASE_URL = 'http://localhost:5000/api';
+  const token    = localStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'stafflogin.html';
+    return;
+  }
+
+  /* ── 1. Context from URL params ── */
+  const params = new URLSearchParams(window.location.search);
+  const ctx = {
+    timetable_entry_id: params.get('timetable_entry_id') || '',
+    date:               params.get('date')               || '',
+    section_name:       params.get('section_name')       || '',
+    period_label:       params.get('period_label')       || '',
+  };
+
+  /* Format date nicely */
+  function formatDate(str) {
+    if (!str) return '';
+    const d = new Date(str);
+    return isNaN(d) ? str : d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  const displayDate = formatDate(ctx.date);
+
+  /* ── 2. Render context pills ── */
+  const pillsData = [
+    { label: `Sec · ${ctx.section_name}`, cls:'pill--slate', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2' },
+    { label: ctx.period_label,            cls:'pill--amber', icon:'M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-18v10l5 2' },
+    { label: displayDate,                 cls:'pill--green', icon:'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+  ];
+
+  const pillsContainer = document.getElementById('contextPills');
+  if (pillsContainer) {
+    pillsData.forEach(p => {
+      const el = document.createElement('span');
+      el.className = `pill ${p.cls}`;
+      el.setAttribute('role', 'listitem');
+      el.innerHTML = `
+        <svg class="pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="${p.icon}"/>
+        </svg>
+        ${p.label}`;
+      pillsContainer.appendChild(el);
+    });
+  }
+
+  const subtitleEl = document.getElementById('headingSubtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = `Section ${ctx.section_name} · ${ctx.period_label} · ${displayDate}`;
+  }
+
+  /* ── 3. Avatar colors ── */
+  const AVATAR_COLORS = [
+    ['#dbeafe','#1d4ed8'],['#dcfce7','#15803d'],['#fce7f3','#9d174d'],
+    ['#fef9c3','#854d0e'],['#f3e8ff','#6b21a8'],['#ffedd5','#9a3412'],
+    ['#e0f2fe','#0369a1'],['#f0fdf4','#166534'],['#fdf4ff','#7e22ce'],
+    ['#fff7ed','#c2410c'],
+  ];
+  function getAvatarColors(i) { return AVATAR_COLORS[i % AVATAR_COLORS.length]; }
+  function getInitials(name) {
+    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  /* ── 4. State ── */
+  const state  = {};
+  let STUDENTS = [];
+  let TOTAL    = 0;
+  let SESSION_ID = null;
+
+  /* ── 5. DOM refs ── */
+  const tbody           = document.getElementById('studentTableBody');
+  const elTotal         = document.getElementById('statTotal');
+  const elPresent       = document.getElementById('statPresent');
+  const elAbsent        = document.getElementById('statAbsent');
+  const elGiven         = document.getElementById('statGiven');
+  const elRemaining     = document.getElementById('statRemaining');
+  const barPresent      = document.getElementById('barPresent');
+  const barAbsent       = document.getElementById('barAbsent');
+  const barGiven        = document.getElementById('barGiven');
+  const selFill         = document.getElementById('selectionBarFill');
+  const selPct          = document.getElementById('selectionPct');
+  const btnSave         = document.getElementById('btnSave');
+  const actionStatus    = document.getElementById('actionBarStatus');
+  const compBadgeText   = document.getElementById('completionBadgeText');
+
+  /* ── 6. Loading rows ── */
+  function showLoadingRows() {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:40px 20px;color:var(--slate-400);font-size:0.85rem;font-weight:500;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:8px;animation:spin 0.8s linear infinite" aria-hidden="true">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" stroke-opacity="0.2"/>
+            <path d="M10 2a8 8 0 018 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Loading students…
+        </td>
+      </tr>`;
+    const style = document.createElement('style');
+    style.id = 'spin-style';
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    if (!document.getElementById('spin-style')) document.head.appendChild(style);
+  }
+
+  /* ── 7. Error row ── */
+  function showFetchError(msg) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:40px 20px;color:#dc2626;font-size:0.85rem;font-weight:600;">
+          ⚠️ ${msg}
+        </td>
+      </tr>`;
+  }
+
+  /* ── 8. Render table ── */
+  function renderTable() {
+    tbody.innerHTML = '';
+    STUDENTS.forEach((s, idx) => {
+      const [bg, fg] = getAvatarColors(idx);
+      const delay    = (idx * 18).toFixed(0);
+      const tr       = document.createElement('tr');
+      tr.id          = `row-${s.id}`;
+      tr.style.animationDelay = `${delay}ms`;
+      tr.innerHTML = `
+        <td class="td-sno" aria-label="Serial number ${idx + 1}">${String(idx + 1).padStart(2,'0')}</td>
+        <td class="td-regno">${s.regno}</td>
+        <td class="td-name">
+          <span class="td-avatar" style="background:${bg};color:${fg}" aria-hidden="true">${getInitials(s.name)}</span>
+          ${s.name}
+        </td>
+        <td class="td-attendance">
+          <div class="radio-group" role="radiogroup" aria-label="Attendance for ${s.name}">
+            <label class="radio-pill radio-pill--present" id="pill-p-${s.id}">
+              <input type="radio" name="att-${s.id}" value="present" aria-label="Present" />
+              <span class="radio-dot" aria-hidden="true"></span>
+              Present
+            </label>
+            <label class="radio-pill radio-pill--absent" id="pill-a-${s.id}">
+              <input type="radio" name="att-${s.id}" value="absent" aria-label="Absent" />
+              <span class="radio-dot" aria-hidden="true"></span>
+              Absent
+            </label>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  /* ── 9. Fetch students via session/start ── */
+  async function loadStudents() {
+  showLoadingRows();
+
+  if (!ctx.timetable_entry_id || !ctx.date) {
+    showFetchError('Missing session info. Please go back and select again.');
+    return;
+  }
+
+  try {
+    // Step 1 — Try to start session
+    const res  = await fetch(`${BASE_URL}/attendance/session/start`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        timetable_entry_id: ctx.timetable_entry_id,
+        date:               ctx.date
+      })
+    });
+
+    const data = await res.json();
+
+    // Step 2 — Session started fresh → use returned students
+    if (res.ok) {
+      SESSION_ID = data.session_id;
+
+      if (!data.students || data.students.length === 0) {
+        showFetchError('No students found for this section.');
+        return;
+      }
+
+      STUDENTS = data.students.map(s => ({
+        id:    s.id,
+        name:  s.name,
+        regno: s.reg_no,
+      }));
+
+      TOTAL = STUDENTS.length;
+      elTotal.textContent       = TOTAL;
+      actionStatus.textContent  = `0 of ${TOTAL}`;
+      compBadgeText.textContent = `0 of ${TOTAL} marked`;
+      renderTable();
+      updateStats();
+      return;
+    }
+
+    // Step 3 — Session already exists
+    if (!res.ok && data.session_id) {
+      SESSION_ID = data.session_id;
+
+      // If submitted or locked → load existing records
+      if (data.status === 'submitted' || data.status === 'locked') {
+        await loadExistingSession(SESSION_ID);
+        return;
+      }
+
+      // If open → get section from timetable entry then load students
+      const entryRes  = await fetch(
+        `${BASE_URL}/timetable/entry/${ctx.timetable_entry_id}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (entryRes.ok) {
+        const entryData = await entryRes.json();
+        const sectionId = entryData.section_id;
+
+        const sRes     = await fetch(
+          `${BASE_URL}/attendance/students/by-section?section_id=${sectionId}`,
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        const students = await sRes.json();
+
+        STUDENTS = students.map(s => ({ id: s.id, name: s.name, regno: s.reg_no }));
+        TOTAL    = STUDENTS.length;
+
+        elTotal.textContent       = TOTAL;
+        actionStatus.textContent  = `0 of ${TOTAL}`;
+        compBadgeText.textContent = `0 of ${TOTAL} marked`;
+        renderTable();
+        updateStats();
+        return;
+      }
+
+      showFetchError('Could not load students. Please go back and try again.');
+      return;
+    }
+
+    throw new Error(data.error || 'Failed to start session');
+
+  } catch (err) {
+    console.error('Load students error:', err);
+    showFetchError(err.message);
+  }
+}
+
+  /* ── 10. Load existing session (already submitted) ── */
+  async function loadExistingSession(sessionId) {
+    try {
+      const res  = await fetch(`${BASE_URL}/attendance/session/${sessionId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to load session');
+
+      STUDENTS = data.attendance_records.map(r => ({
+        id:    r.students.id,
+        name:  r.students.name,
+        regno: r.students.reg_no,
+      }));
+      TOTAL = STUDENTS.length;
+
+      elTotal.textContent       = TOTAL;
+      actionStatus.textContent  = `0 of ${TOTAL}`;
+      compBadgeText.textContent = `0 of ${TOTAL} marked`;
+
+      renderTable();
+
+      // Pre-fill existing attendance
+      data.attendance_records.forEach(r => {
+        const radio = document.querySelector(`input[name="att-${r.students.id}"][value="${r.status}"]`);
+        if (radio) {
+          radio.checked = true;
+          state[r.students.id] = r.status;
+          const row = document.getElementById(`row-${r.students.id}`);
+          if (row) {
+            row.classList.add(`row--${r.status}`);
+          }
+          const pillP = document.getElementById(`pill-p-${r.students.id}`);
+          const pillA = document.getElementById(`pill-a-${r.students.id}`);
+          if (pillP) pillP.classList.toggle('selected', r.status === 'present');
+          if (pillA) pillA.classList.toggle('selected', r.status === 'absent');
+        }
+      });
+
+      updateStats();
+
+    } catch (err) {
+        console.error('Full error:', err);
+      showFetchError(err.message);
+    }
+  }
+
+  /* ── 11. Radio listeners ── */
+  function handleRadioChange(e) {
+    const input = e.target;
+    if (input.type !== 'radio') return;
+
+    const parts = input.name.split('-');
+    const id    = parts.slice(1).join('-'); // handle uuid with dashes
+    const val   = input.value;
+
+    state[id] = val;
+
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+      row.classList.remove('row--present', 'row--absent');
+      row.classList.add(`row--${val}`);
+    }
+
+    const pillP = document.getElementById(`pill-p-${id}`);
+    const pillA = document.getElementById(`pill-a-${id}`);
+    if (pillP) pillP.classList.toggle('selected', val === 'present');
+    if (pillA) pillA.classList.toggle('selected', val === 'absent');
+
+    updateStats();
+  }
+
+  tbody.addEventListener('change', handleRadioChange);
+
+  /* ── 12. Update stats ── */
+  function updateStats() {
+    const given = Object.keys(state).length;
+    let present = 0, absent = 0;
+    Object.values(state).forEach(v => {
+      if (v === 'present') present++;
+      else absent++;
+    });
+    const remaining = TOTAL - given;
+    const pct = TOTAL > 0 ? Math.round((given / TOTAL) * 100) : 0;
+
+    if (elPresent)   elPresent.textContent   = present;
+    if (elAbsent)    elAbsent.textContent    = absent;
+    if (elGiven)     elGiven.textContent     = given;
+    if (elRemaining) elRemaining.textContent = remaining;
+
+    if (barPresent) barPresent.style.width = `${Math.round((present / TOTAL) * 100)}%`;
+    if (barAbsent)  barAbsent.style.width  = `${Math.round((absent  / TOTAL) * 100)}%`;
+    if (barGiven)   barGiven.style.width   = `${pct}%`;
+    if (selFill)    selFill.style.width    = `${pct}%`;
+    if (selPct)     selPct.textContent     = `${pct}%`;
+
+    if (actionStatus)  actionStatus.textContent  = `${given} of ${TOTAL}`;
+    if (compBadgeText) compBadgeText.textContent = `${given} of ${TOTAL} marked`;
+
+    const allDone = TOTAL > 0 && given === TOTAL;
+    btnSave.disabled = !allDone;
+    btnSave.setAttribute('aria-disabled', String(!allDone));
+    btnSave.classList.toggle('ready', allDone);
+  }
+
+  /* ── 13. Back button ── */
+  const backBtn = document.getElementById('btnBack');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'staffattendanceselection.html';
+    });
+  }
+
+  /* ── 14. Save → open modal ── */
+  btnSave.addEventListener('click', () => {
+    if (btnSave.disabled) return;
+    openModal();
+  });
+
+  function openModal() {
+    let present = 0;
+    const absentees = [];
+
+    STUDENTS.forEach(s => {
+      const v = state[s.id];
+      if (v === 'present') present++;
+      if (v === 'absent')  absentees.push(s.regno);
+    });
+    const absent = absentees.length;
+
+    const mTotal   = document.getElementById('mStatTotal');
+    const mPresent = document.getElementById('mStatPresent');
+    const mAbsent  = document.getElementById('mStatAbsent');
+    const mGiven   = document.getElementById('mStatGiven');
+    const mBadge   = document.getElementById('absenteeBadge');
+    const mSub     = document.getElementById('modalSubtitle');
+
+    if (mTotal)   mTotal.textContent   = TOTAL;
+    if (mPresent) mPresent.textContent = present;
+    if (mAbsent)  mAbsent.textContent  = absent;
+    if (mGiven)   mGiven.textContent   = TOTAL;
+    if (mBadge)   mBadge.textContent   = absent;
+    if (mSub)     mSub.textContent     = `Section ${ctx.section_name} · ${ctx.period_label} · ${displayDate}`;
+
+    const listEl = document.getElementById('absenteeList');
+    if (listEl) {
+      listEl.innerHTML = '';
+      if (absentees.length === 0) {
+        listEl.innerHTML = '<span class="no-absentees"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7l3.5 3.5 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>All students present!</span>';
+      } else {
+        absentees.forEach(r => {
+          const tag = document.createElement('span');
+          tag.className   = 'absentee-tag';
+          tag.textContent = r;
+          listEl.appendChild(tag);
+        });
+      }
+    }
+
+    const bd = document.getElementById('modalBackdrop');
+    if (bd) {
+      bd.style.display = 'flex';
+      requestAnimationFrame(() => requestAnimationFrame(() => bd.classList.add('visible')));
+    }
+  }
+
+  function closeModal() {
+    const bd = document.getElementById('modalBackdrop');
+    if (!bd) return;
+    bd.classList.remove('visible');
+    bd.addEventListener('transitionend', () => {
+      bd.style.display = 'none';
+    }, { once: true });
+  }
+
+  const closeBtn = document.getElementById('modalCloseBtn');
+  const closeX   = document.getElementById('modalCloseX');
+  const backdrop = document.getElementById('modalBackdrop');
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (closeX)   closeX.addEventListener('click', closeModal);
+  if (backdrop) backdrop.addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ── 15. Confirm → submit to API ── */
+  document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="animation:spin 0.8s linear infinite">
+        <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.6" stroke-opacity="0.3"/>
+        <path d="M7.5 1.5a6 6 0 016 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg> Saving…`;
+
+    const records = STUDENTS.map(s => ({
+      student_id: s.id,
+      status:     state[s.id]
+    }));
+
+    try {
+      const res = await fetch(`${BASE_URL}/attendance/session/${SESSION_ID}/submit`, {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ records })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) throw new Error(result.error || 'Save failed');
+
+      confirmBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+          <path d="M2 7.5l4 4 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg> Saved!`;
+      confirmBtn.style.background = 'linear-gradient(135deg,#16a34a,#22c55e)';
+      confirmBtn.style.boxShadow  = '0 4px 12px rgba(22,163,74,0.4)';
+
+      setTimeout(() => {
+        closeModal();
+        window.location.href = 'staffdashboard.html';
+      }, 1200);
+
+    } catch (err) {
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+          <path d="M7.5 1.5v6M7.5 10.5v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg> Retry`;
+      confirmBtn.style.background = 'linear-gradient(135deg,#dc2626,#ef4444)';
+      confirmBtn.style.boxShadow  = '0 4px 12px rgba(220,38,38,0.4)';
+
+      const existingErr = document.getElementById('modal-save-error');
+      if (!existingErr) {
+        const errEl       = document.createElement('p');
+        errEl.id          = 'modal-save-error';
+        errEl.style.cssText = 'color:#dc2626;font-size:0.78rem;font-weight:600;margin-top:12px;text-align:center;';
+        errEl.textContent = `Error: ${err.message}`;
+        const absenteeList = document.getElementById('absenteeList');
+        if (absenteeList) absenteeList.after(errEl);
+      }
+    }
+  });
+
+  /* ── 16. Kick off ── */
+  loadStudents();
+
+})();
+</script>
+</body>
+</html>

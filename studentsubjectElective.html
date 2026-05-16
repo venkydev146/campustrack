@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elective Registration — CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════
+       TOKENS
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --night:      #0a0e1a;
+      --night-2:    #111827;
+      --night-3:    #1e2a3d;
+      --dusk:       #2a3650;
+
+      --gold:       #c9973a;
+      --gold-lt:    #f5e6c8;
+      --gold-glow:  rgba(201,151,58,.18);
+
+      --paper:      #f7f4ef;
+      --card:       #ffffff;
+      --border:     #e8e3da;
+      --border-dk:  #d4ccbc;
+
+      --ink:        #1a1a2e;
+      --ink-2:      #374151;
+      --ink-3:      #6b7280;
+      --ink-4:      #a0aab8;
+
+      /* dept palette */
+      --ai:         #4f46e5; --ai-lt: #eef2ff;
+      --it:         #0891b2; --it-lt: #ecfeff;
+      --cse:        #7c3aed; --cse-lt: #f5f3ff;
+      --ece:        #059669; --ece-lt: #ecfdf5;
+      --eee:        #d97706; --eee-lt: #fffbeb;
+      --bio:        #db2777; --bio-lt: #fdf2f8;
+      --chem:       #65a30d; --chem-lt: #f7fee7;
+      --mech:       #b45309; --mech-lt: #fff7ed;
+      --civil:      #0369a1; --civil-lt: #f0f9ff;
+
+      --green:      #10b981; --green-lt: #d1fae5;
+      --rose:       #f43f5e; --rose-lt:  #ffe4e6;
+      --blue:       #2563eb; --blue-lt:  #dbeafe;
+
+      --radius-sm:  7px;
+      --radius-md:  12px;
+      --radius-lg:  18px;
+      --shadow-sm:  0 1px 3px rgba(10,14,26,.08), 0 1px 2px rgba(10,14,26,.05);
+      --shadow-md:  0 4px 16px rgba(10,14,26,.10), 0 2px 6px rgba(10,14,26,.05);
+      --shadow-lg:  0 12px 40px rgba(10,14,26,.14), 0 4px 12px rgba(10,14,26,.07);
+      --t:          180ms cubic-bezier(.4,0,.2,1);
+
+      --display:    'Playfair Display', serif;
+      --sans:       'Outfit', sans-serif;
+      --mono:       'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════════
+       TOP NAV
+    ══════════════════════════════════════ */
+    .topnav {
+      background: var(--night);
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 20px rgba(0,0,0,.3);
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .nav-logo {
+      width: 32px; height: 32px;
+      background: var(--gold);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .nav-logo svg { display: block; }
+
+    .nav-brand-text {
+      font-family: var(--display);
+      font-size: 1.05rem;
+      color: #fff;
+      letter-spacing: -.01em;
+    }
+
+    .nav-center {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: rgba(255,255,255,.35);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .nav-right {
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .nav-student {
+      font-size: .78rem;
+      color: rgba(255,255,255,.5);
+      font-weight: 500;
+    }
+
+    .nav-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 700; color: #fff;
+    }
+
+    /* ══════════════════════════════════════
+       HERO HEADER
+    ══════════════════════════════════════ */
+    .hero {
+      background: var(--night-2);
+      padding: 48px 40px 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(201,151,58,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,151,58,.4), transparent);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--gold);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 18px; height: 1.5px;
+      background: var(--gold);
+    }
+
+    .hero h1 {
+      font-family: var(--display);
+      font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+      color: #fff;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      max-width: 520px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      margin-top: 12px;
+      font-size: .9rem;
+      color: rgba(255,255,255,.42);
+      max-width: 460px;
+      line-height: 1.6;
+    }
+
+    .hero-pills {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 20px; flex-wrap: wrap;
+    }
+
+    .hero-pill {
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: .72rem; font-weight: 600;
+      color: rgba(255,255,255,.5);
+      letter-spacing: .04em;
+    }
+
+    .hero-pill.gold {
+      border-color: rgba(201,151,58,.4);
+      background: rgba(201,151,58,.1);
+      color: var(--gold);
+    }
+
+    /* ══════════════════════════════════════
+       PAGE WRAP
+    ══════════════════════════════════════ */
+    .page-wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+
+    /* ══════════════════════════════════════
+       SECTION HEADER
+    ══════════════════════════════════════ */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .section-head-left {
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .section-number {
+      width: 36px; height: 36px;
+      background: var(--night);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono);
+      font-size: .75rem; font-weight: 500;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .section-titles {}
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--ink-4);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-size: 1.2rem;
+      color: var(--ink);
+      letter-spacing: -.01em;
+    }
+
+    .section-count {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--ink-3);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════
+       SEARCH / FILTER BAR (OE section)
+    ══════════════════════════════════════ */
+    .filter-bar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .search-box {
+      flex: 1; min-width: 200px;
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 9px 14px;
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .search-box svg { color: var(--ink-4); flex-shrink: 0; }
+
+    .search-box input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-family: var(--sans); font-size: .84rem; color: var(--ink);
+    }
+
+    .search-box input::placeholder { color: var(--ink-4); }
+
+    .dept-filter {
+      padding: 9px 14px; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); background: #fff;
+      font-family: var(--sans); font-size: .82rem; color: var(--ink-2);
+      outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      background-color: #fff;
+      padding-right: 32px;
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+
+    .dept-filter:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    /* ══════════════════════════════════════
+       TABLE CARD
+    ══════════════════════════════════════ */
+    .table-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-bottom: 48px;
+      animation: fadeUp .45s ease both;
+    }
+
+    /* Column headers */
+    .tbl-head {
+      display: grid;
+      grid-template-columns: 48px 1fr 200px 170px 110px 130px;
+      align-items: center;
+      padding: 12px 20px;
+      background: var(--night);
+      gap: 12px;
+    }
+
+    .tbl-head span {
+      font-family: var(--mono);
+      font-size: .62rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .tbl-head span.right { text-align: right; }
+    .tbl-head span.center { text-align: center; }
+
+    /* Row */
+    .tbl-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 200px 170px 110px 130px;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      min-height: 64px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background var(--t);
+      position: relative;
+    }
+
+    .tbl-row:last-child { border-bottom: none; }
+
+    .tbl-row:hover { background: #fafaf8; }
+
+    .tbl-row.selected {
+      background: linear-gradient(135deg, #fffcf4 0%, #fff9ee 100%);
+      border-left: 3px solid var(--gold);
+      padding-left: 17px;
+    }
+
+    .tbl-row.hidden { display: none; }
+
+    /* Custom radio */
+    .radio-cell {
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .custom-radio {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border-dk);
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--t);
+      flex-shrink: 0;
+    }
+
+    .tbl-row.selected .custom-radio {
+      border-color: var(--gold);
+      background: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .custom-radio-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0;
+      transform: scale(0);
+      transition: all var(--t);
+    }
+
+    .tbl-row.selected .custom-radio-dot {
+      opacity: 1; transform: scale(1);
+    }
+
+    /* Subject cell */
+    .subject-cell {}
+
+    .subject-name {
+      font-size: .9rem; font-weight: 700; color: var(--ink);
+      line-height: 1.3; margin-bottom: 2px;
+    }
+
+    .tbl-row.selected .subject-name { color: #7a5200; }
+
+    /* Batch cell */
+    .batch-cell {
+      font-family: var(--mono);
+      font-size: .74rem;
+      color: var(--ink-3);
+      line-height: 1.4;
+    }
+
+    /* Dept cell */
+    .dept-cell {}
+
+    .dept-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .dept-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* Applied */
+    .applied-cell { text-align: center; }
+
+    .applied-badge {
+      display: inline-block;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: .68rem; font-weight: 700;
+      background: var(--green-lt); color: var(--green);
+      letter-spacing: .04em;
+    }
+
+    .no-applied {
+      font-size: .78rem; color: var(--ink-4);
+    }
+
+    /* Availability */
+    .avail-cell { text-align: right; }
+
+    .avail-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 13px; border-radius: var(--radius-sm);
+      background: var(--blue-lt); color: var(--blue);
+      font-family: var(--sans); font-size: .74rem; font-weight: 700;
+      border: none; cursor: pointer;
+      transition: all var(--t);
+    }
+
+    .avail-btn:hover { background: #bfdbfe; transform: translateY(-1px); }
+
+    /* ══════════════════════════════════════
+       DIVIDER
+    ══════════════════════════════════════ */
+    .section-divider {
+      display: flex; align-items: center; gap: 16px;
+      margin: 8px 0 40px;
+    }
+
+    .section-divider-line {
+      flex: 1; height: 1px; background: var(--border);
+    }
+
+    .section-divider-text {
+      font-family: var(--mono);
+      font-size: .64rem; color: var(--ink-4);
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+
+    /* ══════════════════════════════════════
+       STICKY APPLY BAR
+    ══════════════════════════════════════ */
+    .apply-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(10,14,26,.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(201,151,58,.2);
+      padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .apply-bar.visible { transform: translateY(0); }
+
+    .apply-bar-info {
+      display: flex; flex-direction: column;
+    }
+
+    .apply-bar-label {
+      font-family: var(--mono);
+      font-size: .62rem; color: rgba(255,255,255,.35);
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+
+    .apply-bar-selection {
+      font-size: .88rem; font-weight: 600; color: #fff; margin-top: 2px;
+    }
+
+    .apply-bar-right { display: flex; gap: 10px; }
+
+    .btn-clear {
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,.15);
+      background: transparent;
+      font-family: var(--sans); font-size: .82rem; font-weight: 600;
+      color: rgba(255,255,255,.5); cursor: pointer;
+      transition: all var(--t);
+    }
+
+    .btn-clear:hover { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.8); }
+
+    .btn-apply {
+      padding: 10px 28px; border-radius: var(--radius-sm);
+      background: var(--gold); color: var(--night);
+      font-family: var(--sans); font-size: .85rem; font-weight: 700;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(201,151,58,.4);
+      transition: all var(--t);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .btn-apply:hover { background: #d4a344; transform: translateY(-1px); }
+    .btn-apply:active { transform: translateY(0); }
+
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    .modal-bd {
+      position: fixed; inset: 0;
+      background: rgba(10,14,26,.7);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .modal-bd.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--card); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 440px;
+      overflow: hidden;
+      transform: scale(.93) translateY(16px);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      text-align: center;
+    }
+
+    .modal-bd.open .modal-box { transform: scale(1) translateY(0); }
+
+    .modal-top {
+      background: var(--night);
+      padding: 36px 32px 28px;
+    }
+
+    .modal-icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(201,151,58,.15);
+      border: 2px solid rgba(201,151,58,.35);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 1.6rem;
+    }
+
+    .modal-top h3 {
+      font-family: var(--display);
+      font-size: 1.3rem; color: #fff; margin-bottom: 6px;
+    }
+
+    .modal-top p {
+      font-size: .82rem; color: rgba(255,255,255,.4); line-height: 1.5;
+    }
+
+    .modal-body { padding: 24px 32px 28px; }
+
+    .modal-detail {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .modal-detail-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 10px 14px; background: var(--paper); border-radius: var(--radius-sm);
+      font-size: .82rem; gap: 12px;
+    }
+
+    .modal-detail-row dt {
+      color: var(--ink-3); font-weight: 500; white-space: nowrap;
+    }
+
+    .modal-detail-row dd {
+      font-weight: 700; color: var(--ink); text-align: right;
+    }
+
+    .modal-btns { display: flex; gap: 10px; }
+
+    .btn-modal-cancel {
+      flex: 1; padding: 11px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border); background: var(--card);
+      font-family: var(--sans); font-size: .84rem; font-weight: 600;
+      color: var(--ink-2); cursor: pointer; transition: all var(--t);
+    }
+
+    .btn-modal-cancel:hover { background: var(--paper); }
+
+    .btn-modal-confirm {
+      flex: 1; padding: 11px; border-radius: var(--radius-sm);
+      background: var(--gold); color: var(--night);
+      font-family: var(--sans); font-size: .84rem; font-weight: 700;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(201,151,58,.35);
+      transition: all var(--t);
+    }
+
+    .btn-modal-confirm:hover { background: #d4a344; }
+
+    /* ══════════════════════════════════════
+       SUCCESS MODAL
+    ══════════════════════════════════════ */
+    .success-box {
+      background: var(--card); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 380px;
+      overflow: hidden; text-align: center;
+      transform: scale(.93) translateY(16px);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      padding: 44px 36px 36px;
+    }
+
+    .modal-bd.open .success-box { transform: scale(1) translateY(0); }
+
+    .success-icon {
+      width: 70px; height: 70px; border-radius: 50%;
+      background: var(--green-lt); border: 2px solid rgba(16,185,129,.25);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px; font-size: 1.8rem;
+    }
+
+    .success-box h3 {
+      font-family: var(--display); font-size: 1.4rem; color: var(--ink); margin-bottom: 8px;
+    }
+
+    .success-box p { font-size: .85rem; color: var(--ink-3); line-height: 1.5; margin-bottom: 24px; }
+
+    .btn-done {
+      width: 100%; padding: 12px; border-radius: var(--radius-sm);
+      background: var(--night); color: #fff;
+      font-family: var(--sans); font-size: .88rem; font-weight: 700;
+      border: none; cursor: pointer; transition: all var(--t);
+    }
+
+    .btn-done:hover { background: var(--night-2); }
+
+    /* ══════════════════════════════════════
+       AVAIL MODAL
+    ══════════════════════════════════════ */
+    .avail-box {
+      background: var(--card); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 360px;
+      overflow: hidden; text-align: center;
+      transform: scale(.93) translateY(16px);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      padding: 36px 32px 28px;
+    }
+
+    .modal-bd.open .avail-box { transform: scale(1) translateY(0); }
+
+    .avail-meter-wrap { margin: 18px 0; }
+
+    .avail-meter-bg {
+      height: 8px; background: var(--border); border-radius: 999px; overflow: hidden;
+    }
+
+    .avail-meter-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      transition: width .6s ease;
+    }
+
+    .avail-nums {
+      display: flex; justify-content: space-between;
+      margin-top: 8px; font-size: .76rem;
+    }
+
+    .avail-nums span { color: var(--ink-3); }
+    .avail-nums strong { color: var(--green); }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    .toast-wrap {
+      position: fixed; top: 72px; right: 24px;
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 9999;
+    }
+
+    .toast {
+      padding: 12px 18px; border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg); font-size: .83rem; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      min-width: 240px; transform: translateX(110%); opacity: 0;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { background: var(--night); color: #fff; border-left: 3px solid var(--gold); }
+    .toast.info    { background: var(--blue-lt); color: var(--blue); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 860px) {
+      .tbl-head,
+      .tbl-row {
+        grid-template-columns: 36px 1fr 140px 90px 70px;
+      }
+
+      /* hide batch on small screens */
+      .tbl-head span:nth-child(3),
+      .tbl-row .batch-cell { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .topnav { padding: 0 16px; }
+      .hero   { padding: 32px 20px 30px; }
+      .page-wrap { padding: 24px 14px 90px; }
+      .apply-bar { padding: 14px 20px; }
+      .tbl-head,
+      .tbl-row { grid-template-columns: 36px 1fr 90px 70px; }
+      .tbl-head span:nth-child(4),
+      .tbl-row .dept-cell { display: none; }
+    }
+
+    /* ══════════════════════════════════════
+       ANIMATION
+    ══════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-brand">
+      <div class="nav-logo">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="8" width="16" height="8" rx="1" fill="white" opacity=".9"/>
+          <path d="M0 9L9 2l9 7" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="6.5" y="11" width="5" height="5" rx=".5" fill="#c9973a"/>
+        </svg>
+      </div>
+      <span class="nav-brand-text">CampusTrack</span>
+    </div>
+    <span class="nav-center">Elective Registration Portal · Even 2026</span>
+    <div class="nav-right">
+      <span class="nav-student">Aravind Kumar · 231211101015</span>
+      <div class="nav-avatar">AK</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Course Registration</div>
+    <h1>Choose Your <em>Electives</em></h1>
+    <p class="hero-sub">Select one subject from each section below. Check seat availability before confirming your choice.</p>
+    <div class="hero-pills">
+      <span class="hero-pill gold">Even Semester 2026</span>
+      <span class="hero-pill">B.Tech · AI · 3rd Year</span>
+      <span class="hero-pill">Reg. No: 231211101015</span>
+    </div>
+  </div>
+
+  <!-- PAGE WRAP -->
+  <div class="page-wrap">
+
+    <!-- ══════ SECTION 1: AI ELECTIVE ══════ -->
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="section-number">01</div>
+        <div class="section-titles">
+          <div class="section-label">Part A · Department Elective</div>
+          <div class="section-title">2026-Even — AI 3rd Year Elective-2</div>
+        </div>
+      </div>
+      <span class="section-count" id="ai-count">10 subjects</span>
+    </div>
+
+    <div class="table-card" id="aiCard">
+      <!-- Header -->
+      <div class="tbl-head">
+        <span></span>
+        <span>Subject</span>
+        <span>Batch</span>
+        <span>Department</span>
+        <span class="center">Status</span>
+        <span class="right">Seats</span>
+      </div>
+      <!-- Rows generated by JS -->
+      <div id="aiRows"></div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-text">Open Elective</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- ══════ SECTION 2: OE THEORY ══════ -->
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="section-number">02</div>
+        <div class="section-titles">
+          <div class="section-label">Part B · Open Elective Theory</div>
+          <div class="section-title">2026-Even — Open Elective Theory</div>
+        </div>
+      </div>
+      <span class="section-count" id="oe-count">39 subjects</span>
+    </div>
+
+    <!-- OE Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="6" r="4.5"/><path d="M10.5 10.5l2 2"/></svg>
+        <input type="text" id="oeSearch" placeholder="Search subjects…" oninput="filterOE()" />
+      </div>
+      <select class="dept-filter" id="oeDept" onchange="filterOE()">
+        <option value="">All Departments</option>
+        <option value="IT">B.Tech – IT</option>
+        <option value="CSE">B.Tech – CSE</option>
+        <option value="ECE">B.Tech – ECE</option>
+        <option value="EEE">B.Tech – EEE</option>
+        <option value="Biotech">B.Tech – Biotechnology</option>
+        <option value="Chemical">B.Tech – Chemical Engg.</option>
+        <option value="Mechanical">B.Tech – Mechanical Engg.</option>
+        <option value="Civil">B.Tech – Civil Engg.</option>
+      </select>
+    </div>
+
+    <div class="table-card" id="oeCard">
+      <div class="tbl-head">
+        <span></span>
+        <span>Subject</span>
+        <span>Batch / Slot</span>
+        <span>Department</span>
+        <span class="center">Status</span>
+        <span class="right">Seats</span>
+      </div>
+      <div id="oeRows"></div>
+    </div>
+
+  </div>
+
+  <!-- APPLY BAR -->
+  <div class="apply-bar" id="applyBar">
+    <div class="apply-bar-info">
+      <span class="apply-bar-label">Your Selection</span>
+      <span class="apply-bar-selection" id="applyBarText">—</span>
+    </div>
+    <div class="apply-bar-right">
+      <button class="btn-clear" onclick="clearSelections()">Clear All</button>
+      <button class="btn-apply" onclick="openConfirmModal()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 7.5L5.5 11 12 4"/></svg>
+        Confirm &amp; Apply
+      </button>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-bd" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-top">
+        <div class="modal-icon">📋</div>
+        <h3>Confirm Registration</h3>
+        <p>Review your elective choices before submitting. This cannot be changed easily after confirmation.</p>
+      </div>
+      <div class="modal-body">
+        <dl class="modal-detail" id="confirmDetails"></dl>
+        <div class="modal-btns">
+          <button class="btn-modal-cancel" onclick="closeModal('confirmModal')">Go Back</button>
+          <button class="btn-modal-confirm" onclick="submitRegistration()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-bd" id="successModal">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <h3>You're Registered!</h3>
+      <p>Your elective preferences have been submitted successfully. Check your registered mail for confirmation details.</p>
+      <button class="btn-done" onclick="closeModal('successModal')">Done</button>
+    </div>
+  </div>
+
+  <!-- AVAIL MODAL -->
+  <div class="modal-bd" id="availModal">
+    <div class="avail-box">
+      <div style="font-family:var(--mono);font-size:.62rem;color:var(--ink-4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Seat Availability</div>
+      <div style="font-family:var(--display);font-size:1.1rem;color:var(--ink);margin-bottom:4px" id="availSubject">—</div>
+      <div style="font-size:.78rem;color:var(--ink-3);margin-bottom:6px" id="availBatch">—</div>
+      <div class="avail-meter-wrap">
+        <div class="avail-meter-bg"><div class="avail-meter-fill" id="availFill" style="width:0%"></div></div>
+        <div class="avail-nums">
+          <span id="availTaken">— taken</span>
+          <strong id="availFree">— seats left</strong>
+        </div>
+      </div>
+      <button class="btn-done" style="margin-top:12px" onclick="closeModal('availModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    /* ═══════════════════════════════════════════
+       DEPT STYLE MAP
+    ═══════════════════════════════════════════ */
+    const DEPT = {
+      'AI':         { label:'B.Tech · AI',       color:'var(--ai)',     bg:'var(--ai-lt)',     dot:'#4f46e5' },
+      'IT':         { label:'B.Tech · IT',        color:'var(--it)',     bg:'var(--it-lt)',     dot:'#0891b2' },
+      'CSE':        { label:'B.Tech · CSE',       color:'var(--cse)',    bg:'var(--cse-lt)',    dot:'#7c3aed' },
+      'ECE':        { label:'B.Tech · ECE',       color:'var(--ece)',    bg:'var(--ece-lt)',    dot:'#059669' },
+      'EEE':        { label:'B.Tech · EEE',       color:'var(--eee)',    bg:'var(--eee-lt)',    dot:'#d97706' },
+      'Biotech':    { label:'B.Tech · Biotech',   color:'var(--bio)',    bg:'var(--bio-lt)',    dot:'#db2777' },
+      'Chemical':   { label:'B.Tech · Chemical',  color:'var(--chem)',   bg:'var(--chem-lt)',   dot:'#65a30d' },
+      'Mechanical': { label:'B.Tech · Mech.',     color:'var(--mech)',   bg:'var(--mech-lt)',   dot:'#b45309' },
+      'Civil':      { label:'B.Tech · Civil',     color:'var(--civil)',  bg:'var(--civil-lt)',  dot:'#0369a1' },
+    };
+
+    /* ═══════════════════════════════════════════
+       DATA
+    ═══════════════════════════════════════════ */
+    const AI_SUBJECTS = [
+      { id:'ai1',  subject:'5G Networks',                          batch:'5G Networks · Slot 1',                       dept:'AI', applied:false, seats:{ total:60, taken:34 } },
+      { id:'ai2',  subject:'Information Storage Management',       batch:'ISM · Slot 1',                              dept:'AI', applied:false, seats:{ total:60, taken:52 } },
+      { id:'ai3',  subject:'5G Networks',                          batch:'5G Networks · Slot 2 (A+B+C+D)',            dept:'AI', applied:false, seats:{ total:60, taken:45 } },
+      { id:'ai4',  subject:'5G Networks',                          batch:'5G Networks · Slot 2 (E+F+G+H)',            dept:'AI', applied:false, seats:{ total:60, taken:28 } },
+      { id:'ai5',  subject:'Information Storage Management',       batch:'ISM · Slot 2 (A+B+C+D)',                    dept:'AI', applied:false, seats:{ total:60, taken:50 } },
+      { id:'ai6',  subject:'Information Storage Management',       batch:'ISM · Slot 2 (E+F+G+H)',                    dept:'AI', applied:false, seats:{ total:60, taken:38 } },
+      { id:'ai7',  subject:'Cryptography & Network Security',     batch:'CNS · Slot 2 (A+B+C+D)',                    dept:'AI', applied:false, seats:{ total:60, taken:42 } },
+      { id:'ai8',  subject:'Cryptography & Network Security',     batch:'CNS · Slot 2 (E+F+G+H)',                    dept:'AI', applied:true,  seats:{ total:60, taken:55 } },
+      { id:'ai9',  subject:'Cyber Forensics & Internet Security', batch:'CFIS · Slot 2 (A+B+C+D)',                   dept:'AI', applied:false, seats:{ total:60, taken:21 } },
+      { id:'ai10', subject:'Cyber Forensics & Internet Security', batch:'CFIS · Slot 2 (E+F+G+H)',                   dept:'AI', applied:false, seats:{ total:60, taken:17 } },
+    ];
+
+    const OE_SUBJECTS = [
+      { id:'oe1',  subject:'OE – Cyber Security Essentials',       batch:'Slot A',                          dept:'IT',         applied:false, seats:{ total:70, taken:44 } },
+      { id:'oe2',  subject:'OE – Cyber Security Essentials',       batch:'Slot B',                          dept:'IT',         applied:false, seats:{ total:70, taken:61 } },
+      { id:'oe3',  subject:'OE – Introduction to Multimedia',      batch:'Slot A',                          dept:'IT',         applied:false, seats:{ total:70, taken:30 } },
+      { id:'oe4',  subject:'OE – Introduction to Multimedia',      batch:'Slot B',                          dept:'IT',         applied:false, seats:{ total:70, taken:55 } },
+      { id:'oe5',  subject:'Cyber Security and Forensics',         batch:'2023-2027 · Slot A',              dept:'CSE',        applied:false, seats:{ total:60, taken:38 } },
+      { id:'oe6',  subject:'Cyber Security and Forensics',         batch:'2023-2027 · Slot B',              dept:'CSE',        applied:false, seats:{ total:60, taken:27 } },
+      { id:'oe7',  subject:'Internet of Things & Applications',   batch:'2023-2027 · Slot A',              dept:'ECE',        applied:false, seats:{ total:65, taken:50 } },
+      { id:'oe8',  subject:'Internet of Things & Applications',   batch:'2023-2027 · Slot B · Sec A',      dept:'ECE',        applied:false, seats:{ total:65, taken:40 } },
+      { id:'oe9',  subject:'Internet of Things & Applications',   batch:'2023-2027 · Slot B · Sec B',      dept:'ECE',        applied:false, seats:{ total:65, taken:32 } },
+      { id:'oe10', subject:'Cellular Mobile Communication',        batch:'2023-2027 · Slot A',              dept:'ECE',        applied:false, seats:{ total:65, taken:45 } },
+      { id:'oe11', subject:'Cellular Mobile Communication',        batch:'2023-2027 · Slot B',              dept:'ECE',        applied:false, seats:{ total:65, taken:20 } },
+      { id:'oe12', subject:'Solar Energy Conversion System',       batch:'2023-2027 · Slot A',              dept:'EEE',        applied:false, seats:{ total:60, taken:35 } },
+      { id:'oe13', subject:'Solar Energy Conversion System',       batch:'2023-2027 · Slot B · Sec A',      dept:'EEE',        applied:false, seats:{ total:60, taken:48 } },
+      { id:'oe14', subject:'Solar Energy Conversion System',       batch:'2023-2027 · Slot B · Sec B',      dept:'EEE',        applied:false, seats:{ total:60, taken:29 } },
+      { id:'oe15', subject:'Energy Storage Technology',            batch:'2023-2027 · Slot A',              dept:'EEE',        applied:false, seats:{ total:60, taken:42 } },
+      { id:'oe16', subject:'Energy Storage Technology',            batch:'2023-2027 · Slot B',              dept:'EEE',        applied:false, seats:{ total:60, taken:18 } },
+      { id:'oe17', subject:'Human Physiology',                     batch:'2023-2027 · Slot A',              dept:'Biotech',    applied:false, seats:{ total:55, taken:30 } },
+      { id:'oe18', subject:'Human Physiology',                     batch:'2023-2027 · Slot B · Sec A',      dept:'Biotech',    applied:false, seats:{ total:55, taken:44 } },
+      { id:'oe19', subject:'Human Physiology',                     batch:'2023-2027 · Slot B · Sec B',      dept:'Biotech',    applied:true,  seats:{ total:55, taken:52 } },
+      { id:'oe20', subject:'Petrochemical Unit Processes',         batch:'2023-2027 · Slot A',              dept:'Chemical',   applied:false, seats:{ total:55, taken:22 } },
+      { id:'oe21', subject:'Petrochemical Unit Processes',         batch:'2023-2027 · Slot B · Sec A',      dept:'Chemical',   applied:false, seats:{ total:55, taken:35 } },
+      { id:'oe22', subject:'Petrochemical Unit Processes',         batch:'2023-2027 · Slot B · Sec B',      dept:'Chemical',   applied:false, seats:{ total:55, taken:41 } },
+      { id:'oe23', subject:'Fundamentals of Nanoscience',          batch:'2023-2027 · Slot A',              dept:'Chemical',   applied:false, seats:{ total:55, taken:28 } },
+      { id:'oe24', subject:'Fundamentals of Nanoscience',          batch:'2023-2027 · Slot B',              dept:'Chemical',   applied:false, seats:{ total:55, taken:15 } },
+      { id:'oe25', subject:'Automobile Engineering',               batch:'2023-2027 · Slot A',              dept:'Mechanical', applied:false, seats:{ total:60, taken:37 } },
+      { id:'oe26', subject:'Automobile Engineering',               batch:'2023-2027 · Slot B · Sec A',      dept:'Mechanical', applied:false, seats:{ total:60, taken:49 } },
+      { id:'oe27', subject:'Automobile Engineering',               batch:'2023-2027 · Slot B · Sec B',      dept:'Mechanical', applied:false, seats:{ total:60, taken:31 } },
+      { id:'oe28', subject:'Composite Materials',                  batch:'2023-2027 · Slot A',              dept:'Mechanical', applied:false, seats:{ total:60, taken:43 } },
+      { id:'oe29', subject:'Composite Materials',                  batch:'2023-2027 · Slot B · Sec A',      dept:'Mechanical', applied:false, seats:{ total:60, taken:22 } },
+      { id:'oe30', subject:'Composite Materials',                  batch:'2023-2027 · Slot B · Sec B',      dept:'Mechanical', applied:false, seats:{ total:60, taken:58 } },
+      { id:'oe31', subject:'Industry 4.0',                         batch:'2023-2027 · Slot A',              dept:'Mechanical', applied:false, seats:{ total:60, taken:24 } },
+      { id:'oe32', subject:'Industry 4.0',                         batch:'2023-2027 · Slot B · Sec A',      dept:'Mechanical', applied:false, seats:{ total:60, taken:40 } },
+      { id:'oe33', subject:'Industry 4.0',                         batch:'2023-2027 · Slot B · Sec B',      dept:'Mechanical', applied:false, seats:{ total:60, taken:16 } },
+      { id:'oe34', subject:'Geographical Info. System & Mapping', batch:'2023-2027 · Slot A',              dept:'Civil',      applied:false, seats:{ total:55, taken:33 } },
+      { id:'oe35', subject:'Geographical Info. System & Mapping', batch:'2023-2027 · Slot B',              dept:'Civil',      applied:false, seats:{ total:55, taken:27 } },
+      { id:'oe36', subject:'Air Pollution and Control',            batch:'2023-2027 · Slot A',              dept:'Civil',      applied:false, seats:{ total:55, taken:46 } },
+      { id:'oe37', subject:'Air Pollution and Control',            batch:'2023-2027 · Slot B · Sec A',      dept:'Civil',      applied:false, seats:{ total:55, taken:38 } },
+      { id:'oe38', subject:'Air Pollution and Control',            batch:'2023-2027 · Slot B · Sec B',      dept:'Civil',      applied:false, seats:{ total:55, taken:20 } },
+      { id:'oe39', subject:'Intelligent Transportation Systems',   batch:'2023-2027 · Slot A',              dept:'Civil',      applied:false, seats:{ total:55, taken:31 } },
+    ];
+
+    /* ═══════════════════════════════════════════
+       STATE
+    ═══════════════════════════════════════════ */
+    let selectedAI = null;
+    let selectedOE = null;
+
+    /* ═══════════════════════════════════════════
+       BUILD ROWS
+    ═══════════════════════════════════════════ */
+    function buildRow(item, groupId) {
+      const d = DEPT[item.dept] || { label: item.dept, color:'#6b7280', bg:'#f3f4f6', dot:'#6b7280' };
+      const free = item.seats.total - item.seats.taken;
+      const pct = Math.round((item.seats.taken / item.seats.total) * 100);
+
+      const row = document.createElement('div');
+      row.className = 'tbl-row';
+      if (item.applied) row.classList.add('selected');
+      row.dataset.id = item.id;
+      row.dataset.group = groupId;
+      row.dataset.dept = item.dept;
+      row.dataset.subject = item.subject.toLowerCase();
+
+      row.innerHTML = `
+        <div class="radio-cell">
+          <div class="custom-radio"><div class="custom-radio-dot"></div></div>
+        </div>
+        <div class="subject-cell">
+          <div class="subject-name">${item.subject}</div>
+        </div>
+        <div class="batch-cell">${item.batch}</div>
+        <div class="dept-cell">
+          <span class="dept-badge" style="background:${d.bg};color:${d.color}">
+            <span class="dept-dot" style="background:${d.dot}"></span>
+            ${d.label}
+          </span>
+        </div>
+        <div class="applied-cell">
+          ${item.applied
+            ? '<span class="applied-badge">Applied</span>'
+            : '<span class="no-applied">—</span>'}
+        </div>
+        <div class="avail-cell">
+          <button class="avail-btn" data-id="${item.id}" data-group="${groupId}" onclick="showAvail(event, '${item.id}', '${groupId}')">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="5.5" cy="5.5" r="4.5"/>
+              <path d="M5.5 3v2.5l1.5 1.5"/>
+            </svg>
+            ${free} left
+          </button>
+        </div>
+      `;
+
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.avail-btn')) return;
+        selectRow(item.id, groupId);
+      });
+
+      return row;
+    }
+
+    function renderAI() {
+      const wrap = document.getElementById('aiRows');
+      wrap.innerHTML = '';
+      AI_SUBJECTS.forEach((s, i) => {
+        const row = buildRow(s, 'ai');
+        row.style.animationDelay = `${i * 30}ms`;
+        wrap.appendChild(row);
+      });
+      document.getElementById('ai-count').textContent = `${AI_SUBJECTS.length} subjects`;
+    }
+
+    function renderOE() {
+      const wrap = document.getElementById('oeRows');
+      wrap.innerHTML = '';
+      OE_SUBJECTS.forEach((s, i) => {
+        const row = buildRow(s, 'oe');
+        row.style.animationDelay = `${i * 20}ms`;
+        wrap.appendChild(row);
+      });
+      document.getElementById('oe-count').textContent = `${OE_SUBJECTS.length} subjects`;
+    }
+
+    /* ═══════════════════════════════════════════
+       SELECT LOGIC
+    ═══════════════════════════════════════════ */
+    function selectRow(id, group) {
+      /* deselect same group */
+      document.querySelectorAll(`.tbl-row[data-group="${group}"]`).forEach(r => r.classList.remove('selected'));
+
+      const row = document.querySelector(`.tbl-row[data-id="${id}"]`);
+      if (!row) return;
+      row.classList.add('selected');
+
+      if (group === 'ai') selectedAI = id;
+      else selectedOE = id;
+
+      updateApplyBar();
+    }
+
+    function clearSelections() {
+      document.querySelectorAll('.tbl-row').forEach(r => r.classList.remove('selected'));
+      selectedAI = null; selectedOE = null;
+      updateApplyBar();
+    }
+
+    function updateApplyBar() {
+      const bar = document.getElementById('applyBar');
+      const hasAny = selectedAI || selectedOE;
+      bar.classList.toggle('visible', !!hasAny);
+
+      let parts = [];
+      if (selectedAI) {
+        const s = AI_SUBJECTS.find(x => x.id === selectedAI);
+        if (s) parts.push(`Elective: ${s.subject}`);
+      }
+      if (selectedOE) {
+        const s = OE_SUBJECTS.find(x => x.id === selectedOE);
+        if (s) parts.push(`OE: ${s.subject}`);
+      }
+      document.getElementById('applyBarText').textContent = parts.join('  ·  ') || '—';
+    }
+
+    /* ═══════════════════════════════════════════
+       OE FILTER
+    ═══════════════════════════════════════════ */
+    function filterOE() {
+      const q    = document.getElementById('oeSearch').value.toLowerCase();
+      const dept = document.getElementById('oeDept').value;
+      let vis = 0;
+
+      document.querySelectorAll('.tbl-row[data-group="oe"]').forEach(row => {
+        const matchQ = !q || row.dataset.subject.includes(q);
+        const matchD = !dept || row.dataset.dept === dept;
+        const show = matchQ && matchD;
+        row.classList.toggle('hidden', !show);
+        if (show) vis++;
+      });
+
+      document.getElementById('oe-count').textContent = `${vis} of ${OE_SUBJECTS.length} subjects`;
+    }
+
+    /* ═══════════════════════════════════════════
+       AVAILABILITY MODAL
+    ═══════════════════════════════════════════ */
+    function showAvail(e, id, group) {
+      e.stopPropagation();
+      const list = group === 'ai' ? AI_SUBJECTS : OE_SUBJECTS;
+      const item = list.find(x => x.id === id);
+      if (!item) return;
+
+      const free = item.seats.total - item.seats.taken;
+      const pct  = Math.round((item.seats.taken / item.seats.total) * 100);
+
+      document.getElementById('availSubject').textContent = item.subject;
+      document.getElementById('availBatch').textContent   = item.batch;
+      document.getElementById('availFill').style.width    = pct + '%';
+      document.getElementById('availTaken').textContent   = `${item.seats.taken} enrolled`;
+      document.getElementById('availFree').textContent    = `${free} seats left`;
+
+      openModal('availModal');
+    }
+
+    /* ═══════════════════════════════════════════
+       CONFIRM & SUBMIT
+    ═══════════════════════════════════════════ */
+    function openConfirmModal() {
+      if (!selectedAI && !selectedOE) {
+        showToast('Please select at least one subject.', 'info');
+        return;
+      }
+
+      const details = document.getElementById('confirmDetails');
+      details.innerHTML = '';
+
+      if (selectedAI) {
+        const s = AI_SUBJECTS.find(x => x.id === selectedAI);
+        if (s) addDetail(details, 'Dept. Elective', s.subject);
+        if (s) addDetail(details, 'Batch', s.batch);
+      }
+
+      if (selectedOE) {
+        const s = OE_SUBJECTS.find(x => x.id === selectedOE);
+        if (s) addDetail(details, 'Open Elective', s.subject);
+        if (s) addDetail(details, 'OE Batch', s.batch);
+      }
+
+      addDetail(details, 'Student', 'Aravind Kumar · 231211101015');
+      addDetail(details, 'Semester', 'Even · 2026');
+
+      openModal('confirmModal');
+    }
+
+    function addDetail(dl, term, def) {
+      const row = document.createElement('div');
+      row.className = 'modal-detail-row';
+      row.innerHTML = `<dt>${term}</dt><dd>${def}</dd>`;
+      dl.appendChild(row);
+    }
+
+    function submitRegistration() {
+      closeModal('confirmModal');
+      setTimeout(() => openModal('successModal'), 200);
+      showToast('Registration submitted successfully!', 'success');
+    }
+
+    /* ═══════════════════════════════════════════
+       MODAL HELPERS
+    ═══════════════════════════════════════════ */
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.querySelectorAll('.modal-bd').forEach(bd => {
+      bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+    });
+
+    /* ═══════════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════════ */
+    function showToast(msg, type = 'success') {
+      const wrap = document.getElementById('toastWrap');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      const icons = { success:'🎓', info:'💡' };
+      t.innerHTML = `<span>${icons[type] || '📌'}</span><span>${msg}</span>`;
+      wrap.appendChild(t);
+      requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+    }
+
+    /* ═══════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════ */
+    renderAI();
+    renderOE();
+
+    /* Pre-select "applied" rows */
+    AI_SUBJECTS.forEach(s => { if (s.applied) selectedAI = s.id; });
+    OE_SUBJECTS.forEach(s => { if (s.applied) selectedOE = s.id; });
+    updateApplyBar();
+  </script>
+</body>
+</html>

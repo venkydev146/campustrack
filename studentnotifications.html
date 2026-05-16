@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications — CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Surface */
+      --bg:          #f0f2f8;
+      --card:        #ffffff;
+      --sidebar-bg:  #0f1623;
+      --sidebar-w:   252px;
+
+      /* Ink */
+      --ink:         #111827;
+      --ink-2:       #374151;
+      --ink-3:       #6b7280;
+      --ink-4:       #9ca3af;
+
+      /* Accents */
+      --blue:        #2563eb;
+      --blue-lt:     #dbeafe;
+      --green:       #059669;
+      --green-lt:    #d1fae5;
+      --orange:      #d97706;
+      --orange-lt:   #fef3c7;
+
+      /* Misc */
+      --border:      #e5e7eb;
+      --radius-sm:   8px;
+      --radius-md:   14px;
+      --radius-lg:   20px;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:   0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+      --t:           200ms cubic-bezier(.4,0,.2,1);
+
+      /* Fonts */
+      --sans:        'Outfit', sans-serif;
+      --serif:       'DM Serif Display', serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ambient tint */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 0%, rgba(37,99,235,.06) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 85% 100%, rgba(5,150,105,.05) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ═══════════════════════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    /* sidebar glow */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -60px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(37,99,235,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 26px 22px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+
+    .brand-mark {
+      width: 36px; height: 36px;
+      background: var(--blue);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+      flex-shrink: 0;
+    }
+
+    .brand-info { display: flex; flex-direction: column; }
+
+    .brand-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -.01em;
+    }
+
+    .brand-role {
+      font-size: .65rem;
+      color: rgba(255,255,255,.35);
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    /* nav */
+    .sidebar-nav {
+      flex: 1;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-section-label {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.25);
+      padding: 12px 10px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      color: rgba(255,255,255,.5);
+      font-size: .85rem;
+      font-weight: 500;
+      transition: all var(--t);
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.85);
+    }
+
+    .nav-item.active {
+      background: rgba(37,99,235,.25);
+      color: #fff;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 3px;
+      background: var(--blue);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-icon {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+
+    .nav-item.active .nav-icon,
+    .nav-item:hover .nav-icon { opacity: 1; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--blue);
+      color: #fff;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* user area */
+    .sidebar-user {
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+
+    .user-name {
+      font-size: .8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-id {
+      font-size: .68rem;
+      color: rgba(255,255,255,.3);
+    }
+
+    /* ═══════════════════════════════════════════════
+       MAIN AREA
+    ═══════════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════════
+       TOP HEADER
+    ═══════════════════════════════════════════════ */
+    .topbar {
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(229,231,235,.8);
+      padding: 0 36px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-left { display: flex; flex-direction: column; }
+
+    .topbar-title {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      color: var(--ink);
+      letter-spacing: -.01em;
+      line-height: 1;
+    }
+
+    .topbar-sub {
+      font-size: .75rem;
+      color: var(--ink-3);
+      margin-top: 3px;
+      font-weight: 400;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .topbar-date {
+      font-size: .78rem;
+      color: var(--ink-3);
+      font-weight: 500;
+    }
+
+    .mark-read-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-family: var(--sans);
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: all var(--t);
+      white-space: nowrap;
+    }
+
+    .mark-read-btn:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-lt);
+    }
+
+    /* ═══════════════════════════════════════════════
+       CONTENT
+    ═══════════════════════════════════════════════ */
+    .content {
+      flex: 1;
+      padding: 32px 36px 64px;
+      max-width: 860px;
+    }
+
+    /* ── Filter Tabs ── */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-family: var(--sans);
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--ink-3);
+      cursor: pointer;
+      transition: all var(--t);
+      user-select: none;
+    }
+
+    .filter-tab:hover {
+      border-color: #c0c9e0;
+      color: var(--ink-2);
+      transform: translateY(-1px);
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37,99,235,.3);
+    }
+
+    .tab-count {
+      background: rgba(0,0,0,.1);
+      color: inherit;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .filter-tab.active .tab-count {
+      background: rgba(255,255,255,.25);
+    }
+
+    .tab-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Notifications List ── */
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Individual card */
+    .notif-card {
+      background: var(--card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 18px 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      cursor: default;
+      transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+      animation: slideIn .3s ease both;
+    }
+
+    .notif-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #d1d5db;
+    }
+
+    .notif-card.unread {
+      background: linear-gradient(135deg, #fafbff 0%, #f5f7ff 100%);
+      border-color: #dde3f8;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* icon bubble */
+    .notif-icon {
+      width: 42px; height: 42px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+
+    .notif-icon.green  { background: var(--green-lt);  color: var(--green);  }
+    .notif-icon.orange { background: var(--orange-lt); color: var(--orange); }
+    .notif-icon.blue   { background: var(--blue-lt);   color: var(--blue);   }
+
+    /* body */
+    .notif-body { flex: 1; min-width: 0; }
+
+    .notif-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .notif-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .notif-card:not(.unread) .notif-title {
+      font-weight: 600;
+      color: var(--ink-2);
+    }
+
+    .notif-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .notif-badge {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .notif-badge.green  { background: var(--green-lt);  color: var(--green);  }
+    .notif-badge.orange { background: var(--orange-lt); color: var(--orange); }
+    .notif-badge.blue   { background: var(--blue-lt);   color: var(--blue);   }
+
+    .notif-unread-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .notif-desc {
+      font-size: .83rem;
+      color: var(--ink-3);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .notif-time {
+      font-size: .72rem;
+      color: var(--ink-4);
+      font-weight: 500;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .empty-state.show { display: flex; }
+
+    .empty-icon {
+      width: 72px; height: 72px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+      color: var(--ink-4);
+    }
+
+    .empty-title {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      color: var(--ink-2);
+      margin-bottom: 6px;
+    }
+
+    .empty-sub {
+      font-size: .83rem;
+      color: var(--ink-4);
+    }
+
+    /* ── section label ── */
+    .list-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      margin-bottom: 10px;
+      margin-top: 22px;
+    }
+
+    .list-label:first-child { margin-top: 0; }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .content { padding: 20px 16px 60px; }
+      .topbar { padding: 0 20px; }
+      .topbar-date { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="9" width="16" height="9" rx="1" fill="white" opacity=".85"/>
+          <path d="M1 10L10 3l9 7" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="7.5" y="12" width="5" height="6" rx=".5" fill="#2563eb"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <span class="brand-name">CampusTrack</span>
+        <span class="brand-role">Student Portal</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+
+      <a href="studentdashboard.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <rect x="2" y="2" width="6" height="6" rx="1.5"/>
+          <rect x="10" y="2" width="6" height="6" rx="1.5"/>
+          <rect x="2" y="10" width="6" height="6" rx="1.5"/>
+          <rect x="10" y="10" width="6" height="6" rx="1.5"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="studentattendance.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="9" cy="9" r="7"/>
+          <path d="M9 5v4l2.5 2.5"/>
+        </svg>
+        Attendance
+      </a>
+
+      <a href="studentmarks.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M3 14l3-3 2.5 2.5L13 8l2 2"/>
+          <path d="M3 3h12"/>
+        </svg>
+        Internal Marks
+      </a>
+
+      <a href="studentresources.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 2h7l3 3v11a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/>
+          <path d="M11 2v4h4M6 9h6M6 12h4"/>
+        </svg>
+        Resources
+      </a>
+
+      <a href="studentnotifications.html" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M9 2a5 5 0 015 5v3l1.5 2H2.5L4 10V7a5 5 0 015-5z"/>
+          <path d="M7 14a2 2 0 004 0"/>
+        </svg>
+        Notifications
+        <span class="nav-badge" id="sidebarBadge">6</span>
+      </a>
+
+      <a href="studentprofile.html" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="9" cy="6" r="3"/>
+          <path d="M2 16c0-3.31 3.13-6 7-6s7 2.69 7 6"/>
+        </svg>
+        Profile
+      </a>
+
+      <div class="nav-section-label" style="margin-top:8px">Account</div>
+
+      <a href="studentlogin.html" class="nav-item" style="color:rgba(239,68,68,.6)">
+        <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M7 15H4a1 1 0 01-1-1V4a1 1 0 011-1h3M12 12l3-3-3-3M15 9H7"/>
+        </svg>
+        Logout
+      </a>
+    </nav>
+
+    <!-- User -->
+    <div class="sidebar-user">
+      <div class="user-avatar">AK</div>
+      <div class="user-info">
+        <div class="user-name">Aravind Kumar</div>
+        <div class="user-id">231211101015</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Notifications</span>
+        <span class="topbar-sub">Stay updated with your academic activities</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-date" id="todayDate"></span>
+        <button class="mark-read-btn" onclick="markAllRead()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2 7l3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Mark all as read
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Filter Tabs -->
+      <div class="filter-row" id="filterRow">
+        <button class="filter-tab active" data-filter="all" onclick="setFilter(this)">
+          All
+          <span class="tab-count" id="count-all">15</span>
+        </button>
+        <button class="filter-tab" data-filter="attendance" onclick="setFilter(this)">
+          <span class="tab-dot" style="background:var(--green)"></span>
+          Attendance
+          <span class="tab-count" id="count-attendance">5</span>
+        </button>
+        <button class="filter-tab" data-filter="marks" onclick="setFilter(this)">
+          <span class="tab-dot" style="background:var(--orange)"></span>
+          Marks
+          <span class="tab-count" id="count-marks">4</span>
+        </button>
+        <button class="filter-tab" data-filter="resources" onclick="setFilter(this)">
+          <span class="tab-dot" style="background:var(--blue)"></span>
+          Resources
+          <span class="tab-count" id="count-resources">6</span>
+        </button>
+      </div>
+
+      <!-- List -->
+      <div class="notif-list" id="notifList"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <path d="M15 4a8 8 0 018 8v5l2.5 3H4.5L7 17v-5a8 8 0 018-8z"/>
+            <path d="M12 24a3 3 0 006 0"/>
+          </svg>
+        </div>
+        <div class="empty-title">No notifications here</div>
+        <div class="empty-sub">You're all caught up in this category.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ══════════════════════════════════════════════
+       NOTIFICATION DATA
+    ══════════════════════════════════════════════ */
+    const notifications = [
+      {
+        id: 1,
+        type: 'attendance',
+        icon: '📋',
+        title: 'Attendance Marked — Period 3',
+        desc: 'Your attendance has been marked Present for Period 3 (Data Structures) today, 25 Apr 2025.',
+        time: '12 minutes ago',
+        unread: true,
+      },
+      {
+        id: 2,
+        type: 'marks',
+        icon: '📊',
+        title: 'CAT-1 Marks Updated — DBMS',
+        desc: 'Your CAT-1 internal marks for Database Management Systems have been published. Score: 24 / 30.',
+        time: '1 hour ago',
+        unread: true,
+      },
+      {
+        id: 3,
+        type: 'resources',
+        icon: '📂',
+        title: 'New Notes Uploaded — DS Unit 2',
+        desc: 'Data Structures Unit 2 lecture notes (Trees & Graphs) have been uploaded by Dr. Meera Nair.',
+        time: '2 hours ago',
+        unread: true,
+      },
+      {
+        id: 4,
+        type: 'resources',
+        icon: '📝',
+        title: 'Assignment Posted — Computer Networks',
+        desc: 'A new assignment on Transport Layer Protocols is due by 30 Apr 2025. Download from Resources.',
+        time: '3 hours ago',
+        unread: true,
+      },
+      {
+        id: 5,
+        type: 'attendance',
+        icon: '⚠️',
+        title: 'Low Attendance Warning — OS Lab',
+        desc: 'Your attendance in Operating Systems Lab has dropped to 68%. Minimum required is 75%.',
+        time: '5 hours ago',
+        unread: true,
+      },
+      {
+        id: 6,
+        type: 'marks',
+        icon: '📊',
+        title: 'CAT-2 Marks Updated — DS',
+        desc: 'Your CAT-2 marks for Data Structures have been entered. Score: 27 / 30. Great work!',
+        time: '1 day ago',
+        unread: true,
+      },
+      {
+        id: 7,
+        type: 'resources',
+        icon: '📂',
+        title: 'Syllabus PDF Uploaded — CN',
+        desc: 'The full revised syllabus for Computer Networks (Regulation 2021) has been uploaded to Resources.',
+        time: '1 day ago',
+        unread: false,
+      },
+      {
+        id: 8,
+        type: 'attendance',
+        icon: '📋',
+        title: 'Attendance Marked — Period 1',
+        desc: 'Your attendance has been marked Absent for Period 1 (Mathematics III) on 24 Apr 2025.',
+        time: '1 day ago',
+        unread: false,
+      },
+      {
+        id: 9,
+        type: 'resources',
+        icon: '📝',
+        title: 'Lab Manual Released — OS Lab',
+        desc: 'Operating Systems Lab Manual (Cycle 2) is now available. Report on 28 Apr 2025.',
+        time: '2 days ago',
+        unread: false,
+      },
+      {
+        id: 10,
+        type: 'marks',
+        icon: '📊',
+        title: 'CAT-1 Marks Updated — CN',
+        desc: 'Your CAT-1 marks for Computer Networks have been updated by the faculty. Score: 22 / 30.',
+        time: '2 days ago',
+        unread: false,
+      },
+      {
+        id: 11,
+        type: 'attendance',
+        icon: '📋',
+        title: 'Monthly Attendance Report',
+        desc: 'Your consolidated attendance report for April 2025 is now available. Overall: 82%.',
+        time: '3 days ago',
+        unread: false,
+      },
+      {
+        id: 12,
+        type: 'resources',
+        icon: '📂',
+        title: 'Previous Year QP Uploaded — DBMS',
+        desc: 'University previous year question papers (2021–2024) for DBMS have been uploaded by the HOD.',
+        time: '3 days ago',
+        unread: false,
+      },
+      {
+        id: 13,
+        type: 'marks',
+        icon: '📊',
+        title: 'Model Exam Marks — Math III',
+        desc: 'Your model exam marks for Engineering Mathematics III have been entered. Score: 18 / 30.',
+        time: '4 days ago',
+        unread: false,
+      },
+      {
+        id: 14,
+        type: 'attendance',
+        icon: '📋',
+        title: 'Attendance Marked — DS Lab',
+        desc: 'Present marked for Data Structures Lab session on 21 Apr 2025. Duration: 3 hours.',
+        time: '4 days ago',
+        unread: false,
+      },
+      {
+        id: 15,
+        type: 'resources',
+        icon: '📝',
+        title: 'Assignment Deadline Extended — DBMS',
+        desc: 'The deadline for the DBMS ER Diagram assignment has been extended to 5 May 2025.',
+        time: '5 days ago',
+        unread: false,
+      },
+    ];
+
+    /* colour map */
+    const typeStyle = {
+      attendance: 'green',
+      marks:      'orange',
+      resources:  'blue',
+    };
+
+    const typeLabel = {
+      attendance: 'Attendance',
+      marks:      'Marks',
+      resources:  'Resources',
+    };
+
+    let activeFilter = 'all';
+    let unreadSet = new Set(notifications.filter(n => n.unread).map(n => n.id));
+
+    /* ── Render ── */
+    function render() {
+      const list = document.getElementById('notifList');
+      const empty = document.getElementById('emptyState');
+      list.innerHTML = '';
+
+      const filtered = activeFilter === 'all'
+        ? notifications
+        : notifications.filter(n => n.type === activeFilter);
+
+      if (filtered.length === 0) {
+        empty.classList.add('show');
+        list.style.display = 'none';
+        return;
+      }
+
+      empty.classList.remove('show');
+      list.style.display = 'flex';
+
+      /* Group: today vs earlier */
+      const todayItems   = filtered.slice(0, Math.min(filtered.length, activeFilter === 'all' ? 6 : 3));
+      const earlierItems = filtered.slice(todayItems.length);
+
+      if (todayItems.length) {
+        list.insertAdjacentHTML('beforeend', '<div class="list-label">Today</div>');
+        todayItems.forEach((n, i) => list.appendChild(buildCard(n, i)));
+      }
+      if (earlierItems.length) {
+        list.insertAdjacentHTML('beforeend', '<div class="list-label">Earlier</div>');
+        earlierItems.forEach((n, i) => list.appendChild(buildCard(n, i + todayItems.length)));
+      }
+
+      /* update sidebar badge */
+      const unreadCount = notifications.filter(n => unreadSet.has(n.id)).length;
+      document.getElementById('sidebarBadge').textContent = unreadCount;
+      document.getElementById('sidebarBadge').style.display = unreadCount ? '' : 'none';
+    }
+
+    function buildCard(n, delay) {
+      const isUnread = unreadSet.has(n.id);
+      const color = typeStyle[n.type];
+      const card = document.createElement('div');
+      card.className = `notif-card${isUnread ? ' unread' : ''}`;
+      card.style.animationDelay = `${delay * 35}ms`;
+      card.dataset.id = n.id;
+
+      card.innerHTML = `
+        <div class="notif-icon ${color}">${n.icon}</div>
+        <div class="notif-body">
+          <div class="notif-top">
+            <span class="notif-title">${n.title}</span>
+            <div class="notif-meta">
+              <span class="notif-badge ${color}">${typeLabel[n.type]}</span>
+              ${isUnread ? '<span class="notif-unread-dot"></span>' : ''}
+            </div>
+          </div>
+          <p class="notif-desc">${n.desc}</p>
+          <span class="notif-time">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="display:inline;vertical-align:middle;margin-right:3px">
+              <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M5.5 3v2.5l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            ${n.time}
+          </span>
+        </div>
+      `;
+
+      /* clicking marks individual as read */
+      card.addEventListener('click', () => {
+        if (unreadSet.has(n.id)) {
+          unreadSet.delete(n.id);
+          render();
+        }
+      });
+
+      return card;
+    }
+
+    /* ── Filter ── */
+    function setFilter(btn) {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      render();
+    }
+
+    /* ── Mark all read ── */
+    function markAllRead() {
+      unreadSet.clear();
+      render();
+    }
+
+    /* ── Tab counts ── */
+    function updateCounts() {
+      document.getElementById('count-all').textContent = notifications.length;
+      document.getElementById('count-attendance').textContent = notifications.filter(n => n.type === 'attendance').length;
+      document.getElementById('count-marks').textContent = notifications.filter(n => n.type === 'marks').length;
+      document.getElementById('count-resources').textContent = notifications.filter(n => n.type === 'resources').length;
+    }
+
+    /* ── Date ── */
+    function setDate() {
+      const d = new Date();
+      document.getElementById('todayDate').textContent = d.toLocaleDateString('en-IN', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      });
+    }
+
+    /* ── Init ── */
+    updateCounts();
+    setDate();
+    render();
+  </script>
+</body>
+</html>

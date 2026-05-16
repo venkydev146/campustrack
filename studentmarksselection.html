@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusTrack — Marks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════
+       DESIGN TOKENS — CampusTrack System
+    ═══════════════════════════════════════════ */
+    :root {
+      --navy:       #0f1f3d;
+      --indigo:     #2d4a8a;
+      --blue:       #3b66c4;
+      --blue-lt:    #eef1fd;
+      --sky:        #5b8ef0;
+      --violet:     #6d4af5;
+      --violet-lt:  #f0ecff;
+      --rose:       #e8517a;
+      --accent:     #e8a020;
+      --accent-lt:  #fdf3e0;
+      --white:      #ffffff;
+      --off-white:  #f6f8fd;
+      --surface:    #ffffff;
+      --border:     #dde3f0;
+      --border-hi:  #c2cfea;
+      --text-dark:  #0f1f3d;
+      --text-mid:   #3a4a6b;
+      --text-soft:  #7a89a8;
+      --text-xs:    #b0bbd4;
+      --teal:       #00b69b;
+      --teal-lt:    #e6faf7;
+      --amber:      #f59e0b;
+      --amber-lt:   #fffbeb;
+      --r-sm:       8px;
+      --r-md:       14px;
+      --r-lg:       20px;
+      --r-xl:       26px;
+      --sh-sm:      0 2px 10px rgba(15,31,61,0.07), 0 1px 3px rgba(15,31,61,0.04);
+      --sh-md:      0 6px 28px rgba(15,31,61,0.10), 0 2px 8px rgba(15,31,61,0.05);
+      --sh-card:    0 8px 40px rgba(15,31,61,0.12), 0 2px 8px rgba(15,31,61,0.06);
+      --t:          0.24s cubic-bezier(0.4, 0, 0.2, 1);
+      --t-spring:   0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ── Reset ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px 32px;
+      position: relative;
+      overflow-x: hidden;
+      background: var(--off-white);
+    }
+
+    /* ── Animated gradient background ──────── */
+    .page-bg {
+      position: fixed; inset: 0; z-index: -2;
+      background: linear-gradient(
+        135deg,
+        #0f1f3d 0%,
+        #1a2a5e 20%,
+        #2d1f6e 38%,
+        #4a1a7a 55%,
+        #6d1f6e 70%,
+        #8b2252 84%,
+        #3b66c4 100%
+      );
+      background-size: 300% 300%;
+      animation: gradShift 14s ease infinite alternate;
+    }
+    @keyframes gradShift {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+
+    /* Overlay grain for texture depth */
+    .page-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(109,74,245,0.25) 0%, transparent 55%),
+                  radial-gradient(ellipse 60% 50% at 80% 90%, rgba(232,81,122,0.20) 0%, transparent 55%),
+                  radial-gradient(ellipse 70% 40% at 60% 40%, rgba(59,102,196,0.18) 0%, transparent 55%);
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: -1;
+      animation: orbFloat var(--dur, 18s) ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(109,74,245,0.18), transparent 70%); top: -100px; left: -80px;  --dur: 15s; }
+    .orb-2 { width: 320px; height: 320px; background: radial-gradient(circle, rgba(232,81,122,0.15), transparent 70%); bottom: -60px; right: -60px; --dur: 20s; }
+    .orb-3 { width: 200px; height: 200px; background: radial-gradient(circle, rgba(59,102,196,0.14), transparent 70%); top: 50%; left: 55%; --dur: 25s; }
+    @keyframes orbFloat {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(35px, 28px) scale(1.10); }
+    }
+
+    /* ── Back button ───────────────────────── */
+    .back-btn {
+      position: fixed; top: 20px; left: 22px; z-index: 50;
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: var(--r-sm);
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.80); font-size: 13px; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      transition: all var(--t);
+      animation: fadeDown 0.5s 0.05s both;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.30); }
+    .back-btn svg { width: 13px; height: 13px; }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       MAIN CARD — Glassmorphism
+    ═══════════════════════════════════════════ */
+    .main-card {
+      width: 100%; max-width: 480px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+      border-radius: var(--r-xl);
+      border: 1.5px solid rgba(255,255,255,0.60);
+      box-shadow:
+        0 20px 60px rgba(15,10,40,0.30),
+        0 4px 16px rgba(15,10,40,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.80);
+      overflow: hidden;
+      animation: cardEntrance 0.60s cubic-bezier(0.34,1.10,0.64,1) 0.10s both;
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(28px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    /* ── Card gradient header strip ─────────── */
+    .card-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 55%, var(--blue) 100%);
+      padding: 30px 36px 26px;
+      position: relative; overflow: hidden;
+    }
+    .card-header::before {
+      content: ''; position: absolute;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); top: -80px; right: -60px;
+    }
+    .ch-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .ch-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(232,160,32,0.18); border: 1px solid rgba(232,160,32,0.32);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 40px;
+      margin-bottom: 12px; position: relative; z-index: 1;
+    }
+    .ch-badge svg { width: 11px; height: 11px; fill: var(--accent); }
+    .card-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px; font-weight: 800;
+      color: #fff; letter-spacing: -0.02em; line-height: 1.2;
+      position: relative; z-index: 1;
+    }
+    .card-header h1 em { font-style: italic; color: rgba(255,255,255,0.55); font-weight: 500; }
+    .card-header p {
+      margin-top: 7px; font-size: 13px;
+      color: rgba(255,255,255,0.50); position: relative; z-index: 1;
+    }
+
+    /* ── Card body ──────────────────────────── */
+    .card-body { padding: 28px 32px 32px; }
+
+    /* ── Section label ──────────────────────── */
+    .section-divider {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 22px;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-divider span {
+      font-size: 10.5px; font-weight: 700; color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.10em; white-space: nowrap;
+    }
+
+    /* ═══════════════════════════════════════════
+       ACTION BUTTONS
+    ═══════════════════════════════════════════ */
+    .btn-stack { display: flex; flex-direction: column; gap: 13px; }
+
+    .action-btn {
+      position: relative;
+      width: 100%;
+      display: flex; align-items: center; gap: 0;
+      border: none; border-radius: var(--r-lg);
+      cursor: pointer; overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+      outline: none; padding: 0;
+      transition: transform var(--t), box-shadow var(--t), filter var(--t);
+      animation: btnPop var(--t-spring) both;
+    }
+
+    .action-btn:nth-child(1) { animation-delay: 0.22s; }
+    .action-btn:nth-child(2) { animation-delay: 0.30s; }
+    .action-btn:nth-child(3) { animation-delay: 0.38s; }
+
+    @keyframes btnPop {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px) scale(1.012);
+      filter: brightness(1.06);
+    }
+    .action-btn:active { transform: translateY(-1px) scale(0.985); transition-duration: 0.10s; }
+
+    /* Gradient backgrounds per button */
+    .btn-bg {
+      position: absolute; inset: 0; z-index: 0;
+      transition: opacity var(--t);
+    }
+    .btn-internals .btn-bg { background: linear-gradient(135deg, #1e3575 0%, #2d4a8a 40%, #3b66c4 80%, #5b8ef0 100%); }
+    .btn-practicals .btn-bg { background: linear-gradient(135deg, #1a1060 0%, #4a2090 40%, #6d4af5 80%, #a78bfa 100%); }
+    .btn-theory .btn-bg     { background: linear-gradient(135deg, #6b0f4c 0%, #a0185c 40%, #e8517a 80%, #fb7fa7 100%); }
+
+    /* Shine on hover */
+    .btn-shine {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, transparent 60%);
+      opacity: 0; transition: opacity var(--t);
+    }
+    .action-btn:hover .btn-shine { opacity: 1; }
+
+    /* Dot texture */
+    .btn-dots {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.075) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    /* Content */
+    .btn-content {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; gap: 0;
+      padding: 0; width: 100%;
+    }
+
+    /* Icon box */
+    .btn-icon {
+      width: 58px; height: 58px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.12);
+      border-right: 1px solid rgba(255,255,255,0.12);
+      transition: background var(--t), transform var(--t);
+    }
+    .action-btn:hover .btn-icon { background: rgba(255,255,255,0.20); transform: scale(1.08); }
+    .btn-icon svg { width: 22px; height: 22px; color: #fff; }
+
+    /* Text area */
+    .btn-label { flex: 1; padding: 0 20px; text-align: left; }
+    .btn-label-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 800; color: #fff;
+      letter-spacing: -0.01em; line-height: 1.2; display: block;
+    }
+    .btn-label-sub { font-size: 11.5px; color: rgba(255,255,255,0.60); display: block; margin-top: 2px; }
+
+    /* Arrow */
+    .btn-arrow {
+      width: 46px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.45);
+      transition: transform var(--t), color var(--t);
+    }
+    .action-btn:hover .btn-arrow { transform: translateX(4px); color: rgba(255,255,255,0.85); }
+    .btn-arrow svg { width: 16px; height: 16px; }
+
+    /* Ripple */
+    .btn-ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      transform: scale(0); pointer-events: none; z-index: 10;
+      animation: rippleOut 0.55s linear;
+    }
+    @keyframes rippleOut { to { transform: scale(5); opacity: 0; } }
+
+    /* ── Shadow glow per button ──────────────── */
+    .btn-internals { box-shadow: 0 8px 28px rgba(59,102,196,0.35), 0 2px 8px rgba(59,102,196,0.15); }
+    .btn-internals:hover { box-shadow: 0 16px 44px rgba(59,102,196,0.48), 0 4px 12px rgba(59,102,196,0.22); }
+    .btn-practicals { box-shadow: 0 8px 28px rgba(109,74,245,0.32), 0 2px 8px rgba(109,74,245,0.14); }
+    .btn-practicals:hover { box-shadow: 0 16px 44px rgba(109,74,245,0.46), 0 4px 12px rgba(109,74,245,0.20); }
+    .btn-theory { box-shadow: 0 8px 28px rgba(232,81,122,0.32), 0 2px 8px rgba(232,81,122,0.14); }
+    .btn-theory:hover { box-shadow: 0 16px 44px rgba(232,81,122,0.46), 0 4px 12px rgba(232,81,122,0.20); }
+
+    /* ── Info strip below buttons ─────────────── */
+    .info-strip {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 22px; padding: 12px 16px;
+      background: rgba(59,102,196,0.06); border: 1.5px solid rgba(59,102,196,0.12);
+      border-radius: var(--r-md);
+    }
+    .info-strip-icon {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(59,102,196,0.10);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .info-strip-icon svg { width: 14px; height: 14px; color: var(--blue); }
+    .info-strip-text { font-size: 12px; color: var(--text-soft); line-height: 1.55; }
+    .info-strip-text strong { color: var(--text-dark); }
+
+    /* ── Footer ─────────────────────────────── */
+    .page-footer {
+      margin-top: 28px; text-align: center;
+      font-size: 12px; color: rgba(255,255,255,0.40); font-weight: 500;
+      animation: fadeUp 0.5s 0.45s both;
+    }
+    .page-footer a { color: rgba(255,255,255,0.55); text-decoration: none; transition: color var(--t); }
+    .page-footer a:hover { color: rgba(255,255,255,0.85); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ─────────────────────────── */
+    @media (max-width: 520px) {
+      .card-header { padding: 24px 22px 20px; }
+      .card-body   { padding: 22px 20px 26px; }
+      .card-header h1 { font-size: 22px; }
+      .btn-icon    { width: 52px; height: 52px; }
+      .btn-label-title { font-size: 15px; }
+      .back-btn    { top: 14px; left: 14px; font-size: 12px; padding: 7px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="page-bg" aria-hidden="true"></div>
+<div class="orb orb-1" aria-hidden="true"></div>
+<div class="orb orb-2" aria-hidden="true"></div>
+<div class="orb orb-3" aria-hidden="true"></div>
+
+<!-- Back to dashboard -->
+<a href="studentdashboard.html" class="back-btn" aria-label="Back to Dashboard">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+  Dashboard
+</a>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CARD
+═══════════════════════════════════════════ -->
+<div class="main-card" role="main">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="ch-dots" aria-hidden="true"></div>
+    <div class="ch-badge">
+      <svg viewBox="0 0 20 20"><path d="M10 2L3 5v5c0 4.418 3.134 8.56 7 9.95C13.866 18.56 17 14.418 17 10V5l-7-3z"/></svg>
+      Academic Portal
+    </div>
+    <h1>Marks &amp; <em>Assessment</em></h1>
+    <p>Select a category to view your detailed performance.</p>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+
+    <div class="section-divider" aria-hidden="true">
+      <span>Choose Category</span>
+    </div>
+
+    <div class="btn-stack" role="group" aria-label="Marks categories">
+
+      <!-- Internals -->
+      <button
+        class="action-btn btn-internals"
+        onclick="goToInternals(event)"
+        aria-label="View Internal Marks"
+      >
+        <div class="btn-bg"    aria-hidden="true"></div>
+        <div class="btn-dots"  aria-hidden="true"></div>
+        <div class="btn-shine" aria-hidden="true"></div>
+        <div class="btn-content">
+          <div class="btn-icon">
+            <!-- clipboard-check icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div class="btn-label">
+            <span class="btn-label-title">Internals</span>
+            <span class="btn-label-sub">Cycle tests &amp; internal assessments</span>
+          </div>
+          <div class="btn-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      <!-- Practicals -->
+      <button
+        class="action-btn btn-practicals"
+        onclick="goToPracticals(event)"
+        aria-label="View Practical and Lab Marks"
+      >
+        <div class="btn-bg"    aria-hidden="true"></div>
+        <div class="btn-dots"  aria-hidden="true"></div>
+        <div class="btn-shine" aria-hidden="true"></div>
+        <div class="btn-content">
+          <div class="btn-icon">
+            <!-- beaker / lab icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 3h6v7l3.5 7.5A2 2 0 0117 20H7a2 2 0 01-1.5-2.5L9 10V3z"/>
+              <line x1="6.5" y1="14" x2="17.5" y2="14"/>
+              <line x1="9" y1="3" x2="15" y2="3"/>
+            </svg>
+          </div>
+          <div class="btn-label">
+            <span class="btn-label-title">Practicals / Labs</span>
+            <span class="btn-label-sub">Laboratory records &amp; practical exams</span>
+          </div>
+          <div class="btn-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      <!-- Theory -->
+      <button
+        class="action-btn btn-theory"
+        onclick="goToTheory(event)"
+        aria-label="View Theory Marks"
+      >
+        <div class="btn-bg"    aria-hidden="true"></div>
+        <div class="btn-dots"  aria-hidden="true"></div>
+        <div class="btn-shine" aria-hidden="true"></div>
+        <div class="btn-content">
+          <div class="btn-icon">
+            <!-- book-open icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+            </svg>
+          </div>
+          <div class="btn-label">
+            <span class="btn-label-title">Theory</span>
+            <span class="btn-label-sub">End-semester &amp; theory paper marks</span>
+          </div>
+          <div class="btn-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+
+    </div><!-- /.btn-stack -->
+
+    <!-- Info strip -->
+    <div class="info-strip">
+      <div class="info-strip-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8"  x2="12"   y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="info-strip-text">
+        <strong>Marks are updated after each assessment cycle.</strong>
+        Contact your faculty if you notice any discrepancy.
+      </div>
+    </div>
+
+  </div><!-- /.card-body -->
+</div><!-- /.main-card -->
+
+<!-- Footer -->
+<footer class="page-footer">
+  <p>CampusTrack © 2025 &nbsp;·&nbsp; <a href="studentdashboard.html">Dashboard</a> &nbsp;·&nbsp; <a href="studentattendance.html">Attendance</a></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Auth guard ─────────────────────────── */
+if (localStorage.getItem('isLoggedIn') !== 'true') {
+  window.location.replace('studentlogin.html');
+}
+
+/* ── Ripple helper ──────────────────────── */
+function spawnRipple(btn, e) {
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x    = (e ? e.clientX - rect.left : rect.width  / 2) - size / 2;
+  const y    = (e ? e.clientY - rect.top  : rect.height / 2) - size / 2;
+  const rpl  = document.createElement('span');
+  rpl.className = 'btn-ripple';
+  rpl.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+  btn.appendChild(rpl);
+  setTimeout(() => rpl.remove(), 580);
+}
+
+/* ── Navigation functions ───────────────── */
+function goToInternals(e) {
+  const btn = e.currentTarget;
+  spawnRipple(btn, e);
+  btn.style.transform = 'scale(0.97)';
+  setTimeout(() => { btn.style.transform = ''; window.location.href = 'studentinternals.html'; }, 200);
+}
+
+function goToPracticals(e) {
+  const btn = e.currentTarget;
+  spawnRipple(btn, e);
+  btn.style.transform = 'scale(0.97)';
+  setTimeout(() => { btn.style.transform = ''; window.location.href = 'studentpracticals.html'; }, 200);
+}
+
+function goToTheory(e) {
+  const btn = e.currentTarget;
+  spawnRipple(btn, e);
+  btn.style.transform = 'scale(0.97)';
+  setTimeout(() => { btn.style.transform = ''; window.location.href = 'studenttheory.html'; }, 200);
+}
+
+/* ── Keyboard accessibility ─────────────── */
+document.addEventListener('keydown',   () => document.body.classList.add('kb'));
+document.addEventListener('mousedown', () => document.body.classList.remove('kb'));
+</script>
+
+<style>
+  body:not(.kb) *:focus { outline: none; }
+  body.kb *:focus-visible { outline: 2.5px solid rgba(255,255,255,0.7); outline-offset: 3px; border-radius: var(--r-md); }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusTrack — CAT 1 Marks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════════
+       DESIGN TOKENS — CampusTrack System
+    ═══════════════════════════════════════════════ */
+    :root {
+      --navy:       #0f1f3d;
+      --indigo:     #2d4a8a;
+      --blue:       #3b66c4;
+      --blue-lt:    #eef1fd;
+      --blue-dk:    #1e3575;
+      --sky:        #5b8ef0;
+      --violet:     #6d4af5;
+      --violet-lt:  #f0ecff;
+      --accent:     #e8a020;
+      --accent-lt:  #fdf3e0;
+      --white:      #ffffff;
+      --off-white:  #f6f8fd;
+      --surface:    #ffffff;
+      --surface2:   #f8faff;
+      --border:     #dde3f0;
+      --border-hi:  #c2cfea;
+      --text-dark:  #0f1f3d;
+      --text-mid:   #3a4a6b;
+      --text-soft:  #7a89a8;
+      --text-xs:    #b0bbd4;
+      --green:      #16a34a;
+      --green-bg:   #f0fdf4;
+      --green-bd:   #bbf7d0;
+      --green-dot:  #22c55e;
+      --amber:      #d97706;
+      --amber-bg:   #fffbeb;
+      --amber-bd:   #fde68a;
+      --red:        #dc2626;
+      --red-bg:     #fff1f2;
+      --red-bd:     #fecdd3;
+      --teal:       #00b69b;
+      --teal-lt:    #e6faf7;
+      --r-sm:       8px;
+      --r-md:       14px;
+      --r-lg:       20px;
+      --r-xl:       26px;
+      --sh-xs:      0 1px 4px rgba(15,31,61,0.06);
+      --sh-sm:      0 2px 10px rgba(15,31,61,0.07), 0 1px 3px rgba(15,31,61,0.04);
+      --sh-md:      0 6px 28px rgba(15,31,61,0.10), 0 2px 8px rgba(15,31,61,0.05);
+      --sh-card:    0 8px 40px rgba(15,31,61,0.11), 0 2px 8px rgba(15,31,61,0.06);
+      --t:          0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Reset ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--text-mid);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ── Background ─────────────────────────────── */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 5%  0%,  rgba(59,102,196,0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 52% 42% at 96% 100%, rgba(232,160,32,0.07) 0%, transparent 52%),
+        radial-gradient(ellipse 50% 36% at 80% 6%,  rgba(109,74,245,0.05) 0%, transparent 48%),
+        linear-gradient(158deg, #eef1f9 0%, #f6f8fd 52%, #fdf8f2 100%);
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ═══════════════════════════════════════════════
+       TOPBAR
+    ═══════════════════════════════════════════════ */
+    .topbar {
+      height: 62px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--sh-xs);
+      display: flex; align-items: center;
+      padding: 0 28px; gap: 14px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .tb-back {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: var(--r-sm);
+      background: var(--surface2); border: 1.5px solid var(--border);
+      color: var(--text-soft); font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all var(--t); flex-shrink: 0;
+    }
+    .tb-back:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .tb-back svg { width: 13px; height: 13px; }
+    .tb-crumbs {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--text-soft);
+    }
+    .tb-crumbs .sep    { color: var(--text-xs); }
+    .tb-crumbs .active { color: var(--text-dark); font-weight: 600; }
+    .tb-spacer { flex: 1; }
+    .tb-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--indigo), var(--violet));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 700; color: #fff;
+      border: 2px solid var(--border); cursor: pointer; transition: border-color var(--t);
+      flex-shrink: 0;
+    }
+    .tb-avatar:hover { border-color: var(--indigo); }
+
+    /* ═══════════════════════════════════════════════
+       PAGE
+    ═══════════════════════════════════════════════ */
+    .page {
+      max-width: 1020px; margin: 0 auto;
+      padding: 28px 20px 0;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Page heading ───────────────────────────── */
+    .page-heading {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 0.46s 0.06s both;
+    }
+    .ph-left { }
+    .ph-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.10em;
+      margin-bottom: 6px;
+    }
+    .ph-eyebrow svg { width: 12px; height: 12px; }
+
+    /* ✅ CHANGED: font → DM Sans (matches subject names), weight → 700 (slightly bolder) */
+    .ph-left h1 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+    .ph-left p { font-size: 13.5px; color: var(--text-soft); margin-top: 4px; }
+
+    .ph-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    /* Buttons */
+    .btn-ghost {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: var(--r-sm);
+      background: var(--surface); border: 1.5px solid var(--border);
+      color: var(--text-mid); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all var(--t); font-family: inherit;
+    }
+    .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .btn-ghost svg { width: 14px; height: 14px; }
+
+    .btn-primary {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: var(--r-sm);
+      background: linear-gradient(135deg, var(--indigo), var(--blue));
+      border: none; color: #fff; font-size: 13px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(59,102,196,0.30);
+      transition: all var(--t); font-family: inherit;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,102,196,0.40); }
+    .btn-primary svg { width: 14px; height: 14px; }
+
+    /* ═══════════════════════════════════════════════
+       STAT STRIP
+    ═══════════════════════════════════════════════ */
+    .stat-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      animation: fadeUp 0.46s 0.12s both;
+    }
+    .stat-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r-lg); padding: 16px 18px;
+      box-shadow: var(--sh-xs);
+      display: flex; align-items: center; gap: 12px;
+      transition: box-shadow var(--t), border-color var(--t);
+    }
+    .stat-box:hover { box-shadow: var(--sh-sm); border-color: var(--border-hi); }
+    .stat-box-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .stat-box-icon svg { width: 18px; height: 18px; }
+    .sbi-blue   { background: var(--blue-lt);   color: var(--blue);   }
+    .sbi-green  { background: var(--green-bg);  color: var(--green);  }
+    .sbi-amber  { background: var(--amber-bg);  color: var(--amber);  }
+    .sbi-violet { background: var(--violet-lt); color: var(--violet); }
+    .stat-box-data { }
+
+    /* ✅ CHANGED: font → DM Sans, tabular-nums to fix number alignment, baseline align */
+    .stat-box-val {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      vertical-align: baseline;
+      font-variant-numeric: tabular-nums;   /* ✅ fixes uneven number height */
+      font-feature-settings: "tnum";        /* ✅ forces equal-width digits */
+      display: flex;
+      align-items: baseline;               /* ✅ keeps slash and numbers on same line */
+      gap: 1px;
+    }
+    .stat-box-val.green { color: var(--green); }
+    .stat-box-val.amber { color: var(--amber); }
+    .stat-box-val.red   { color: var(--red); }
+    .stat-box-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-soft); margin-top: 3px; }
+
+    /* ═══════════════════════════════════════════════
+       MAIN TABLE CARD
+    ═══════════════════════════════════════════════ */
+    .table-card {
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--sh-card);
+      overflow: hidden;
+      animation: fadeUp 0.46s 0.18s both;
+    }
+
+    /* Card top header */
+    .tc-head {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--indigo) 60%, var(--blue) 100%);
+      padding: 20px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; position: relative; overflow: hidden;
+    }
+    .tc-head::before {
+      content: ''; position: absolute;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -80px; right: -60px; pointer-events: none;
+    }
+    .tc-head-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.065) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .tc-head-left { position: relative; z-index: 1; }
+    .tc-head-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px; font-weight: 800; color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .tc-head-sub { font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 2px; }
+    .tc-head-right { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; }
+    .tc-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 13px; border-radius: 40px;
+      font-size: 11.5px; font-weight: 700;
+      background: rgba(232,160,32,0.18); border: 1px solid rgba(232,160,32,0.30);
+      color: var(--accent);
+    }
+    .tc-tag svg { width: 11px; height: 11px; fill: var(--accent); }
+
+    /* Table scroll wrapper */
+    .table-scroll { overflow-x: auto; }
+
+    /* ── Marks table ─────────────────────────────── */
+    .marks-table {
+      width: 100%; border-collapse: collapse;
+      min-width: 640px;
+    }
+    .marks-table thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--border);
+    }
+    .marks-table thead th {
+      padding: 12px 20px;
+      font-size: 10.5px; font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase; letter-spacing: 0.09em;
+      text-align: left; white-space: nowrap;
+    }
+    .marks-table thead th:last-child { text-align: center; }
+
+    .marks-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--t), transform var(--t);
+      animation: rowIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    .marks-table tbody tr:last-child { border-bottom: none; }
+    .marks-table tbody tr:nth-child(even) { background: rgba(246,248,253,0.70); }
+    .marks-table tbody tr:hover {
+      background: var(--blue-lt) !important;
+      transform: translateX(2px);
+    }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .marks-table tbody tr:nth-child(1)  { animation-delay: 0.10s; }
+    .marks-table tbody tr:nth-child(2)  { animation-delay: 0.14s; }
+    .marks-table tbody tr:nth-child(3)  { animation-delay: 0.18s; }
+    .marks-table tbody tr:nth-child(4)  { animation-delay: 0.22s; }
+    .marks-table tbody tr:nth-child(5)  { animation-delay: 0.26s; }
+    .marks-table tbody tr:nth-child(6)  { animation-delay: 0.30s; }
+    .marks-table tbody tr:nth-child(7)  { animation-delay: 0.34s; }
+    .marks-table tbody tr:nth-child(8)  { animation-delay: 0.38s; }
+    .marks-table tbody tr:nth-child(9)  { animation-delay: 0.42s; }
+    .marks-table tbody tr:nth-child(10) { animation-delay: 0.46s; }
+
+    .marks-table tbody td {
+      padding: 14px 20px;
+      font-size: 13.5px; color: var(--text-mid);
+      vertical-align: middle;
+    }
+
+    /* ✅ CHANGED: Subject code pill — font → DM Sans, weight → 600 (same as subject names) */
+    .code-pill {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--blue-lt); border: 1px solid rgba(59,102,196,0.16);
+      font-size: 11.5px;
+      font-weight: 600;                    /* ✅ matches subject name weight */
+      color: var(--indigo);
+      font-family: 'DM Sans', sans-serif;  /* ✅ matches subject name font */
+      white-space: nowrap;
+      letter-spacing: 0;                   /* ✅ removes tracking that caused uneven appearance */
+      transition: all var(--t);
+    }
+    .code-pill.updating {
+      animation: codePop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes codePop {
+      from { transform: scale(0.88); opacity: 0.5; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    /* Component tag */
+    .component-tag {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px; border-radius: 5px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 11px; font-weight: 600; color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    /* Subject name cell — reference style, unchanged */
+    .subj-name {
+      font-size: 13.5px; font-weight: 600; color: var(--text-dark);
+      display: block;
+    }
+    .subj-type {
+      font-size: 11px; color: var(--text-soft); margin-top: 2px;
+      font-weight: 500;
+    }
+
+    /* ── Custom styled select ───────────────────── */
+    .select-wrap {
+      position: relative; display: inline-block;
+    }
+    .select-wrap::after {
+      content: '';
+      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4.5px solid transparent;
+      border-right: 4.5px solid transparent;
+      border-top: 5.5px solid var(--text-soft);
+      pointer-events: none;
+      transition: border-top-color var(--t);
+    }
+    .select-wrap:focus-within::after { border-top-color: var(--blue); }
+    .styled-select {
+      appearance: none; -webkit-appearance: none;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 8px 32px 8px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-dark);
+      cursor: pointer; outline: none;
+      min-width: 200px;
+      transition: border-color var(--t), box-shadow var(--t), background var(--t);
+    }
+    .styled-select:hover { border-color: var(--border-hi); background: var(--surface2); }
+    .styled-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59,102,196,0.12);
+      background: var(--white);
+    }
+    .styled-select option { background: var(--white); color: var(--text-dark); }
+    .styled-select.changed {
+      animation: selectFlash 0.30s ease;
+    }
+    @keyframes selectFlash {
+      from { background: rgba(59,102,196,0.10); }
+      to   { background: var(--white); }
+    }
+
+    /* ── Marks badge ────────────────────────────── */
+    .marks-cell { text-align: center; }
+    .marks-badge {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      min-width: 62px; padding: 6px 14px; border-radius: var(--r-md);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: var(--text-dark);
+      font-variant-numeric: tabular-nums;
+    }
+    .marks-badge.high   { background: var(--green-bg); border: 1.5px solid var(--green-bd); color: var(--text-dark); }
+    .marks-badge.medium { background: var(--amber-bg); border: 1.5px solid var(--amber-bd); color: var(--text-dark); }
+    .marks-badge.low    { background: var(--red-bg);   border: 1.5px solid var(--red-bd);   color: var(--text-dark); }
+    .marks-badge.na {
+      background: var(--surface2); border: 1.5px solid var(--border);
+      color: var(--text-soft); font-size: 12px; letter-spacing: 0;
+    }
+
+    /* ── Row index ──────────────────────────────── */
+    .row-idx {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 600; color: var(--text-xs);
+      text-align: center; min-width: 36px;
+    }
+
+    /* ── Table footer row (totals) ──────────────── */
+    .tfoot-row {
+      background: var(--surface2) !important;
+      border-top: 2px solid var(--border) !important;
+    }
+    .tfoot-row td {
+      font-weight: 700; color: var(--text-mid);
+      padding-top: 14px !important; padding-bottom: 14px !important;
+    }
+    .tfoot-row .marks-badge {
+      font-size: 15px; font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    /* ── Insight banner ─────────────────────────── */
+    .insight-banner {
+      margin: 0 24px 24px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, rgba(59,102,196,0.07), rgba(109,74,245,0.05));
+      border: 1.5px solid rgba(59,102,196,0.13);
+      border-radius: var(--r-md);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .ib-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      background: rgba(59,102,196,0.10);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ib-icon svg { width: 15px; height: 15px; color: var(--blue); }
+    .ib-text { flex: 1; font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+    .ib-text strong { color: var(--text-dark); }
+
+    /* ── Legend row ─────────────────────────────── */
+    .legend-row {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .leg-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-soft); font-weight: 600; }
+    .leg-dot  { width: 10px; height: 10px; border-radius: 3px; }
+    .leg-dot.h { background: var(--green); }
+    .leg-dot.m { background: var(--amber); }
+    .leg-dot.l { background: var(--red);   }
+
+    /* ── Footer ─────────────────────────────────── */
+    .page-footer {
+      text-align: center; margin-top: 30px;
+      font-size: 12px; color: var(--text-xs); font-weight: 500;
+    }
+    .page-footer a { color: var(--text-soft); text-decoration: none; transition: color var(--t); }
+    .page-footer a:hover { color: var(--blue); }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 900px) {
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .topbar { padding: 0 14px; }
+      .page   { padding: 18px 14px 0; }
+      .page-heading { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .stat-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .tc-head { padding: 16px 18px; }
+      .marks-table tbody td { padding: 12px 14px; }
+      .marks-table thead th { padding: 10px 14px; }
+      .styled-select { min-width: 160px; font-size: 12px; }
+      .tb-crumbs { display: none; }
+      .insight-banner { margin: 0 16px 16px; }
+      .legend-row { padding: 12px 16px; gap: 12px; }
+    }
+    @media (max-width: 400px) {
+      .stat-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════════ -->
+<nav class="topbar">
+  <a href="studentinternals.html" class="tb-back" aria-label="Back to Internals">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Internals
+  </a>
+  <div class="tb-crumbs">
+    <span>Marks</span>
+    <span class="sep">›</span>
+    <span>Internals</span>
+    <span class="sep">›</span>
+    <span class="active" id="crumb-title">CAT 1</span>
+  </div>
+  <div class="tb-spacer"></div>
+  <div class="tb-avatar" id="tbAvatar">—</div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE
+═══════════════════════════════════════════════ -->
+<main class="page" id="mainPage">
+
+  <!-- ── Page heading ──────────────────────────── -->
+  <div class="page-heading">
+    <div class="ph-left">
+      <div class="ph-eyebrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+        Internal Assessment
+      </div>
+      <h1 id="page-title">CAT-1 Marks</h1>
+      <p>Detailed subject-wise performance overview for this assessment cycle.</p>
+    </div>
+    <div class="ph-right">
+      <button class="btn-ghost" onclick="window.print()" aria-label="Print marks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print
+      </button>
+      <button class="btn-primary" onclick="exportCSV()" aria-label="Export marks as CSV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Stat strip ────────────────────────────── -->
+  <div class="stat-strip" id="stat-strip">
+    <div class="stat-box">
+      <div class="stat-box-icon sbi-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+      </div>
+      <div class="stat-box-data">
+        <div class="stat-box-val" id="stat-subjects">—</div>
+        <div class="stat-box-lbl">Subjects</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-icon sbi-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div class="stat-box-data">
+        <div class="stat-box-val green" id="stat-avg">—</div>
+        <div class="stat-box-lbl">Average Score</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-icon sbi-amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <div class="stat-box-data">
+        <div class="stat-box-val" id="stat-highest">—</div>
+        <div class="stat-box-lbl">Highest Score</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-icon sbi-violet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        </svg>
+      </div>
+      <div class="stat-box-data">
+        <div class="stat-box-val" id="stat-max">50</div>
+        <div class="stat-box-lbl">Maximum Marks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main table card ───────────────────────── -->
+  <div class="table-card">
+
+    <!-- Card header -->
+    <div class="tc-head">
+      <div class="tc-head-dots" aria-hidden="true"></div>
+      <div class="tc-head-left">
+        <div class="tc-head-title" id="table-title">CAT 1 — Subject-wise Marks</div>
+        <div class="tc-head-sub">4th Semester · Even Semester 2024–25</div>
+      </div>
+      <div class="tc-head-right">
+        <div class="tc-tag">
+          <svg viewBox="0 0 20 20"><path d="M10 2L3 5v5c0 4.418 3.134 8.56 7 9.95C13.866 18.56 17 14.418 17 10V5l-7-3z"/></svg>
+          Internal · 50 Marks
+        </div>
+      </div>
+    </div>
+
+    <!-- Table scroll -->
+    <div class="table-scroll">
+      <table class="marks-table" id="marks-table" aria-label="Subject-wise marks table">
+        <thead>
+          <tr>
+            <th style="width:40px;">#</th>
+            <th>Subject Code</th>
+            <th>Component</th>
+            <th>Subject Name</th>
+            <th style="text-align:center;">Marks</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Rows injected by JS -->
+        </tbody>
+        <tfoot>
+          <tr class="tfoot-row">
+            <td colspan="3"></td>
+            <td style="font-size:13px;color:var(--text-mid);">Total / Average</td>
+            <td class="marks-cell">
+              <span class="marks-badge high" id="total-badge">—</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Insight banner -->
+    <div class="insight-banner" id="insight-banner">
+      <div class="ib-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="ib-text" id="insight-text">Calculating your performance summary…</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-row" aria-label="Score legend">
+      <div class="leg-item"><div class="leg-dot h"></div> High ≥ 40</div>
+      <div class="leg-item"><div class="leg-dot m"></div> Average 25–39</div>
+      <div class="leg-item"><div class="leg-dot l"></div> Low &lt; 25</div>
+      <div style="margin-left:auto;font-size:11.5px;color:var(--text-xs);font-weight:600;">* Marks out of 50</div>
+    </div>
+
+  </div><!-- /.table-card -->
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <p>CampusTrack © 2025 &nbsp;·&nbsp; <a href="studentdashboard.html">Dashboard</a> &nbsp;·&nbsp; <a href="studentinternals.html">Internals</a> &nbsp;·&nbsp; <a href="studentMarksSelection.html">Marks</a></p>
+  </footer>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Page config ── */
+const PAGE_CONFIG = {
+  examType:   'CAT-1',
+  title:      'CONTINUOS ASSESMENT TEST -1     MARKS',
+  tableTitle: 'CAT 1 — Subject-wise Marks',
+  crumb:      'CAT 1',
+  maxMarks:   100,
+};
+
+/* ── Auth guard ── */
+if (!localStorage.getItem('token')) {
+  window.location.replace('studentlogin.html');
+}
+
+/* ── Get student data from localStorage ── */
+let studentProfile = {};
+try {
+  const raw = localStorage.getItem('studentProfile');
+  if (raw) studentProfile = JSON.parse(raw);
+} catch(_) {}
+
+const studentId = studentProfile.id || null;
+const token     = localStorage.getItem('token');
+const BASE_URL  = 'http://localhost:5000/api';
+
+/* ── Helpers ── */
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+/* ── Set page titles ── */
+setText('page-title',  PAGE_CONFIG.title);
+setText('table-title', PAGE_CONFIG.tableTitle);
+setText('crumb-title', PAGE_CONFIG.crumb);
+
+/* ── Avatar initials ── */
+(function loadAvatar() {
+  const n = studentProfile.name || '';
+  const i = n.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  if (i) setText('tbAvatar', i);
+})();
+
+/* ── Mark classification ── */
+function markClass(m, max) {
+  const pct = (m / max) * 100;
+  if (pct >= 80) return 'high';
+  if (pct >= 50) return 'medium';
+  return 'low';
+}
+
+/* ── Show loading ── */
+function showLoading() {
+  document.getElementById('table-body').innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:0.85rem;font-weight:500;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+          style="display:inline-block;vertical-align:middle;margin-right:8px;animation:spin 0.8s linear infinite">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" stroke-opacity="0.2"/>
+          <path d="M10 2a8 8 0 018 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Loading marks…
+      </td>
+    </tr>`;
+  if (!document.getElementById('spin-style')) {
+    const style = document.createElement('style');
+    style.id = 'spin-style';
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+  }
+}
+
+/* ── Show no marks ── */
+function showNoMarks() {
+  document.getElementById('table-body').innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center;padding:48px 20px;">
+        <div style="display:inline-flex;flex-direction:column;align-items:center;gap:10px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span style="font-size:0.95rem;font-weight:700;color:#475569;">Marks Not Yet Updated</span>
+          <span style="font-size:0.78rem;color:#94a3b8;max-width:280px;text-align:center;">
+            Your ${PAGE_CONFIG.crumb} marks haven't been entered by your faculty yet. Please check back later.
+          </span>
+        </div>
+      </td>
+    </tr>`;
+  const statsEl = document.getElementById('stats-section');
+  if (statsEl) statsEl.style.display = 'none';
+}
+
+/* ── Show error ── */
+function showError(msg) {
+  document.getElementById('table-body').innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center;padding:40px 20px;color:#dc2626;font-size:0.85rem;font-weight:600;">
+        ⚠️ ${msg}
+      </td>
+    </tr>`;
+}
+
+/* ── Render table ── */
+function renderTable(subjects) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+
+  subjects.forEach((s, i) => {
+    // Get marks for this exam type
+    const examData = s[PAGE_CONFIG.examType];
+    if (!examData) return;
+
+    const marks = examData.scored !== undefined ? examData.scored : examData;
+    const max   = examData.max   !== undefined ? examData.max   : PAGE_CONFIG.maxMarks;
+    const cls   = markClass(marks, max);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="row-idx">${String(i + 1).padStart(2, '0')}</td>
+      <td><span class="code-pill">${s.code || ''}</span></td>
+      <td><span class="component-tag">${PAGE_CONFIG.examType}</span></td>
+      <td><span class="subj-name">${s.subject || ''}</span></td>
+      <td class="marks-cell">
+        <span class="marks-badge ${cls}">${marks} / ${max}</span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  updateStats(subjects);
+}
+
+/* ── Statistics ── */
+function updateStats(subjects) {
+  const validSubjects = subjects.filter(s => s[PAGE_CONFIG.examType]);
+  if (validSubjects.length === 0) { showNoMarks(); return; }
+
+  const marksArr = validSubjects.map(s => {
+    const d = s[PAGE_CONFIG.examType];
+    return d.scored !== undefined ? d.scored : d;
+  });
+
+  const maxArr = validSubjects.map(s => {
+    const d = s[PAGE_CONFIG.examType];
+    return d.max !== undefined ? d.max : PAGE_CONFIG.maxMarks;
+  });
+
+  const avg  = Math.round(marksArr.reduce((a,b) => a + b, 0) / marksArr.length);
+  const high = Math.max(...marksArr);
+  const max  = maxArr[0] || PAGE_CONFIG.maxMarks;
+
+  setText('stat-subjects', validSubjects.length);
+  setText('stat-avg',      avg + ' / ' + max);
+  setText('stat-highest',  high + ' / ' + max);
+  setText('stat-max',      max);
+
+  const avgEl = document.getElementById('stat-avg');
+  if (avgEl) {
+    const pct = (avg / max) * 100;
+    avgEl.className = 'stat-box-val ' + (pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red');
+  }
+
+  const totalBadge = document.getElementById('total-badge');
+  if (totalBadge) {
+    const pct = (avg / max) * 100;
+    totalBadge.textContent = avg + ' / ' + max;
+    totalBadge.className   = 'marks-badge ' + (pct >= 80 ? 'high' : pct >= 50 ? 'medium' : 'low');
+  }
+
+  buildInsight(avg, max, high, validSubjects.length);
+}
+
+function buildInsight(avg, max, high, count) {
+  const pct = Math.round((avg / max) * 100);
+  let msg = '';
+  if (pct >= 90)      msg = `<strong>Excellent performance!</strong> Your average score of ${avg}/${max} (${pct}%) is outstanding!`;
+  else if (pct >= 75) msg = `<strong>Good work!</strong> You scored an average of ${avg}/${max} across ${count} subjects.`;
+  else if (pct >= 50) msg = `Your average is ${avg}/${max} (${pct}%). <strong>There is room to improve.</strong>`;
+  else                msg = `<strong>Attention needed:</strong> Your average of ${avg}/${max} is below expectations.`;
+  const el = document.getElementById('insight-text');
+  if (el) el.innerHTML = msg;
+}
+
+/* ── Fetch marks from API ── */
+async function loadMarks() {
+  if (!studentId) {
+    showError('Student data not found. Please log in again.');
+    return;
+  }
+
+  showLoading();
+
+  try {
+    const res = await fetch(
+      `${BASE_URL}/marks/student/${studentId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      showNoMarks();
+      return;
+    }
+
+    // Filter subjects that have this exam type
+    const filtered = data.filter(s => s[PAGE_CONFIG.examType]);
+
+    if (filtered.length === 0) {
+      showNoMarks();
+      return;
+    }
+
+    renderTable(filtered);
+
+  } catch (err) {
+    showError('Failed to load marks: ' + err.message);
+  }
+}
+
+/* ── Export CSV ── */
+function exportCSV() {
+  const rows    = document.querySelectorAll('#table-body tr');
+  const csvRows = [['#', 'Subject Code', 'Subject Name', 'Marks', 'Max Marks']];
+  rows.forEach((row, i) => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length < 5) return;
+    csvRows.push([
+      i + 1,
+      cells[1].textContent.trim(),
+      cells[3].textContent.trim(),
+      cells[4].textContent.trim(),
+      PAGE_CONFIG.maxMarks,
+    ]);
+  });
+  const csv  = csvRows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${PAGE_CONFIG.examType.toLowerCase()}_marks.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ── Keyboard accessibility ── */
+document.addEventListener('keydown',   () => document.body.classList.add('kb'));
+document.addEventListener('mousedown', () => document.body.classList.remove('kb'));
+
+/* ── Kick off ── */
+loadMarks();
+</script>
+<style>
+  body:not(.kb) *:focus { outline: none; }
+  body.kb *:focus-visible { outline: 2.5px solid var(--blue); outline-offset: 3px; border-radius: var(--r-md); }
+
+  @media print {
+    .topbar, .ph-right, .btn-ghost, .btn-primary,
+    .insight-banner, .page-footer { display: none !important; }
+    body { background: white; }
+    body::before { display: none; }
+    .table-card { box-shadow: none; border: 1px solid #ccc; }
+  }
+</style>
+
+</body>
+</html>

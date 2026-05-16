@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Campustrack — Student Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════
+   CSS DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  /* Sidebar palette */
+  --sb-bg-start:   #0c1a35;
+  --sb-bg-end:     #0f2347;
+  --sb-border:     rgba(255,255,255,0.07);
+  --sb-item-hover: rgba(255,255,255,0.08);
+  --sb-item-active:rgba(79,120,255,0.20);
+  --sb-active-bar: #4f78ff;
+  --sb-text:       rgba(255,255,255,0.55);
+  --sb-text-hi:    #ffffff;
+  --sb-width:      256px;
+  --sb-icon-w:     64px;
+
+  /* Main surface */
+  --bg:           #f0f3fa;
+  --surface:      #ffffff;
+  --surface2:     #f7f9ff;
+  --border:       #e5eaf5;
+  --border-hi:    #c8d3f0;
+
+  /* Brand */
+  --indigo:       #3a5cf5;
+  --indigo-dk:    #2743d4;
+  --indigo-lt:    #edf0ff;
+  --teal:         #00b69b;
+  --teal-lt:      #e6faf7;
+  --teal-dk:      #00937e;
+  --amber:        #f5a623;
+  --amber-lt:     #fff8ec;
+  --rose:         #f0284a;
+  --rose-lt:      #fff0f3;
+  --violet:       #6d4af5;
+  --violet-lt:    #f0ecff;
+  --emerald:      #22c55e;
+  --sky:          #0ea5e9;
+
+  /* Text */
+  --tx-h:  #0c1635;
+  --tx-b:  #2e3d5f;
+  --tx-m:  #5c6f94;
+  --tx-s:  #8fa0c0;
+  --tx-xs: #b3c2d9;
+
+  /* Shadows */
+  --sh-xs: 0 1px 3px rgba(12,22,53,0.06), 0 1px 2px rgba(12,22,53,0.04);
+  --sh-sm: 0 2px 8px rgba(12,22,53,0.08), 0 1px 3px rgba(12,22,53,0.05);
+  --sh-md: 0 4px 20px rgba(12,22,53,0.10), 0 2px 6px rgba(12,22,53,0.06);
+  --sh-lg: 0 10px 40px rgba(12,22,53,0.14), 0 2px 8px rgba(12,22,53,0.06);
+  --sh-indigo: 0 6px 24px rgba(58,92,245,0.28);
+  --sh-teal:   0 6px 24px rgba(0,182,155,0.28);
+  --sh-amber:  0 6px 24px rgba(245,166,35,0.28);
+
+  /* Radii */
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  26px;
+  --r-full:9999px;
+
+  /* Transition */
+  --ease:     cubic-bezier(0.4,0,0.2,1);
+  --t-fast:   0.15s;
+  --t-base:   0.22s;
+  --t-slow:   0.38s;
+  --t-enter:  0.50s;
+
+  --header-h: 66px;
+}
+
+/* ─── Reset ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx-b);min-height:100vh;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+img,svg{display:block;}
+
+/* ─── Scrollbar ─────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:var(--r-full);}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;
+  width:var(--sb-width);
+  background:linear-gradient(175deg, var(--sb-bg-start) 0%, var(--sb-bg-end) 100%);
+  display:flex;flex-direction:column;
+  z-index:200;
+  transition:width var(--t-slow) var(--ease);
+  overflow:hidden;
+  border-right:1px solid var(--sb-border);
+}
+
+/* Subtle texture overlay */
+.sidebar::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 200% 50% at 50% 0%, rgba(79,120,255,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 40% at 50% 100%, rgba(58,92,245,0.08) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+body.collapsed .sidebar{width:var(--sb-icon-w);}
+
+/* Logo */
+.sb-logo{
+  height:var(--header-h);
+  display:flex;align-items:center;gap:11px;
+  padding:0 18px;
+  flex-shrink:0;
+  border-bottom:1px solid var(--sb-border);
+  overflow:hidden;
+  position:relative;z-index:1;
+}
+.sb-logo-mark{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,#4f78ff 0%,#6d4af5 100%);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 4px 14px rgba(79,120,255,0.45);
+}
+.sb-logo-mark svg{width:18px;height:18px;color:#fff;}
+.sb-logo-wordmark{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:17px;font-weight:800;
+  color:#fff;
+  letter-spacing:-0.02em;
+  white-space:nowrap;
+  transition:opacity var(--t-base) var(--ease),transform var(--t-base) var(--ease);
+}
+.sb-logo-wordmark span{color:#4f78ff;}
+body.collapsed .sb-logo-wordmark{opacity:0;transform:translateX(-8px);pointer-events:none;}
+
+/* Nav sections */
+.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;overflow-x:hidden;position:relative;z-index:1;}
+.sb-section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.25);
+  padding:12px 10px 6px;
+  white-space:nowrap;
+  transition:opacity var(--t-base) var(--ease);
+}
+body.collapsed .sb-section-label{opacity:0;}
+
+/* Nav item */
+.sb-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 10px;
+  border-radius:var(--r-md);
+  color:var(--sb-text);
+  font-size:14px;font-weight:500;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:color var(--t-fast) var(--ease),background var(--t-fast) var(--ease);
+  white-space:nowrap;
+  user-select:none;
+}
+.sb-item:hover{color:var(--sb-text-hi);background:var(--sb-item-hover);}
+.sb-item.active{color:#fff;background:var(--sb-item-active);}
+.sb-item.active::before{
+  content:'';
+  position:absolute;left:0;top:22%;bottom:22%;
+  width:3px;background:var(--sb-active-bar);
+  border-radius:0 3px 3px 0;
+}
+
+.sb-icon-wrap{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  background:rgba(255,255,255,0.06);
+  transition:background var(--t-fast) var(--ease);
+}
+.sb-item:hover .sb-icon-wrap{background:rgba(255,255,255,0.10);}
+.sb-item.active .sb-icon-wrap{background:rgba(79,120,255,0.30);}
+.sb-icon-wrap svg{width:15px;height:15px;}
+
+.sb-label-text{
+  flex:1;
+  transition:opacity var(--t-base) var(--ease);
+}
+body.collapsed .sb-label-text{opacity:0;}
+
+.sb-pill{
+  padding:2px 8px;border-radius:var(--r-full);
+  font-size:10px;font-weight:700;
+  background:var(--indigo);color:#fff;
+  flex-shrink:0;
+  transition:opacity var(--t-base) var(--ease);
+}
+body.collapsed .sb-pill{opacity:0;}
+
+/* Sidebar bottom (logout) */
+.sb-bottom{
+  padding:10px 10px 18px;
+  border-top:1px solid var(--sb-border);
+  flex-shrink:0;
+  position:relative;z-index:1;
+}
+.sb-logout{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 10px;
+  border-radius:var(--r-md);
+  color:rgba(255,120,120,0.75);
+  font-size:14px;font-weight:500;
+  cursor:pointer;
+  transition:color var(--t-fast) var(--ease),background var(--t-fast) var(--ease);
+  white-space:nowrap;
+}
+.sb-logout:hover{color:#ff8080;background:rgba(244,63,94,0.10);}
+.sb-logout .sb-icon-wrap{background:rgba(244,63,94,0.10);}
+.sb-logout:hover .sb-icon-wrap{background:rgba(244,63,94,0.18);}
+
+/* ═══════════════════════════════════════════
+   MAIN WRAPPER
+═══════════════════════════════════════════ */
+.main-wrap{
+  margin-left:var(--sb-width);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  transition:margin-left var(--t-slow) var(--ease);
+}
+body.collapsed .main-wrap{margin-left:var(--sb-icon-w);}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.header{
+  height:var(--header-h);
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 28px;gap:14px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:var(--sh-xs);
+}
+
+/* Hamburger */
+.hdr-hamburger{
+  width:38px;height:38px;border-radius:var(--r-sm);border:none;
+  background:none;color:var(--tx-m);
+  display:flex;align-items:center;justify-content:center;
+  transition:background var(--t-fast),color var(--t-fast);
+}
+.hdr-hamburger:hover{background:var(--bg);color:var(--tx-h);}
+.hdr-hamburger svg{width:18px;height:18px;}
+
+/* Page title */
+.hdr-title{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:19px;font-weight:700;
+  color:var(--tx-h);
+  letter-spacing:-0.02em;
+}
+.hdr-title span{color:var(--indigo);}
+
+.hdr-spacer{flex:1;}
+
+/* Search */
+.hdr-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--r-full);
+  padding:7px 14px;
+  font-size:13px;color:var(--tx-s);
+  cursor:pointer;
+  transition:border-color var(--t-fast),box-shadow var(--t-fast);
+  white-space:nowrap;
+}
+.hdr-search:hover{border-color:var(--border-hi);box-shadow:var(--sh-xs);}
+.hdr-search svg{width:14px;height:14px;flex-shrink:0;}
+
+/* Notification */
+.hdr-notif{
+  position:relative;
+  width:40px;height:40px;border-radius:var(--r-md);
+  border:1.5px solid var(--border);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--tx-m);cursor:pointer;
+  transition:all var(--t-fast);
+}
+.hdr-notif:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-lt);}
+.hdr-notif svg{width:17px;height:17px;}
+.notif-badge{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--rose);border:2px solid #fff;
+}
+
+/* Profile avatar button */
+.hdr-profile{position:relative;}
+.profile-btn{
+  display:flex;align-items:center;gap:9px;
+  padding:5px 12px 5px 5px;
+  border-radius:var(--r-full);
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;
+  transition:all var(--t-fast);
+}
+.profile-btn:hover{border-color:var(--indigo);background:var(--indigo-lt);}
+.profile-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--indigo) 0%,var(--violet) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:13px;font-weight:700;color:#fff;
+  flex-shrink:0;
+}
+.profile-name-sm{font-size:13px;font-weight:600;color:var(--tx-h);white-space:nowrap;}
+.profile-chevron{width:13px;height:13px;color:var(--tx-s);transition:transform var(--t-base);}
+.hdr-profile.open .profile-chevron{transform:rotate(180deg);}
+
+/* Profile Dropdown */
+.profile-dropdown{
+  position:absolute;top:calc(100% + 10px);right:0;
+  width:290px;
+  background:var(--surface);
+  border:1.5px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--sh-lg);
+  overflow:hidden;
+  opacity:0;transform:translateY(-6px) scale(0.97);
+  pointer-events:none;
+  transform-origin:top right;
+  transition:opacity var(--t-base) var(--ease),transform var(--t-base) var(--ease);
+  z-index:300;
+}
+.hdr-profile.open .profile-dropdown{
+  opacity:1;transform:translateY(0) scale(1);
+  pointer-events:all;
+}
+
+.pd-top{
+  padding:20px 20px 16px;
+  background:linear-gradient(135deg,var(--indigo-lt) 0%,var(--violet-lt) 100%);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+}
+.pd-avatar-lg{
+  width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--indigo),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:18px;font-weight:800;color:#fff;
+  box-shadow:var(--sh-indigo);
+  flex-shrink:0;
+}
+.pd-name{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:15px;font-weight:700;color:var(--tx-h);
+}
+.pd-role{font-size:12px;color:var(--tx-m);margin-top:2px;}
+
+.pd-rows{padding:8px;}
+.pd-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--r-sm);
+  font-size:13px;color:var(--tx-m);
+  transition:background var(--t-fast);
+}
+.pd-row:hover{background:var(--bg);}
+.pd-row svg{width:14px;height:14px;color:var(--tx-xs);flex-shrink:0;}
+.pd-row strong{color:var(--tx-h);font-weight:600;}
+.pd-div{height:1px;background:var(--border);margin:4px 8px;}
+.pd-signout{
+  display:flex;align-items:center;gap:10px;
+  width:calc(100% - 16px);margin:4px 8px 8px;
+  padding:10px 12px;border-radius:var(--r-sm);
+  background:none;border:none;
+  font-size:13px;font-weight:600;color:var(--rose);
+  transition:background var(--t-fast);text-align:left;
+}
+.pd-signout:hover{background:var(--rose-lt);}
+.pd-signout svg{width:14px;height:14px;}
+
+/* ═══════════════════════════════════════════
+   PAGE CONTENT
+═══════════════════════════════════════════ */
+.page{
+  flex:1;
+  padding:26px 28px 40px;
+  display:flex;flex-direction:column;gap:22px;
+  max-width:1280px;width:100%;
+  margin:0 auto;
+}
+
+/* ─── Animation helpers ─────────────────── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.anim{animation:fadeUp var(--t-enter) var(--ease) both;}
+.d1{animation-delay:0.05s;}.d2{animation-delay:0.12s;}.d3{animation-delay:0.18s;}
+.d4{animation-delay:0.24s;}.d5{animation-delay:0.30s;}.d6{animation-delay:0.36s;}
+.d7{animation-delay:0.42s;}.d8{animation-delay:0.48s;}
+
+/* ═══════════════════════════════════════════
+   CARD BASE
+═══════════════════════════════════════════ */
+.card{
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  border:1.5px solid var(--border);
+  box-shadow:var(--sh-sm);
+  overflow:hidden;
+  transition:box-shadow var(--t-base) var(--ease),border-color var(--t-base) var(--ease),transform var(--t-base) var(--ease);
+}
+.card:hover{box-shadow:var(--sh-md);border-color:var(--border-hi);}
+
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 22px 0;
+}
+.card-title{display:flex;align-items:center;gap:10px;}
+.card-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.card-icon svg{width:16px;height:16px;}
+.card-title-text h3{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:14.5px;font-weight:700;color:var(--tx-h);
+}
+.card-title-text p{font-size:11.5px;color:var(--tx-s);margin-top:1px;}
+.card-link{
+  font-size:12px;font-weight:600;color:var(--indigo);
+  padding:5px 10px;border-radius:var(--r-sm);
+  transition:background var(--t-fast);
+}
+.card-link:hover{background:var(--indigo-lt);}
+.card-body{padding:18px 22px 22px;}
+
+/* ═══════════════════════════════════════════
+   STUDENT PROFILE CARD (TOP)
+═══════════════════════════════════════════ */
+.student-card{
+  background:linear-gradient(140deg, #0c1a35 0%, #0f2347 55%, #14204f 100%);
+  border-color:rgba(79,120,255,0.15);
+  border-radius:var(--r-xl);
+  padding:28px 32px;
+  display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;
+  box-shadow:0 10px 40px rgba(12,26,53,0.22),0 2px 8px rgba(79,120,255,0.08);
+}
+/* Decorative rings */
+.student-card::before{
+  content:'';position:absolute;
+  width:340px;height:340px;border-radius:50%;
+  border:1px solid rgba(79,120,255,0.10);
+  top:-120px;right:-40px;pointer-events:none;
+}
+.student-card::after{
+  content:'';position:absolute;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(79,120,255,0.09) 0%,transparent 65%);
+  top:-180px;right:-160px;pointer-events:none;
+}
+.sc-glow{
+  position:absolute;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(109,74,245,0.12) 0%,transparent 70%);
+  bottom:-120px;left:120px;pointer-events:none;
+}
+.sc-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+  background-size:30px 30px;
+  pointer-events:none;
+}
+
+/* Avatar */
+.sc-avatar-wrap{position:relative;flex-shrink:0;z-index:1;}
+.sc-avatar{
+  width:74px;height:74px;border-radius:50%;
+  background:linear-gradient(135deg,#4f78ff 0%,#6d4af5 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:24px;font-weight:800;color:#fff;
+  box-shadow:0 0 0 4px rgba(79,120,255,0.25),var(--sh-indigo);
+}
+.sc-online{
+  position:absolute;bottom:3px;right:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:#22c55e;border:2.5px solid #0c1a35;
+  box-shadow:0 0 8px rgba(34,197,94,0.6);
+}
+
+/* Info */
+.sc-info{flex:1;min-width:0;z-index:1;}
+.sc-name{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:22px;font-weight:800;color:#fff;
+  letter-spacing:-0.02em;
+}
+.sc-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-top:3px;}
+.sc-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.sc-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 13px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:var(--r-full);
+  font-size:12px;font-weight:500;color:rgba(255,255,255,0.80);
+  transition:background var(--t-fast);
+}
+.sc-chip:hover{background:rgba(255,255,255,0.12);}
+.sc-chip svg{width:12px;height:12px;opacity:0.65;}
+
+/* Stats strip */
+.sc-stats{
+  display:flex;gap:0;flex-shrink:0;z-index:1;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:16px;overflow:hidden;
+}
+.sc-stat{
+  padding:16px 22px;text-align:center;
+  border-right:1px solid rgba(255,255,255,0.07);
+}
+.sc-stat:last-child{border-right:none;}
+.sc-stat-val{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:22px;font-weight:800;color:#fff;
+  line-height:1;letter-spacing:-0.02em;
+}
+.sc-stat-val.good{color:#4ade80;}
+.sc-stat-val.warn{color:#fbbf24;}
+.sc-stat-lbl{font-size:11px;color:rgba(255,255,255,0.40);text-transform:uppercase;letter-spacing:0.07em;margin-top:5px;font-weight:600;}
+
+/* ═══════════════════════════════════════════
+   LAYOUT GRIDS
+═══════════════════════════════════════════ */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:22px;}
+.grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:22px;}
+
+/* ═══════════════════════════════════════════
+   CIRCULAR PROGRESS (Ring Charts)
+═══════════════════════════════════════════ */
+.ring-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  gap:16px;padding:12px 0 6px;
+}
+.ring-chart{
+  position:relative;
+  width:148px;height:148px;
+  flex-shrink:0;
+}
+.ring-chart svg{width:148px;height:148px;transform:rotate(-90deg);}
+
+.ring-track{fill:none;stroke:var(--bg);stroke-width:11;}
+.ring-fill{
+  fill:none;stroke-width:11;stroke-linecap:round;
+  stroke-dasharray:408.41; /* 2π×65 */
+  stroke-dashoffset:408.41;
+  transition:stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ring-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-pct{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:30px;font-weight:800;
+  color:var(--tx-h);line-height:1;
+  letter-spacing:-0.02em;
+}
+.ring-pct-sym{font-size:16px;font-weight:600;color:var(--tx-m);}
+.ring-lbl{
+  font-size:11px;font-weight:600;color:var(--tx-s);
+  margin-top:3px;
+  text-transform:uppercase;letter-spacing:0.06em;
+}
+
+/* Status badge under ring */
+.ring-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 13px;border-radius:var(--r-full);
+  font-size:12px;font-weight:600;
+}
+.badge-teal{background:var(--teal-lt);color:var(--teal-dk);}
+.badge-amber{background:var(--amber-lt);color:#b45309;}
+.badge-indigo{background:var(--indigo-lt);color:var(--indigo);}
+.badge-rose{background:var(--rose-lt);color:var(--rose);}
+.badge-emerald{background:#f0fdf4;color:#15803d;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* Stats below rings */
+.ring-stats{
+  width:100%;border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:0;
+  margin-top:6px;
+}
+.ring-stat-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);
+  font-size:12.5px;
+  transition:background var(--t-fast);
+}
+.ring-stat-row:last-child{border-bottom:none;}
+.rsr-lbl{color:var(--tx-m);font-weight:500;}
+.rsr-val{font-weight:700;color:var(--tx-h);}
+.rsr-val.good{color:var(--teal);}
+.rsr-val.warn{color:var(--amber);}
+.rsr-val.bad{color:var(--rose);}
+.rsr-val.info{color:var(--indigo);}
+
+/* ═══════════════════════════════════════════
+   TIMETABLE CARD
+═══════════════════════════════════════════ */
+.tt-list{display:flex;flex-direction:column;}
+.tt-row{
+  display:flex;align-items:center;gap:13px;
+  padding:11px 4px;
+  border-bottom:1px solid var(--border);
+  border-radius:var(--r-sm);
+  cursor:default;
+  transition:all var(--t-fast);
+}
+.tt-row:last-child{border-bottom:none;}
+.tt-row:hover{background:var(--surface2);padding-left:8px;}
+
+.tt-time{
+  min-width:86px;text-align:center;
+  padding:5px 8px;border-radius:var(--r-sm);
+  font-size:11.5px;font-weight:700;
+  flex-shrink:0;
+  font-family:'Bricolage Grotesque',sans-serif;
+}
+.tt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.tt-info{flex:1;min-width:0;}
+.tt-subj{
+  font-size:13.5px;font-weight:600;color:var(--tx-h);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tt-faculty{
+  font-size:11.5px;color:var(--tx-s);margin-top:2px;
+  display:flex;align-items:center;gap:5px;
+}
+.tt-faculty svg{width:11px;height:11px;}
+.tt-room{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;font-size:11px;font-weight:600;color:var(--tx-m);
+  white-space:nowrap;flex-shrink:0;
+}
+.tt-room svg{width:11px;height:11px;}
+.tt-live{
+  padding:3px 8px;border-radius:var(--r-full);
+  background:#f0fdf4;color:#15803d;
+  font-size:10px;font-weight:700;
+  letter-spacing:0.05em;
+  animation:livePulse 2s ease infinite;
+  flex-shrink:0;
+}
+@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+
+/* ═══════════════════════════════════════════
+   RESOURCES GRID
+═══════════════════════════════════════════ */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.res-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 15px;
+  border-radius:var(--r-md);
+  border:1.5px solid var(--border);
+  background:var(--surface2);
+  cursor:pointer;
+  transition:all var(--t-base) var(--ease);
+  text-decoration:none;
+}
+.res-item:hover{
+  border-color:var(--indigo);
+  background:var(--indigo-lt);
+  transform:translateY(-2px);
+  box-shadow:var(--sh-md);
+}
+.res-item:hover .res-ico{background:var(--indigo);color:#fff;}
+.res-item:hover .res-name{color:var(--indigo);}
+.res-ico{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:all var(--t-base);
+}
+.res-ico svg{width:17px;height:17px;}
+.res-txt{flex:1;}
+.res-name{
+  font-size:13.5px;font-weight:700;color:var(--tx-h);
+  font-family:'Bricolage Grotesque',sans-serif;
+  transition:color var(--t-fast);
+}
+.res-count{font-size:11.5px;color:var(--tx-s);margin-top:2px;}
+.res-arr{color:var(--tx-xs);transition:transform var(--t-base),color var(--t-base);}
+.res-item:hover .res-arr{transform:translateX(4px);color:var(--indigo);}
+.res-arr svg{width:14px;height:14px;}
+
+/* ═══════════════════════════════════════════
+   NOTIFICATIONS PANEL
+═══════════════════════════════════════════ */
+.notice-list{display:flex;flex-direction:column;}
+.notice-item{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:11px 4px;border-bottom:1px solid var(--border);
+  cursor:pointer;border-radius:var(--r-sm);
+  transition:all var(--t-fast);
+}
+.notice-item:last-child{border-bottom:none;}
+.notice-item:hover{background:var(--surface2);padding-left:8px;}
+.notice-ico{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.notice-ico svg{width:14px;height:14px;}
+.notice-content{flex:1;min-width:0;}
+.notice-title{font-size:13px;font-weight:600;color:var(--tx-h);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.notice-sub{font-size:11.5px;color:var(--tx-s);margin-top:2px;}
+.notice-meta{
+  font-size:11px;color:var(--tx-xs);
+  background:var(--bg);padding:3px 8px;border-radius:5px;
+  border:1px solid var(--border);
+  white-space:nowrap;flex-shrink:0;font-weight:500;
+  margin-top:1px;
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE OVERLAY
+═══════════════════════════════════════════ */
+.sb-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);
+  z-index:199;
+}
+.sb-overlay.show{display:block;}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:1100px){
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .grid-2-1,.grid-1-2{grid-template-columns:1fr;}
+}
+@media(max-width:820px){
+  .grid-2{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr;}
+  .res-grid{grid-template-columns:1fr 1fr;}
+  .student-card{flex-direction:column;align-items:flex-start;}
+  .sc-stats{width:100%;}
+  .sc-stat{flex:1;padding:14px 12px;}
+}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);width:256px !important;transition:transform var(--t-slow) var(--ease),width 0s;}
+  .sidebar.mob-open{transform:translateX(0);}
+  .main-wrap{margin-left:0 !important;}
+  .page{padding:18px 16px 32px;}
+  .header{padding:0 16px;}
+  .hdr-search,.hdr-title span{display:none;}
+  .student-card{padding:20px 18px;}
+}
+@media(max-width:480px){
+  .sc-chips .sc-chip:nth-child(n+4){display:none;}
+  .res-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ─── SVG Gradient Defs ─────────────────────────────────── -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <defs>
+    <linearGradient id="gTeal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00c9ab"/><stop offset="100%" stop-color="#00897b"/>
+    </linearGradient>
+    <linearGradient id="gAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5c842"/><stop offset="100%" stop-color="#f5a623"/>
+    </linearGradient>
+    <linearGradient id="gIndigo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f78ff"/><stop offset="100%" stop-color="#6d4af5"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ─── Mobile Overlay ──────────────────────────────────────── -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- Logo -->
+  <div class="sb-logo">
+    <div class="sb-logo-mark">
+      <!-- Graduation cap icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 9l-10-5L2 9l10 5 10-5z"/><path d="M6 11.5v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>
+        <line x1="22" y1="9" x2="22" y2="15"/>
+      </svg>
+    </div>
+    <span class="sb-logo-wordmark">Campus<span>track</span></span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sb-nav">
+    <div class="sb-section-label">Main</div>
+
+    <div class="sb-item active" onclick="setActive(this)">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Dashboard</span>
+    </div>
+
+    <div class="sb-item" onclick="window.location.href='studentattendance.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Attendance</span>
+    </div>
+
+    <div class="sb-item" onclick="window.location.href='studentmarksselection.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Marks</span>
+    </div>
+
+    <div class="sb-item" onclick="window.location.href='studentresources.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Resources</span>
+    </div>
+
+    <div class="sb-item" onclick="window.location.href='studenttimetable.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Timetable</span>
+    <!--Subject-selection -->
+    </div>
+     <div class="sb-item" onclick="window.location.href='studentsubjectElective.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Subject</span>
+    </div>
+
+    <div class="sb-section-label">Account</div>
+
+    <div class="sb-item" onclick="window.location.href='studentnotifications.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Notifications</span>
+      <span class="sb-pill">3</span>
+    </div>
+
+    <div class="sb-item" onclick="window.location.href='studentsettings.html'">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M21 12h-2M5 12H3M12 21v-2M12 5V3"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Settings</span>
+    </div>
+  </nav>
+
+  <!-- Logout -->
+  <div class="sb-bottom" onclick="window.location.href='studentlogin.html'">
+    <div class="sb-logout">
+      <div class="sb-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </div>
+      <span class="sb-label-text">Log Out</span>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN WRAPPER
+═══════════════════════════════════════════════════════════ -->
+<div class="main-wrap" id="mainWrap">
+
+  <!-- ─────────────── HEADER ─────────────────── -->
+  <header class="header">
+    <button class="hdr-hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="hdr-title">Student <span>Dashboard</span></div>
+
+    <div class="hdr-spacer"></div>
+
+    <div class="hdr-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      Search anything…
+    </div>
+
+    <div class="hdr-notif" title="Notifications" role="button" tabindex="0" onclick="window.location.href='studentnotifications.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      </svg>
+      <div class="notif-badge"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="hdr-profile" id="hdrProfile">
+      <button class="profile-btn" onclick="toggleDropdown()">
+        <div class="profile-avatar" id="hdrAvatarInitials">--</div>
+        <span class="profile-name-sm" id="hdrProfileName">Student</span>
+        <svg class="profile-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="pd-top">
+          <div class="pd-avatar-lg" id="pdAvatarInitials">--</div>
+          <div>
+            <div class="pd-name" id="pdName">—</div>
+            <div class="pd-role" id="pdRole">Student · Campustrack</div>
+          </div>
+        </div>
+        <div class="pd-rows">
+          <div class="pd-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span>Reg. No: <strong id="pdRegno">—</strong></span>
+          </div>
+          <div class="pd-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Branch: <strong id="pdBranch">—</strong></span>
+          </div>
+          <div class="pd-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Section <strong id="pdSection">—</strong> · Slot <strong id="pdSlot">—</strong></span>
+          </div>
+          <div class="pd-div"></div>
+          <button class="pd-signout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out of Campustrack
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─────────────── PAGE CONTENT ──────────── -->
+  <main class="page">
+
+    <!-- ══ STUDENT PROFILE CARD ══ -->
+    <div class="student-card anim d1">
+      <div class="sc-grid"></div>
+      <div class="sc-glow"></div>
+
+      <div class="sc-avatar-wrap">
+        <div class="sc-avatar" id="scAvatarInitials">—</div>
+        <div class="sc-online"></div>
+      </div>
+
+      <div class="sc-info">
+        <div class="sc-name" id="name">—</div>
+        <div class="sc-sub">Undergraduate · Even Semester 2024–25</div>
+        <div class="sc-chips">
+          <div class="sc-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span id="regno">—</span>
+          </div>
+          <div class="sc-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <span id="branch">—</span>
+          </div>
+          <div class="sc-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Section <span id="section">—</span>
+          </div>
+          <div class="sc-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Slot <span id="slot">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc-stats">
+        <div class="sc-stat">
+          <div class="sc-stat-val good">8.4</div>
+          <div class="sc-stat-lbl">CGPA</div>
+        </div>
+        <div class="sc-stat">
+          <div class="sc-stat-val good" id="scAttendPct">75%</div>
+          <div class="sc-stat-lbl">Attendance</div>
+        </div>
+        <div class="sc-stat">
+          <div class="sc-stat-val warn" id="scMarksPct">80%</div>
+          <div class="sc-stat-lbl">Int. Marks</div>
+        </div>
+        <div class="sc-stat">
+          <div class="sc-stat-val">6</div>
+          <div class="sc-stat-lbl">Subjects</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ATTENDANCE + INTERNAL MARKS ══ -->
+    <div class="grid-2">
+
+      <!-- ── ATTENDANCE CARD ── -->
+      <div class="card anim d2">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--teal-lt);color:var(--teal);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>Attendance</h3>
+              <p>Overall this semester</p>
+            </div>
+          </div>
+          <a href="#" class="card-link">View full →</a>
+        </div>
+        <div class="card-body">
+          <div class="ring-wrap">
+            <div class="ring-chart">
+              <svg viewBox="0 0 148 148">
+                <circle class="ring-track" cx="74" cy="74" r="62"/>
+                <circle class="ring-fill" id="attendRing" cx="74" cy="74" r="62" stroke="url(#gTeal)"/>
+              </svg>
+              <div class="ring-center">
+                <div class="ring-pct"><span id="attendPctVal">75</span><span class="ring-pct-sym">%</span></div>
+                <div class="ring-lbl">Attendance</div>
+              </div>
+            </div>
+            <span class="ring-badge badge-teal" id="attendBadge">
+              <span class="badge-dot"></span>
+              Meeting requirement
+            </span>
+          </div>
+
+          <div class="ring-stats">
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Classes Conducted</span>
+              <span class="rsr-val" id="attendTotal">88</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Classes Attended</span>
+              <span class="rsr-val good" id="attendPresent">66</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Classes Absent</span>
+              <span class="rsr-val warn" id="attendAbsent">22</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Required to reach 85%</span>
+              <span class="rsr-val bad" id="attendRequired">8 classes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── INTERNAL MARKS CARD ── -->
+      <div class="card anim d3">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--amber-lt);color:var(--amber);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3> Marks</h3>
+              <p>Overall performance</p>
+            </div>
+          </div>
+          <a href="#" class="card-link">View full →</a>
+        </div>
+        <div class="card-body">
+          <div class="ring-wrap">
+            <div class="ring-chart">
+              <svg viewBox="0 0 148 148">
+                <circle class="ring-track" cx="74" cy="74" r="62"/>
+                <circle class="ring-fill" id="marksRing" cx="74" cy="74" r="62" stroke="url(#gAmber)"/>
+              </svg>
+              <div class="ring-center">
+                <div class="ring-pct"><span id="marksPctVal">80</span><span class="ring-pct-sym">%</span></div>
+                <div class="ring-lbl">Avg Score</div>
+              </div>
+            </div>
+            <span class="ring-badge badge-amber" id="marksBadge">
+              <span class="badge-dot"></span>
+              Above class average
+            </span>
+          </div>
+
+          <div class="ring-stats">
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Subjects Evaluated</span>
+              <span class="rsr-val" id="marksSubjCount">6</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Highest Score</span>
+              <span class="rsr-val good" id="marksHigh">90%</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Lowest Score</span>
+              <span class="rsr-val warn" id="marksLow">70%</span>
+            </div>
+            <div class="ring-stat-row">
+              <span class="rsr-lbl">Class Average</span>
+              <span class="rsr-val info" id="marksClassAvg">74%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ TIMETABLE + RESOURCES ══ -->
+    <div class="grid-2">
+
+      <!-- ── UPCOMING TIMETABLE ── -->
+      <div class="card anim d4">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--violet-lt);color:var(--violet);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>Upcoming Classes</h3>
+              <p id="ttDateLabel">Today's schedule</p>
+            </div>
+          </div>
+          <a href="#" class="card-link">Full →</a>
+        </div>
+        <div class="card-body">
+          <div class="tt-list">
+
+            <div class="tt-row">
+              <div class="tt-time" style="background:#ecfdf5;color:#065f46;">8:00 AM</div>
+              <div class="tt-dot" style="background:#22c55e;"></div>
+              <div class="tt-info">
+                <div class="tt-subj">Engineering Mathematics IV</div>
+                <div class="tt-faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. P. Anitha
+                </div>
+              </div>
+              <div class="tt-room">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                AB-204
+              </div>
+            </div>
+
+            <div class="tt-row">
+              <div class="tt-time" style="background:var(--indigo-lt);color:var(--indigo);">10:00 AM</div>
+              <div class="tt-dot" style="background:var(--indigo);"></div>
+              <div class="tt-info">
+                <div class="tt-subj">Data Structures &amp; Algorithms</div>
+                <div class="tt-faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Prof. S. Krishnan
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+                <div class="tt-room">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  AB-311
+                </div>
+                <div class="tt-live">NEXT</div>
+              </div>
+            </div>
+
+            <div class="tt-row">
+              <div class="tt-time" style="background:#fffbeb;color:#92400e;">12:00 PM</div>
+              <div class="tt-dot" style="background:var(--amber);"></div>
+              <div class="tt-info">
+                <div class="tt-subj">Computer Networks Lab</div>
+                <div class="tt-faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Mr. R. Vignesh
+                </div>
+              </div>
+              <div class="tt-room">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                NL-02
+              </div>
+            </div>
+
+            <div class="tt-row">
+              <div class="tt-time" style="background:var(--violet-lt);color:#4c1d95;">2:00 PM</div>
+              <div class="tt-dot" style="background:var(--violet);"></div>
+              <div class="tt-info">
+                <div class="tt-subj">Operating Systems</div>
+                <div class="tt-faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. M. Suresh
+                </div>
+              </div>
+              <div class="tt-room">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                AB-206
+              </div>
+            </div>
+
+            <div class="tt-row">
+              <div class="tt-time" style="background:var(--rose-lt);color:#9f1239;">4:00 PM</div>
+              <div class="tt-dot" style="background:var(--rose);"></div>
+              <div class="tt-info">
+                <div class="tt-subj">DBMS – Theory</div>
+                <div class="tt-faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Dr. N. Priya
+                </div>
+              </div>
+              <div class="tt-room">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                SB-101
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RESOURCES ── -->
+      <div class="card anim d5">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="card-icon" style="background:var(--indigo-lt);color:var(--indigo);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+              </svg>
+            </div>
+            <div class="card-title-text">
+              <h3>Resources</h3>
+              <p>Study materials &amp; links</p>
+            </div>
+          </div>
+          <a href="#" class="card-link">All →</a>
+        </div>
+        <div class="card-body">
+          <div class="res-grid">
+
+            <a href="#" class="res-item">
+              <div class="res-ico" style="background:var(--teal-lt);color:var(--teal);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                </svg>
+              </div>
+              <div class="res-txt">
+                <div class="res-name">Notes</div>
+                <div class="res-count">24 documents</div>
+              </div>
+              <div class="res-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </a>
+
+            <a href="#" class="res-item">
+              <div class="res-ico" style="background:#fff8ec;color:var(--amber);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div class="res-txt">
+                <div class="res-name">Videos</div>
+                <div class="res-count">18 lectures</div>
+              </div>
+              <div class="res-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </a>
+
+            <a href="#" class="res-item">
+              <div class="res-ico" style="background:#f0ecff;color:var(--violet);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                </svg>
+              </div>
+              <div class="res-txt">
+                <div class="res-name">Links</div>
+                <div class="res-count">12 references</div>
+              </div>
+              <div class="res-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </a>
+
+            <a href="#" class="res-item">
+              <div class="res-ico" style="background:var(--rose-lt);color:var(--rose);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+              </div>
+              <div class="res-txt">
+                <div class="res-name">Announcements</div>
+                <div class="res-count">3 new alerts</div>
+              </div>
+              <div class="res-arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </a>
+
+          </div>
+
+          <!-- Pending work strip -->
+          <div style="margin-top:16px;padding:15px 16px;background:linear-gradient(135deg,var(--indigo-lt),var(--violet-lt));border-radius:var(--r-md);border:1.5px solid rgba(58,92,245,0.12);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--tx-h);">Pending Work</span>
+              <span style="font-size:11px;font-weight:700;color:var(--rose);background:var(--rose-lt);padding:3px 9px;border-radius:var(--r-full);">2 Due</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;"></div>
+                <span style="flex:1;color:var(--tx-h);font-weight:500;">CN Lab Record — <strong style="color:var(--rose);">Due Today</strong></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></div>
+                <span style="flex:1;color:var(--tx-h);font-weight:500;">OS Mini Project — <strong style="color:var(--amber);">Due Apr 18</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent notices -->
+          <div style="margin-top:16px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;color:var(--tx-h);margin-bottom:10px;">Latest Notices</div>
+            <div class="notice-list">
+              <div class="notice-item">
+                <div class="notice-ico" style="background:#fffbeb;color:var(--amber);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div class="notice-content">
+                  <div class="notice-title">Cycle Test 3 — Schedule Released</div>
+                  <div class="notice-sub">Exams begin April 21st onwards</div>
+                </div>
+                <div class="notice-meta">Today</div>
+              </div>
+              <div class="notice-item">
+                <div class="notice-ico" style="background:var(--indigo-lt);color:var(--indigo);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                </div>
+                <div class="notice-content">
+                  <div class="notice-title">Project Review Phase 1</div>
+                  <div class="notice-sub">Submit reports by Apr 17</div>
+                </div>
+                <div class="notice-meta">2d ago</div>
+              </div>
+              <div class="notice-item">
+                <div class="notice-ico" style="background:#f0fdf4;color:#15803d;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="notice-content">
+                  <div class="notice-title">Hall Ticket Now Available</div>
+                  <div class="notice-sub">Download from portal</div>
+                </div>
+                <div class="notice-meta">3d ago</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div><!-- /.main-wrap -->
+<script>
+/* ════════════════════════════════════════════
+   LOAD REAL STUDENT DATA
+════════════════════════════════════════════ */
+function getStudentData() {
+  try {
+    // Try studentProfile first (full data), fallback to studentData
+    const profile = localStorage.getItem('studentProfile');
+    if (profile) return JSON.parse(profile);
+
+    const data = localStorage.getItem('studentData');
+    if (data) return JSON.parse(data);
+
+    return null;
+  } catch (err) {
+    console.error("Invalid student data:", err);
+    return null;
+  }
+}
+
+/* ════════════════════════════════════════════
+   INIT DASHBOARD
+════════════════════════════════════════════ */
+function initStudentData() {
+
+  const s = getStudentData();
+
+  if (!s) {
+    alert("Student data not found. Please login again.");
+    window.location.href = "studentlogin.html";
+    return;
+  }
+
+  console.log("Loaded Student Data:", s);
+
+  /* ── Extract fields from API profile structure ── */
+  const studentName = s.name || "Student";
+
+  const regno = s.reg_no || s.register_number || "-";
+
+  const department =
+    s.sections?.branches?.departments?.name ||
+    s.department || "-";
+
+  const branch =
+    s.sections?.branches?.name ||
+    s.branch || "-";
+
+  const section =
+    s.sections?.name ||
+    s.section || "-";
+
+  const semester =
+    s.sections?.semester ||
+    s.semester || "-";
+
+  const phone  = s.phone  || "-";
+  const email  = s.email  || "-";
+
+  /* ── Initials ── */
+  const initials = studentName
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  /* ── Basic details ── */
+  setText('name',    studentName);
+  setText('regno',   regno);
+  setText('branch',  branch);
+  setText('section', section);
+  setText('slot',    semester ? `Semester ${semester}` : "-");
+
+  /* ── Department if element exists ── */
+  setText('department', department);
+
+  /* ── Avatars ── */
+  ['hdrAvatarInitials', 'pdAvatarInitials', 'scAvatarInitials'].forEach(id => {
+    setText(id, initials);
+  });
+
+  /* ── Profile dropdown ── */
+  setText('hdrProfileName', studentName.split(' ')[0]);
+
+  /* ── Profile detail panel ── */
+  setText('pdName',    studentName);
+  setText('pdRegno',   regno);
+  setText('pdBranch',  branch);
+  setText('pdSection', section);
+  setText('pdSlot',    semester ? `Semester ${semester}` : "-");
+  setText('pdDept',    department);
+  setText('pdPhone',   phone);
+  setText('pdEmail',   email);
+
+  /* ── Load real attendance from API ── */
+  loadAttendanceSummary();
+
+  /* ── Load real marks from API ── */
+  loadMarksSummary();
+
+  /* ── Date ── */
+  const today = new Date();
+  const opts  = { weekday: 'long', month: 'long', day: 'numeric' };
+  setText('ttDateLabel', today.toLocaleDateString('en-US', opts));
+}
+
+/* ════════════════════════════════════════════
+   LOAD REAL ATTENDANCE FROM API
+════════════════════════════════════════════ */
+async function loadAttendanceSummary() {
+  try {
+    const token     = localStorage.getItem('token') || localStorage.getItem('studentToken');
+    const profile   = getStudentData();
+    const studentId = profile?.id;
+
+    if (!token || !studentId) return;
+
+    const res  = await fetch(
+      `http://localhost:5000/api/attendance/student/${studentId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      setText('attendPctVal', '0');
+      setText('scAttendPct',  '0%');
+      animateRings(0, 0);
+      return;
+    }
+
+    // Calculate overall attendance percentage
+    let totalClasses = 0, totalPresent = 0;
+    data.forEach(subject => {
+      totalClasses += subject.total_classes || 0;
+      totalPresent += subject.present       || 0;
+    });
+
+    const pct = totalClasses > 0
+      ? Math.round((totalPresent / totalClasses) * 100)
+      : 0;
+
+    setText('attendPctVal', pct);
+    setText('scAttendPct',  pct + '%');
+
+    animateRings(pct, null);
+
+  } catch (err) {
+    console.error('Attendance load error:', err);
+  }
+}
+
+/* ════════════════════════════════════════════
+   LOAD REAL MARKS FROM API
+════════════════════════════════════════════ */
+async function loadMarksSummary() {
+  try {
+    const token     = localStorage.getItem('token') || localStorage.getItem('studentToken');
+    const profile   = getStudentData();
+    const studentId = profile?.id;
+
+    if (!token || !studentId) return;
+
+    const res  = await fetch(
+      `http://localhost:5000/api/marks/student/${studentId}`,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    );
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      setText('marksPctVal', '0');
+      setText('scMarksPct',  '0%');
+      return;
+    }
+
+    // Calculate average marks percentage
+    let totalScored = 0, totalMax = 0;
+    data.forEach(subject => {
+      Object.values(subject).forEach(val => {
+        if (val && typeof val === 'object' && val.scored !== undefined) {
+          totalScored += val.scored || 0;
+          totalMax    += val.max    || 0;
+        }
+      });
+    });
+
+    const avg = totalMax > 0
+      ? Math.round((totalScored / totalMax) * 100)
+      : 0;
+
+    setText('marksPctVal', avg);
+    setText('scMarksPct',  avg + '%');
+
+    animateRings(null, avg);
+
+  } catch (err) {
+    console.error('Marks load error:', err);
+  }
+}
+
+/* ════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════ */
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+/* ════════════════════════════════════════════
+   RING ANIMATION
+════════════════════════════════════════════ */
+const CIRC = 2 * Math.PI * 62;
+
+function animateRings(attendPct, marksPct) {
+  setTimeout(() => {
+    if (attendPct !== null) setRingOffset('attendRing', attendPct);
+    if (marksPct  !== null) setRingOffset('marksRing',  marksPct);
+  }, 300);
+}
+
+function setRingOffset(ringId, pct) {
+  const ring = document.getElementById(ringId);
+  if (!ring) return;
+  ring.style.strokeDasharray  = CIRC;
+  ring.style.strokeDashoffset = CIRC;
+  requestAnimationFrame(() => {
+    ring.style.strokeDashoffset = CIRC - (pct / 100) * CIRC;
+  });
+}
+
+/* ════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════ */
+const isMobile = () => window.innerWidth <= 768;
+
+function toggleSidebar() {
+  if (isMobile()) {
+    document.getElementById('sidebar').classList.toggle('mob-open');
+    document.getElementById('sbOverlay').classList.toggle('show');
+  } else {
+    document.body.classList.toggle('collapsed');
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('sbOverlay').classList.remove('show');
+}
+
+function setActive(el) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ════════════════════════════════════════════
+   PROFILE DROPDOWN
+════════════════════════════════════════════ */
+function toggleDropdown() {
+  document.getElementById('hdrProfile').classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  const p = document.getElementById('hdrProfile');
+  if (p && !p.contains(e.target)) p.classList.remove('open');
+});
+
+/* ════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+function handleAttendanceClick(el) {
+  setActive(el);
+  window.location.href = "studentattendance.html";
+}
+
+/* ════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', initStudentData);
+</script>
+</body>
+</html>

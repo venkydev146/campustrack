@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Attendance Session Setup — Campus Track</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f5f6fa;
+    --surface:   #ffffff;
+    --border:    #e4e7ef;
+    --accent:    #4f6ef7;
+    --accent-dk: #3a57d7;
+    --accent-lt: #eef1fe;
+    --text-1:    #0f1117;
+    --text-2:    #5a6077;
+    --text-3:    #9aa0b8;
+    --success:   #10b981;
+    --radius:    14px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 24px rgba(79,110,247,.10), 0 1px 4px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 40px rgba(79,110,247,.16), 0 2px 8px rgba(0,0,0,.08);
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-1);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(79,110,247,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(79,110,247,.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Page layout ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+
+  /* ── Top brand bar ── */
+  .brand-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 10px;
+    z-index: 100;
+    animation: slideDown .5s ease both;
+  }
+
+  .brand-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-1);
+    letter-spacing: -.2px;
+  }
+
+  .brand-sep { color: var(--border); margin: 0 4px; }
+
+  .brand-page {
+    font-size: 13px;
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  /* ── Main wrapper ── */
+  .wrapper {
+    width: 100%;
+    max-width: 520px;
+    animation: fadeUp .55s ease both;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp .55s .08s ease both;
+    opacity: 0;
+  }
+
+  .header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 52px;
+    background: var(--accent-lt);
+    border-radius: 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(79,110,247,.15);
+  }
+
+  .header-icon svg {
+    width: 24px; height: 24px;
+    color: var(--accent);
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--text-1);
+    letter-spacing: -.5px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    padding: 36px;
+    animation: fadeUp .55s .16s ease both;
+    opacity: 0;
+  }
+
+  /* ── Staff chip ── */
+  .staff-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent-lt);
+    border: 1px solid rgba(79,110,247,.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 28px;
+  }
+
+  .staff-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .staff-info { flex: 1; min-width: 0; }
+
+  .staff-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .staff-dept {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 1px;
+  }
+
+  .chip-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(79,110,247,.12);
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 28px;
+  }
+
+  /* ── Field group ── */
+  .field-group { margin-bottom: 20px; }
+  .field-group:last-of-type { margin-bottom: 28px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field-label svg {
+    width: 13px; height: 13px;
+    color: var(--accent);
+    opacity: .8;
+  }
+
+  .field-wrap { position: relative; }
+
+  select, input[type="date"] {
+    width: 100%;
+    height: 48px;
+    padding: 0 44px 0 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-1);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    appearance: none;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    cursor: pointer;
+  }
+
+  select:focus, input[type="date"]:focus {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(79,110,247,.1);
+  }
+
+  select:hover, input[type="date"]:hover {
+    border-color: #c5cbe0;
+    background: #fff;
+  }
+
+  select.filled, input[type="date"].filled {
+    border-color: var(--success);
+    background: #fff;
+  }
+
+  select.filled:focus, input[type="date"].filled:focus {
+    box-shadow: 0 0 0 3px rgba(16,185,129,.1);
+  }
+
+  /* Custom chevron */
+  .field-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+  }
+
+  .field-icon svg { width: 16px; height: 16px; }
+
+  /* Check indicator */
+  .field-check {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    pointer-events: none;
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .field-check svg { width: 16px; height: 16px; }
+  .field-check.visible { transform: translateY(-50%) scale(1); }
+
+  /* Hide chevron when filled */
+  .field-wrap.filled .field-icon { opacity: 0; }
+  .field-wrap.filled .field-check { transform: translateY(-50%) scale(1); }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+
+  .progress-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #7c9bff);
+    border-radius: 99px;
+    width: 0%;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── Period pills (shown after section selected) ── */
+  .period-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .period-pill {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all .18s ease;
+    white-space: nowrap;
+  }
+
+  .period-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-lt);
+  }
+
+  .period-pill.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(79,110,247,.3);
+  }
+
+  /* ── Loading state for period ── */
+  .loading-periods {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-3);
+    padding: 8px 0;
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  /* ── No classes message ── */
+  .no-classes {
+    font-size: 13px;
+    color: var(--text-3);
+    padding: 10px 0;
+    font-style: italic;
+  }
+
+  /* ── Continue button ── */
+  .btn-continue {
+    width: 100%;
+    height: 52px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: not-allowed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .25s ease;
+    background: #dde2f0;
+    color: #9aa0b8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-continue.enabled {
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(79,110,247,.35);
+  }
+
+  .btn-continue.enabled:hover {
+    background: var(--accent-dk);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  .btn-continue.enabled:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-continue svg {
+    width: 18px; height: 18px;
+    transition: transform .2s ease;
+  }
+
+  .btn-continue.enabled:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* Ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.25);
+    transform: scale(0);
+    animation: ripple .55s ease-out forwards;
+    pointer-events: none;
+  }
+
+  /* ── Bottom note ── */
+  .bottom-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-3);
+    animation: fadeUp .55s .24s ease both;
+    opacity: 0;
+  }
+
+  .bottom-note span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-100%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 560px) {
+    .card { padding: 24px 20px; }
+    .brand-bar { padding: 0 20px; }
+    .page { padding: 72px 16px 32px; }
+  }
+  .period-pill.submitted {
+  border-color: #10b981;
+  color: #10b981;
+  background: #f0fdf4;
+}
+
+.period-pill.submitted:hover {
+  background: #dcfce7;
+  border-color: #10b981;
+}
+</style>
+</head>
+<body>
+
+<!-- Brand bar -->
+<div class="brand-bar">
+  <div class="brand-dot"></div>
+  <span class="brand-name">CampusTrack</span>
+  <span class="brand-sep">·</span>
+  <span class="brand-page">Attendance Setup</span>
+</div>
+
+<div class="page">
+  <div class="wrapper">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+      </div>
+      <h1>Attendance Session Setup</h1>
+      <p>Select your assigned section, period, and date to continue with attendance management.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+      <!-- Staff chip -->
+      <div class="staff-chip">
+        <div class="staff-avatar" id="staffAvatar">—</div>
+        <div class="staff-info">
+          <div class="staff-name" id="staffName">Loading staff info…</div>
+          <div class="staff-dept" id="staffDept"></div>
+        </div>
+        <div class="chip-badge">Staff</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span class="progress-label">Completion</span>
+          <span class="progress-count" id="progressCount">0 / 3</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div class="field-group">
+        <div class="field-label">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+          </svg>
+          Select Section
+        </div>
+        <div class="field-wrap" id="wrap-section">
+          <select id="sectionSelect">
+            <option value="">Choose a section…</option>
+          </select>
+          <span class="field-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+          <span class="field-check" id="check-section">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Period -->
+      <div class="field-group" id="periodGroup">
+        <div class="field-label">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/>
+          </svg>
+          Select Period
+        </div>
+        <div id="periodContainer">
+          <div class="no-classes">← Select a section to see available periods</div>
+        </div>
+        <input type="hidden" id="periodValue"/>
+        <input type="hidden" id="timetableEntryId"/>
+      </div>
+
+      <!-- Date -->
+      <div class="field-group">
+        <div class="field-label">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Select Date
+        </div>
+        <div class="field-wrap" id="wrap-date">
+          <input type="date" id="dateInput"/>
+          <span class="field-check" id="check-date">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Continue button -->
+      <button class="btn-continue" id="continueBtn" disabled>
+        <span id="btnText">Complete all fields to continue</span>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Bottom note -->
+    <div class="bottom-note">
+      <span>
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-6V7"/>
+          <circle cx="12" cy="12" r="10"/>
+        </svg>
+        Only your assigned sections are shown
+      </span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const BASE_URL = 'http://localhost:5000/api';
+  const token    = localStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'stafflogin.html';
+    return;
+  }
+
+  /* ── Elements ── */
+  const sectionSelect    = document.getElementById('sectionSelect');
+  const periodContainer  = document.getElementById('periodContainer');
+  const periodValue      = document.getElementById('periodValue');
+  const timetableEntryId = document.getElementById('timetableEntryId');
+  const dateInput        = document.getElementById('dateInput');
+  const continueBtn      = document.getElementById('continueBtn');
+  const btnText          = document.getElementById('btnText');
+  const progressFill     = document.getElementById('progressFill');
+  const progressCount    = document.getElementById('progressCount');
+  const staffNameEl      = document.getElementById('staffName');
+  const staffDeptEl      = document.getElementById('staffDept');
+  const staffAvatarEl    = document.getElementById('staffAvatar');
+
+  let todayTimetable      = [];
+  let selectedPeriodLabel = '';
+
+  /* ── Set today as default & max date ── */
+  const today    = new Date();
+  const pad      = n => String(n).padStart(2, '0');
+  const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  dateInput.max   = todayStr;
+  dateInput.value = todayStr;
+  markField('wrap-date', 'check-date', true);
+
+  /* ── Progress ── */
+  function updateProgress() {
+    const fields = [
+      sectionSelect.value !== '',
+      periodValue.value   !== '',
+      dateInput.value     !== ''
+    ];
+    const filled = fields.filter(Boolean).length;
+    const pct    = Math.round((filled / 3) * 100);
+
+    progressFill.style.width  = pct + '%';
+    progressCount.textContent = `${filled} / 3`;
+
+    const allDone = filled === 3;
+    continueBtn.disabled = !allDone;
+    continueBtn.classList.toggle('enabled', allDone);
+    btnText.textContent = allDone ? 'Continue to Attendance' : 'Complete all fields to continue';
+  }
+
+  function markField(wrapId, checkId, ok) {
+    const wrap  = document.getElementById(wrapId);
+    const check = document.getElementById(checkId);
+    if (!wrap || !check) return;
+    wrap.classList.toggle('filled', ok);
+    check.classList.toggle('visible', ok);
+  }
+
+  /* ── Show already submitted alert ── */
+  function showAlreadySubmitted(type = 'submitted') {
+    const existing = document.getElementById('submitted-alert');
+    if (existing) existing.remove();
+
+    const alert = document.createElement('div');
+    alert.id = 'submitted-alert';
+    alert.style.cssText = `
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #15803d;
+      animation: fadeUp .3s ease both;
+    `;
+    alert.innerHTML = `
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>${type === 'locked'
+        ? 'This session is locked and cannot be modified.'
+        : 'Attendance already submitted for this period today!'
+      }</span>
+    `;
+    continueBtn.after(alert);
+    setTimeout(() => { if (alert.parentNode) alert.remove(); }, 4000);
+  }
+
+  /* ── Load staff profile ── */
+  async function loadStaffData() {
+    try {
+      const res  = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        window.location.href = 'stafflogin.html';
+        return;
+      }
+
+      const profile = data.profile;
+
+      const names    = (profile.name || '').trim().split(' ');
+      const initials = names.length >= 2
+        ? names[0][0] + names[names.length - 1][0]
+        : (names[0]?.[0] || '?');
+
+      if (staffAvatarEl) staffAvatarEl.textContent = initials.toUpperCase();
+      if (staffNameEl)   staffNameEl.textContent   = profile.name || 'Staff';
+      if (staffDeptEl)   staffDeptEl.textContent   = profile.departments?.name || '';
+
+      localStorage.setItem('staffId', profile.id);
+
+      await loadTodayTimetable();
+
+    } catch (err) {
+      console.error('Load staff error:', err);
+    }
+  }
+
+  /* ── Load today's timetable ── */
+  async function loadTodayTimetable() {
+    try {
+      const res  = await fetch(`${BASE_URL}/timetable/today`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      todayTimetable = data.classes || [];
+
+      const seen     = new Set();
+      const sections = [];
+      todayTimetable.forEach(e => {
+        if (!seen.has(e.section_id)) {
+          seen.add(e.section_id);
+          sections.push({ id: e.section_id, name: e.section_name });
+        }
+      });
+
+      sectionSelect.innerHTML = '<option value="">Choose a section…</option>';
+      sections.forEach(s => {
+        const o       = document.createElement('option');
+        o.value       = s.id;
+        o.textContent = s.name;
+        sectionSelect.appendChild(o);
+      });
+
+      if (sections.length === 0) {
+        sectionSelect.innerHTML = '<option value="">No classes scheduled today</option>';
+      }
+
+    } catch (err) {
+      console.error('Timetable error:', err);
+    }
+  }
+
+  /* ── Check session status for a period ── */
+  async function checkSessionStatus(entryId, date) {
+    try {
+      const res  = await fetch(
+        `${BASE_URL}/attendance/session/check?timetable_entry_id=${entryId}&date=${date}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      return data;
+    } catch {
+      return { exists: false };
+    }
+  }
+
+  /* ── Section change → render period pills with status ── */
+  sectionSelect.addEventListener('change', async () => {
+    const sectionId = sectionSelect.value;
+
+    periodValue.value      = '';
+    timetableEntryId.value = '';
+    selectedPeriodLabel    = '';
+    markField('wrap-section', 'check-section', sectionId !== '');
+
+    // Remove any existing alert
+    const existing = document.getElementById('submitted-alert');
+    if (existing) existing.remove();
+
+    if (!sectionId) {
+      periodContainer.innerHTML = '<div class="no-classes">← Select a section to see available periods</div>';
+      updateProgress();
+      return;
+    }
+
+    periodContainer.innerHTML = '<div class="loading-periods"><div class="spinner"></div>Loading periods…</div>';
+
+    const periods = todayTimetable.filter(e => e.section_id === sectionId);
+
+    if (periods.length === 0) {
+      periodContainer.innerHTML = '<div class="no-classes">No periods assigned for this section today</div>';
+      updateProgress();
+      return;
+    }
+
+    // Check session status for each period
+    const periodsWithStatus = await Promise.all(
+      periods.map(async e => {
+        const status = await checkSessionStatus(e.timetable_entry_id, dateInput.value);
+        return { ...e, sessionStatus: status.exists ? status.status : null };
+      })
+    );
+
+    // Render pills with status
+    const pillsHtml = periodsWithStatus.map(e => {
+      const isDone = e.sessionStatus === 'submitted' || e.sessionStatus === 'locked';
+      return `
+        <button
+          class="period-pill ${isDone ? 'submitted' : ''}"
+          data-entry="${e.timetable_entry_id}"
+          data-label="${e.label} · ${e.subject_name}"
+          data-submitted="${isDone}"
+          type="button"
+        >
+          ${e.label}<br>
+          <small style="font-size:10px;opacity:.7">${e.start_time.slice(0,5)}–${e.end_time.slice(0,5)}</small><br>
+          <small style="font-size:10px;font-weight:600">${e.subject_name}</small>
+          ${isDone ? '<br><small style="font-size:10px;color:#10b981;font-weight:700">✓ Done</small>' : ''}
+        </button>
+      `;
+    }).join('');
+
+    periodContainer.innerHTML = `<div class="period-pills">${pillsHtml}</div>`;
+
+    // Pill click
+    periodContainer.querySelectorAll('.period-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        periodContainer.querySelectorAll('.period-pill').forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+        timetableEntryId.value = pill.dataset.entry;
+        periodValue.value      = pill.dataset.entry;
+        selectedPeriodLabel    = pill.dataset.label;
+
+        // Remove existing alert when switching periods
+        const existing = document.getElementById('submitted-alert');
+        if (existing) existing.remove();
+
+        // If already submitted → show alert and disable continue
+        if (pill.dataset.submitted === 'true') {
+          continueBtn.disabled = true;
+          continueBtn.classList.remove('enabled');
+          btnText.textContent = 'Attendance already submitted';
+          showAlreadySubmitted();
+          return;
+        }
+
+        updateProgress();
+      });
+    });
+
+    updateProgress();
+  });
+
+  /* ── Date change → reload period statuses ── */
+  dateInput.addEventListener('change', async () => {
+    markField('wrap-date', 'check-date', dateInput.value !== '');
+
+    // Reset period selection
+    periodValue.value      = '';
+    timetableEntryId.value = '';
+    selectedPeriodLabel    = '';
+
+    // If section already selected reload periods with new date status
+    if (sectionSelect.value) {
+      sectionSelect.dispatchEvent(new Event('change'));
+    }
+
+    updateProgress();
+  });
+
+  /* ── Continue ── */
+  continueBtn.addEventListener('click', async function(e) {
+    if (this.disabled) return;
+
+    // Ripple
+    const r    = document.createElement('span');
+    r.className = 'ripple';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+
+    this.disabled = true;
+    this.classList.remove('enabled');
+    btnText.textContent = 'Checking session…';
+
+    try {
+      // Double check session status before navigating
+      const checkData = await checkSessionStatus(timetableEntryId.value, dateInput.value);
+
+      if (checkData.exists && (checkData.status === 'submitted' || checkData.status === 'locked')) {
+        showAlreadySubmitted(checkData.status);
+        this.disabled = false;
+        this.classList.add('enabled');
+        btnText.textContent = 'Continue to Attendance';
+        return;
+      }
+
+      // All good → navigate
+      const sectionName = sectionSelect.options[sectionSelect.selectedIndex]?.text || '';
+      const params = new URLSearchParams({
+        timetable_entry_id: timetableEntryId.value,
+        date:               dateInput.value,
+        section_name:       sectionName,
+        period_label:       selectedPeriodLabel
+      });
+
+      btnText.textContent = 'Opening session…';
+      setTimeout(() => {
+        window.location.href = `staffattendancegiven.html?${params.toString()}`;
+      }, 400);
+
+    } catch (err) {
+      console.error('Session check error:', err);
+      this.disabled = false;
+      this.classList.add('enabled');
+      btnText.textContent = 'Continue to Attendance';
+    }
+  });
+
+  /* ── Init ── */
+  updateProgress();
+  loadStaffData();
+
+})();
+</script>
+</body>
+</html>

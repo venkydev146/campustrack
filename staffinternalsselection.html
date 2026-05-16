@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Internal Marks Setup — Campus Track</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #f5f6fa;
+    --surface:   #ffffff;
+    --border:    #e4e7ef;
+    --accent:    #4f6ef7;
+    --accent-dk: #3a57d7;
+    --accent-lt: #eef1fe;
+    --text-1:    #0f1117;
+    --text-2:    #5a6077;
+    --text-3:    #9aa0b8;
+    --success:   #10b981;
+    --radius:    14px;
+    --shadow-md: 0 4px 24px rgba(79,110,247,.10), 0 1px 4px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 40px rgba(79,110,247,.16), 0 2px 8px rgba(0,0,0,.08);
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-1);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(79,110,247,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(79,110,247,.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Brand bar ── */
+  .brand-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 10px;
+    z-index: 100;
+    animation: slideDown .5s ease both;
+  }
+
+  .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-1); letter-spacing: -.2px; }
+  .brand-sep  { color: var(--border); margin: 0 4px; }
+  .brand-page { font-size: 13px; color: var(--text-3); }
+
+  /* ── Page ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px 48px;
+  }
+
+  .wrapper { width: 100%; max-width: 500px; }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp .55s .08s ease both;
+    opacity: 0;
+  }
+
+  .header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 52px;
+    background: var(--accent-lt);
+    border-radius: 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(79,110,247,.15);
+  }
+
+  .header-icon svg { width: 24px; height: 24px; color: var(--accent); }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--text-1);
+    letter-spacing: -.5px;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    padding: 36px;
+    animation: fadeUp .55s .16s ease both;
+    opacity: 0;
+  }
+
+  /* ── Staff chip ── */
+  .staff-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent-lt);
+    border: 1px solid rgba(79,110,247,.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 28px;
+  }
+
+  .staff-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .staff-info { flex: 1; min-width: 0; }
+  .staff-name { font-size: 13px; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .staff-dept { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+  .chip-badge { font-size: 10px; font-weight: 600; color: var(--accent); background: rgba(79,110,247,.12); padding: 3px 8px; border-radius: 20px; letter-spacing: .3px; text-transform: uppercase; flex-shrink: 0; }
+
+  .divider { height: 1px; background: var(--border); margin-bottom: 28px; }
+
+  /* ── Progress ── */
+  .progress-wrap { margin-bottom: 24px; }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label { font-size: 11px; font-weight: 600; color: var(--text-3); letter-spacing: .4px; text-transform: uppercase; }
+  .progress-count { font-size: 11px; font-weight: 600; color: var(--accent); }
+
+  .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), #7c9bff); border-radius: 99px; width: 0%; transition: width .4s cubic-bezier(.4,0,.2,1); }
+
+  /* ── Field group ── */
+  .field-group { margin-bottom: 20px; }
+  .field-group:last-of-type { margin-bottom: 28px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field-label svg { width: 13px; height: 13px; color: var(--accent); opacity: .8; }
+
+  .field-wrap { position: relative; }
+
+  select {
+    width: 100%;
+    height: 48px;
+    padding: 0 44px 0 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-1);
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    appearance: none;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+    cursor: pointer;
+  }
+
+  select:focus  { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(79,110,247,.1); }
+  select:hover  { border-color: #c5cbe0; background: #fff; }
+  select.filled { border-color: var(--success); background: #fff; }
+  select.filled:focus { box-shadow: 0 0 0 3px rgba(16,185,129,.1); }
+
+  .field-icon {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-3);
+    display: flex; align-items: center;
+    transition: opacity .2s;
+  }
+
+  .field-icon svg { width: 16px; height: 16px; }
+
+  .field-check {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%) scale(0);
+    pointer-events: none;
+    color: var(--success);
+    display: flex; align-items: center;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .field-check svg { width: 16px; height: 16px; }
+  .field-check.visible { transform: translateY(-50%) scale(1); }
+  .field-wrap.filled .field-icon { opacity: 0; }
+
+  /* ── Exam type cards ── */
+  .exam-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .exam-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg);
+    transition: all .2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .exam-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-lt);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79,110,247,.12);
+  }
+
+  .exam-card.selected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(79,110,247,.3);
+    transform: translateY(-2px);
+  }
+
+  .exam-card-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .exam-card-label {
+    font-size: 13px;
+    font-weight: 700;
+    display: block;
+    letter-spacing: .3px;
+  }
+
+  .exam-card-sub {
+    font-size: 10px;
+    font-weight: 400;
+    opacity: .65;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .exam-card.selected .exam-card-sub { opacity: .8; }
+
+  /* Hidden input */
+  #examTypeInput { display: none; }
+
+  /* ── Continue button ── */
+  .btn-continue {
+    width: 100%;
+    height: 52px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: not-allowed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .25s ease;
+    background: #dde2f0;
+    color: #9aa0b8;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-continue.enabled {
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(79,110,247,.35);
+  }
+
+  .btn-continue.enabled:hover {
+    background: var(--accent-dk);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+
+  .btn-continue.enabled:active { transform: translateY(0); }
+
+  .btn-continue svg { width: 18px; height: 18px; transition: transform .2s ease; }
+  .btn-continue.enabled:hover svg { transform: translateX(3px); }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.25);
+    transform: scale(0);
+    animation: ripple .55s ease-out forwards;
+    pointer-events: none;
+  }
+
+  /* ── Bottom note ── */
+  .bottom-note {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-3);
+    animation: fadeUp .55s .24s ease both;
+    opacity: 0;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-100%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+  @media (max-width: 560px) {
+    .card { padding: 24px 20px; }
+    .brand-bar { padding: 0 20px; }
+    .page { padding: 72px 16px 32px; }
+    .exam-cards { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Brand bar -->
+<div class="brand-bar">
+  <div class="brand-dot"></div>
+  <span class="brand-name">CampusTrack</span>
+  <span class="brand-sep">·</span>
+  <span class="brand-page">Internal Marks Setup</span>
+</div>
+
+<div class="page">
+  <div class="wrapper">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <h1>Internal Marks Setup</h1>
+      <p>Select your assigned section and examination type to continue with marks entry.</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+      <!-- Staff chip -->
+      <div class="staff-chip">
+        <div class="staff-avatar" id="staffAvatar">—</div>
+        <div class="staff-info">
+          <div class="staff-name" id="staffName">Loading staff info…</div>
+          <div class="staff-dept" id="staffDept"></div>
+        </div>
+        <div class="chip-badge">Staff</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span class="progress-label">Completion</span>
+          <span class="progress-count" id="progressCount">0 / 2</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- Section dropdown -->
+      <div class="field-group">
+        <div class="field-label">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+          </svg>
+          Select Section
+        </div>
+        <div class="field-wrap" id="wrap-section">
+          <select id="sectionSelect">
+            <option value="">Choose a section…</option>
+          </select>
+          <span class="field-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+          <span class="field-check" id="check-section">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Exam type cards -->
+      <div class="field-group">
+        <div class="field-label">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Select Examination Type
+        </div>
+        <div class="exam-cards">
+          <div class="exam-card" data-value="CIA1" onclick="selectExam(this)">
+            <span class="exam-card-icon">📝</span>
+            <span class="exam-card-label">CAT 1</span>
+            <span class="exam-card-sub">Internal 1</span>
+          </div>
+          <div class="exam-card" data-value="CIA2" onclick="selectExam(this)">
+            <span class="exam-card-icon">📋</span>
+            <span class="exam-card-label">CAT 2</span>
+            <span class="exam-card-sub">Internal 2</span>
+          </div>
+          <div class="exam-card" data-value="MODEL" onclick="selectExam(this)">
+            <span class="exam-card-icon">📊</span>
+            <span class="exam-card-label">MODEL</span>
+            <span class="exam-card-sub">Model Exam</span>
+          </div>
+        </div>
+        <input type="hidden" id="examTypeInput"/>
+      </div>
+
+      <!-- Continue button -->
+      <button class="btn-continue" id="continueBtn" disabled>
+        <span id="btnText">Select section and exam type</span>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Bottom note -->
+    <div class="bottom-note">Only your assigned sections are shown</div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const BASE_URL = 'http://localhost:5000/api';
+  const token    = localStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = 'stafflogin.html';
+    return;
+  }
+
+  /* ── Elements ── */
+  const sectionSelect = document.getElementById('sectionSelect');
+  const examTypeInput = document.getElementById('examTypeInput');
+  const continueBtn   = document.getElementById('continueBtn');
+  const btnText       = document.getElementById('btnText');
+  const progressFill  = document.getElementById('progressFill');
+  const progressCount = document.getElementById('progressCount');
+  const staffNameEl   = document.getElementById('staffName');
+  const staffDeptEl   = document.getElementById('staffDept');
+  const staffAvatarEl = document.getElementById('staffAvatar');
+
+  /* ── Progress ── */
+  function updateProgress() {
+    const fields  = [sectionSelect.value !== '', examTypeInput.value !== ''];
+    const filled  = fields.filter(Boolean).length;
+    const pct     = Math.round((filled / 2) * 100);
+
+    progressFill.style.width  = pct + '%';
+    progressCount.textContent = `${filled} / 2`;
+
+    const allDone = filled === 2;
+    continueBtn.disabled = !allDone;
+    continueBtn.classList.toggle('enabled', allDone);
+    btnText.textContent = allDone ? 'Continue to Marks Entry' : 'Select section and exam type';
+  }
+
+  function markField(wrapId, checkId, ok) {
+    const wrap  = document.getElementById(wrapId);
+    const check = document.getElementById(checkId);
+    if (wrap)  wrap.classList.toggle('filled', ok);
+    if (check) check.classList.toggle('visible', ok);
+  }
+
+  /* ── Exam card select ── */
+  window.selectExam = function(card) {
+    document.querySelectorAll('.exam-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    examTypeInput.value = card.dataset.value;
+    updateProgress();
+  };
+
+  /* ── Section change ── */
+  sectionSelect.addEventListener('change', () => {
+    markField('wrap-section', 'check-section', sectionSelect.value !== '');
+    updateProgress();
+  });
+
+  /* ── Load staff profile + assigned sections ── */
+  async function loadStaffData() {
+    try {
+      const res  = await fetch(`${BASE_URL}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        window.location.href = 'stafflogin.html';
+        return;
+      }
+
+      const profile = data.profile;
+
+      // Avatar
+      const names    = (profile.name || '').trim().split(' ');
+      const initials = names.length >= 2
+        ? names[0][0] + names[names.length - 1][0]
+        : (names[0]?.[0] || '?');
+      staffAvatarEl.textContent = initials.toUpperCase();
+      staffNameEl.textContent   = profile.name || 'Staff';
+      staffDeptEl.textContent   = profile.departments?.name || '';
+
+      localStorage.setItem('staffId', profile.id);
+localStorage.setItem('academic_year_id', 'b036e988-10ce-449d-b98f-153bc460cc73');
+
+    await loadAssignedSections();
+
+    } catch (err) {
+      console.error('Load staff error:', err);
+    }
+  }
+
+  /* ── Load only assigned sections ── */
+ async function loadAssignedSections() {
+  try {
+    const res  = await fetch(`${BASE_URL}/staff/sections`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (!res.ok || !Array.isArray(data)) return;
+
+    sectionSelect.innerHTML = '<option value="">Choose a section…</option>';
+
+    data.forEach(s => {
+      const o       = document.createElement('option');
+      o.value       = s.section_id;
+      o.textContent = s.section_name;
+      sectionSelect.appendChild(o);
+    });
+
+    if (data.length === 0) {
+      sectionSelect.innerHTML = '<option value="">No sections assigned</option>';
+    }
+
+    localStorage.setItem('staffAssignments', JSON.stringify(
+      await fetch(`${BASE_URL}/staff/assignments`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json())
+    ));
+
+  } catch (err) {
+    console.error('Sections error:', err);
+  }
+}
+
+  /* ── Continue ── */
+  continueBtn.addEventListener('click', function(e) {
+    if (this.disabled) return;
+
+    // Ripple
+    const r    = document.createElement('span');
+    r.className = 'ripple';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+
+    // Save to localStorage
+    const sectionName = sectionSelect.options[sectionSelect.selectedIndex]?.text || '';
+    localStorage.setItem('selectedSectionId',   sectionSelect.value);
+    localStorage.setItem('selectedSectionName', sectionName);
+    localStorage.setItem('selectedExamType',    examTypeInput.value);
+
+    // Loading state
+    this.disabled = true;
+    this.classList.remove('enabled');
+    btnText.textContent = 'Opening marks entry…';
+
+    setTimeout(() => {
+      window.location.href = 'staffmarksgiven.html';
+    }, 450);
+  });
+
+  /* ── Init ── */
+  updateProgress();
+  loadStaffData();
+
+})();
+</script>
+</body>
+</html>

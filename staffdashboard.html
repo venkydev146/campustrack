@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CampusTrack – Staff Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #f0f3fa;                        /* CHANGED: was #0a0c14 */
+    --bg2: #0f1220;                        /* KEPT: sidebar uses this */
+    --surface: #ffffff;                    /* CHANGED: was rgba(255,255,255,0.04) */
+    --surface-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.07);      /* KEPT: sidebar uses this */
+    --border-bright: rgba(255,255,255,0.14);
+    --accent: #7c6bff;
+    --accent2: #a78bfa;
+    --accent3: #38bdf8;
+    --accent4: #f472b6;
+    --accent5: #34d399;
+    --text: #f0f0f8;                       /* KEPT: header/sidebar use this */
+    --text-muted: #8890aa;
+    --text-dim: #555d77;
+    --glow: rgba(124,107,255,0.25);
+    --glow2: rgba(56,189,248,0.2);
+    --sidebar-w: 256px;
+    --header-h: 200px;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);                 /* now #f0f3fa */
+    color: #0c1635;                        /* CHANGED: dark text for light bg */
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* ─── SIDEBAR ─────────────────────────────────── */
+  /* UNTOUCHED — exactly as original */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px var(--glow);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .logo-sub {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-top: 2px;
+    padding-left: 46px;
+  }
+
+  .nav {
+    flex: 1;
+    padding: 16px 0;
+    overflow-y: auto;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 24px 6px;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    margin: 2px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    position: relative;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(124,107,255,0.18), rgba(56,189,248,0.08));
+    color: var(--accent2);
+    border-color: rgba(124,107,255,0.25);
+  }
+
+  .nav-item.active .nav-icon { color: var(--accent); }
+
+  .nav-icon {
+    width: 18px;
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+
+  .nav-item.logout { color: #f87171; }
+  .nav-item.logout:hover { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: #fca5a5; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  /* ─── MAIN CONTENT ────────────────────────────── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── HEADER (STAFF DETAILS) ──────────────────── */
+  /* UNTOUCHED — stays dark as requested */
+  .header {
+    background: linear-gradient(135deg, #121630 0%, #0e1428 40%, #13102a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(124,107,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 40%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    border: 3px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 30px var(--glow), 0 4px 20px rgba(0,0,0,0.4);
+    letter-spacing: -1px;
+  }
+
+  .online-dot {
+    position: absolute;
+    bottom: 3px; right: 3px;
+    width: 13px; height: 13px;
+    background: var(--accent5);
+    border-radius: 50%;
+    border: 2px solid var(--bg2);
+    box-shadow: 0 0 8px var(--accent5);
+  }
+
+  .profile-info { flex: 1; }
+
+  .welcome-line {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+
+  .profile-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+  }
+
+  .profile-role {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .profile-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .badge-id {
+    background: rgba(124,107,255,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(124,107,255,0.3);
+  }
+
+  .badge-dept {
+    background: rgba(56,189,248,0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(56,189,248,0.25);
+  }
+
+  /* ─── STATS ROW ───────────────────────────────── */
+  /* CHANGED: light bg instead of --bg2 (dark) */
+  .stats-row {
+    display: flex;
+    gap: 14px;
+    padding: 24px 40px;
+    border-bottom: 1px solid #e5eaf5;      /* CHANGED */
+    background: #ffffff;                    /* CHANGED */
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f7f9ff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;            /* CHANGED */
+    border-radius: 50px;
+    padding: 10px 20px 10px 14px;
+    transition: all 0.2s;
+    cursor: default;
+    flex: 1;
+    min-width: 160px;
+    box-shadow: 0 1px 4px rgba(12,22,53,0.06); /* ADDED */
+  }
+
+  .stat-pill:hover {
+    background: #eef1ff;                   /* CHANGED */
+    border-color: #c8d3f0;               /* CHANGED */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(12,22,53,0.10); /* CHANGED */
+  }
+
+  .stat-icon-wrap {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .stat-body { line-height: 1.2; }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0c1635;                        /* CHANGED: dark ink */
+  }
+
+  .stat-label {
+    font-size: 11.5px;
+    color: #5c6f94;                        /* CHANGED: medium ink */
+    margin-top: 1px;
+  }
+
+  /* ─── CONTENT AREA ────────────────────────────── */
+  .content {
+    padding: 32px 40px;
+    flex: 1;
+    background: var(--bg);               /* #f0f3fa via :root change */
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #8fa0c0;                        /* CHANGED: medium-light ink */
+    margin-bottom: 18px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ─── CARDS ───────────────────────────────────── */
+  .card {
+    background: #ffffff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 2px 12px rgba(12,22,53,0.07); /* ADDED */
+  }
+
+  .card:hover {
+    border-color: #c8d3f0;               /* CHANGED */
+    box-shadow: 0 6px 28px rgba(12,22,53,0.10); /* CHANGED */
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0c1635;                        /* CHANGED: dark ink */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .view-link {
+    font-size: 12px;
+    color: #3a5cf5;                        /* CHANGED: indigo */
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(58,92,245,0.2); /* CHANGED */
+    transition: all 0.2s;
+    background: rgba(58,92,245,0.05);      /* CHANGED */
+  }
+
+  .view-link:hover {
+    background: rgba(58,92,245,0.12);      /* CHANGED */
+    border-color: rgba(58,92,245,0.35);    /* CHANGED */
+  }
+
+  /* ─── SCHEDULE ────────────────────────────────── */
+  .schedule-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    background: #f7f9ff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    transition: all 0.18s;
+  }
+
+  .schedule-item:hover {
+    background: #eef1ff;                   /* CHANGED */
+    border-color: #c8d3f0;               /* CHANGED */
+  }
+
+  .sch-time {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent3);               /* kept cyan accent — readable on light */
+    white-space: nowrap;
+    min-width: 72px;
+    line-height: 1.2;
+  }
+
+  .sch-time span {
+    display: block;
+    font-weight: 400;
+    color: #8fa0c0;                        /* CHANGED: light ink */
+    font-size: 10px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .sch-divider {
+    width: 1px; height: 32px;
+    background: #e5eaf5;                   /* CHANGED */
+    flex-shrink: 0;
+  }
+
+  .sch-info { flex: 1; }
+
+  .sch-subject {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0c1635;                        /* CHANGED: dark ink */
+  }
+
+  .sch-meta {
+    font-size: 11.5px;
+    color: #5c6f94;                        /* CHANGED: medium ink */
+    margin-top: 2px;
+  }
+
+  .sch-room {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #eef1ff;                   /* CHANGED */
+    color: #3a5cf5;                        /* CHANGED: indigo */
+    border: 1px solid #c8d3f0;           /* CHANGED */
+    white-space: nowrap;
+  }
+
+  /* ─── QUICK ACTIONS ───────────────────────────── */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 14px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    background: #f7f9ff;                   /* CHANGED */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(12,22,53,0.12); /* CHANGED: light shadow */
+  }
+
+  .action-btn:active { transform: scale(0.97); }
+
+  .action-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .action-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0c1635;                        /* CHANGED: dark ink */
+    line-height: 1.2;
+  }
+
+  .action-desc {
+    font-size: 11px;
+    color: #5c6f94;                        /* CHANGED: medium ink */
+    line-height: 1.3;
+  }
+
+  /* btn variants — colors kept, look great on light too */
+  .btn-purple { border-color: rgba(124,107,255,0.25); background: rgba(124,107,255,0.06); }
+  .btn-purple:hover { border-color: rgba(124,107,255,0.5); background: rgba(124,107,255,0.12); box-shadow: 0 6px 24px rgba(124,107,255,0.18); }
+  .btn-purple .action-icon { background: rgba(124,107,255,0.12); color: var(--accent2); }
+
+  .btn-cyan { border-color: rgba(56,189,248,0.25); background: rgba(56,189,248,0.05); }
+  .btn-cyan:hover { border-color: rgba(56,189,248,0.45); background: rgba(56,189,248,0.10); box-shadow: 0 6px 24px rgba(56,189,248,0.14); }
+  .btn-cyan .action-icon { background: rgba(56,189,248,0.12); color: var(--accent3); }
+
+  .btn-pink { border-color: rgba(244,114,182,0.25); background: rgba(244,114,182,0.05); }
+  .btn-pink:hover { border-color: rgba(244,114,182,0.45); background: rgba(244,114,182,0.10); box-shadow: 0 6px 24px rgba(244,114,182,0.14); }
+  .btn-pink .action-icon { background: rgba(244,114,182,0.12); color: var(--accent4); }
+
+  .btn-green { border-color: rgba(52,211,153,0.25); background: rgba(52,211,153,0.05); }
+  .btn-green:hover { border-color: rgba(52,211,153,0.45); background: rgba(52,211,153,0.10); box-shadow: 0 6px 24px rgba(52,211,153,0.14); }
+  .btn-green .action-icon { background: rgba(52,211,153,0.12); color: var(--accent5); }
+
+  /* ─── NOTIFICATIONS ───────────────────────────── */
+  .notif-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 13px;
+    border-radius: var(--radius-sm);
+    background: #f7f9ff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    transition: all 0.18s;
+  }
+
+  .notif-item:hover {
+    background: #eef1ff;                   /* CHANGED */
+    border-color: #c8d3f0;               /* CHANGED */
+  }
+
+  .notif-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .notif-content { flex: 1; }
+
+  .notif-text {
+    font-size: 13px;
+    color: #0c1635;                        /* CHANGED: dark ink */
+    line-height: 1.4;
+  }
+
+  .notif-time {
+    font-size: 11px;
+    color: #8fa0c0;                        /* CHANGED: light ink */
+    margin-top: 3px;
+  }
+
+  /* ─── RESOURCES ───────────────────────────────── */
+  .resource-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .resource-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    background: #f7f9ff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    transition: all 0.18s;
+  }
+
+  .resource-item:hover {
+    background: #eef1ff;                   /* CHANGED */
+    border-color: #c8d3f0;               /* CHANGED */
+  }
+
+  .resource-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .resource-info { flex: 1; min-width: 0; }
+
+  .resource-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0c1635;                        /* CHANGED: dark ink */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .resource-meta {
+    font-size: 11px;
+    color: #5c6f94;                        /* CHANGED: medium ink */
+    margin-top: 2px;
+  }
+
+  .resource-date {
+    font-size: 11px;
+    color: #8fa0c0;                        /* CHANGED: light ink */
+    white-space: nowrap;
+  }
+
+  /* ─── MOBILE TOGGLE ───────────────────────────── */
+  .mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 16px; left: 16px;
+    z-index: 200;
+    background: #ffffff;                   /* CHANGED */
+    border: 1px solid #e5eaf5;           /* CHANGED */
+    border-radius: 10px;
+    padding: 9px 11px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #0c1635;                        /* CHANGED: dark icon */
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+  }
+
+  /* ─── RESPONSIVE ──────────────────────────────── */
+  @media (max-width: 900px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .actions-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .overlay.visible { display: block; }
+    .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+    .main { margin-left: 0; }
+    .header { padding: 28px 20px 20px; }
+    .header-top { gap: 14px; }
+    .avatar { width: 58px; height: 58px; font-size: 20px; }
+    .profile-name { font-size: 18px; }
+    .stats-row { padding: 16px 20px; gap: 10px; }
+    .stat-pill { min-width: 140px; }
+    .content { padding: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .actions-grid { grid-template-columns: 1fr; }
+    .profile-badges { gap: 6px; }
+    .stat-pill { flex: none; width: calc(50% - 5px); min-width: 0; }
+  }
+
+  /* ─── ANIMATIONS ──────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card { animation: fadeUp 0.4s ease both; }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+
+  .stat-pill { animation: fadeUp 0.3s ease both; }
+  .stat-pill:nth-child(1) { animation-delay: 0.0s; }
+  .stat-pill:nth-child(2) { animation-delay: 0.06s; }
+  .stat-pill:nth-child(3) { animation-delay: 0.12s; }
+  .stat-pill:nth-child(4) { animation-delay: 0.18s; }
+</style>
+</head>
+<body>
+
+<!-- Mobile Toggle -->
+<button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">
+      <div class="logo-icon">🎓</div>
+      <div class="logo-text">CampusTrack</div>
+    </div>
+    <div class="logo-sub">Staff Portal</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-label">Main Menu</div>
+
+    <a class="nav-item active" onclick="nav('staffdashboard.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+
+    <a class="nav-item" onclick="nav('staffclasses.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      My Classes
+    </a>
+
+    <a class="nav-item" onclick="nav('staffattendanceselection.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Attendance
+    </a>
+
+    <a class="nav-item" onclick="nav('staffinternalsselection.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+       Marks
+    </a>
+
+    <a class="nav-item" onclick="nav('staffresources.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Resources
+    </a>
+
+    <div class="nav-label" style="margin-top:8px;">Account</div>
+
+    <a class="nav-item" onclick="nav('staffnotifications.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Notifications
+    </a>
+
+    <a class="nav-item" onclick="nav('staffprofile.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </a>
+
+    <a class="nav-item logout" onclick="nav('stafflogin.html')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">v2.4.1 · Academic Year 2025–26</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="avatar-wrap">
+        <div class="avatar">AK</div>
+        <div class="online-dot"></div>
+      </div>
+      <div class="profile-info">
+        <div class="welcome-line"></div>
+        <div class="profile-name">Mr. Arjun Kumar</div>
+        <div class="profile-role">Assistant Professor · Computer Science</div>
+        <div class="profile-badges">
+          <span class="badge badge-id">🪪 Staff ID: CS‑2041</span>
+          <span class="badge badge-dept">🏛 Dept: CSE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-pill">
+      <div class="stat-icon-wrap" style="background:rgba(124,107,255,0.15);">📅</div>
+      <div class="stat-body">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Today's Classes</div>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon-wrap" style="background:rgba(52,211,153,0.12);">✅</div>
+      <div class="stat-body">
+        <div class="stat-value">56</div>
+        <div class="stat-label">Attendance Marked</div>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon-wrap" style="background:rgba(56,189,248,0.12);">📝</div>
+      <div class="stat-body">
+        <div class="stat-value">128</div>
+        <div class="stat-label"> Marks Updated</div>
+      </div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon-wrap" style="background:rgba(244,114,182,0.12);">📤</div>
+      <div class="stat-body">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Resources Shared</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="section-title">Today's Overview</div>
+    <div class="cards-grid">
+
+      <!-- CARD 1: SCHEDULE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-title-icon" style="background:rgba(124,107,255,0.15);">🗓</div>
+            Today's Schedule
+          </div>
+          <a class="view-link" onclick="nav('staffclasses.html')">Full Timetable →</a>
+        </div>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <div class="sch-time">09:00<span>10:00 AM</span></div>
+            <div class="sch-divider"></div>
+            <div class="sch-info">
+              <div class="sch-subject">Data Structures & Algorithms</div>
+              <div class="sch-meta">Section B · 3rd Year</div>
+            </div>
+            <div class="sch-room">LH-301</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-time">11:00<span>12:00 PM</span></div>
+            <div class="sch-divider"></div>
+            <div class="sch-info">
+              <div class="sch-subject">Operating Systems</div>
+              <div class="sch-meta">Section A · 2nd Year</div>
+            </div>
+            <div class="sch-room">LH-204</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-time">02:00<span>03:00 PM</span></div>
+            <div class="sch-divider"></div>
+            <div class="sch-info">
+              <div class="sch-subject">Computer Networks</div>
+              <div class="sch-meta">Section C · 3rd Year</div>
+            </div>
+            <div class="sch-room">LH-112</div>
+          </div>
+          <div class="schedule-item">
+            <div class="sch-time">03:00<span>04:00 PM</span></div>
+            <div class="sch-divider"></div>
+            <div class="sch-info">
+              <div class="sch-subject">DBMS Lab</div>
+              <div class="sch-meta">Section A · 2nd Year</div>
+            </div>
+            <div class="sch-room">Lab-03</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: QUICK ACTIONS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-title-icon" style="background:rgba(56,189,248,0.12);">⚡</div>
+            Quick Actions
+          </div>
+        </div>
+        <div class="actions-grid">
+          <div class="action-btn btn-purple" onclick="nav('staffattendanceselection.html')">
+            <div class="action-icon">📋</div>
+            <div class="action-name">Mark Attendance</div>
+            <div class="action-desc">Record today's class attendance</div>
+          </div>
+          <div class="action-btn btn-cyan" onclick="nav('staffinternalsselection.html')">
+            <div class="action-icon">📊</div>
+            <div class="action-name">Enter Marks</div>
+            <div class="action-desc">Update student assessment scores</div>
+          </div>
+          <div class="action-btn btn-pink" onclick="nav('staffresources.html')">
+            <div class="action-icon">📂</div>
+            <div class="action-name">Upload Resources</div>
+            <div class="action-desc">Share notes, slides & materials</div>
+          </div>
+          <div class="action-btn btn-green" onclick="nav('staffclasses.html')">
+            <div class="action-icon">🏫</div>
+            <div class="action-name">View My Classes</div>
+            <div class="action-desc">Class roster & timetable</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: NOTIFICATIONS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-title-icon" style="background:rgba(244,114,182,0.12);">🔔</div>
+            Recent Notifications
+          </div>
+          <a class="view-link" onclick="nav('staffnotifications.html')">View All →</a>
+        </div>
+        <div class="notif-list">
+          <div class="notif-item">
+            <div class="notif-dot" style="background:#7c6bff; box-shadow: 0 0 6px #7c6bff;"></div>
+            <div class="notif-content">
+              <div class="notif-text">Reminder: DSA class for Section B starts in 30 minutes</div>
+              <div class="notif-time">Today, 8:30 AM</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot" style="background:#34d399; box-shadow: 0 0 6px #34d399;"></div>
+            <div class="notif-content">
+              <div class="notif-text">Attendance for OS – Section A (Yesterday) marked successfully</div>
+              <div class="notif-time">Yesterday, 12:05 PM</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot" style="background:#38bdf8; box-shadow: 0 0 6px #38bdf8;"></div>
+            <div class="notif-content">
+              <div class="notif-text">Internal marks for CN – Section C uploaded. 42/58 students graded</div>
+              <div class="notif-time">Apr 22, 4:18 PM</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot" style="background:#f472b6; box-shadow: 0 0 6px #f472b6;"></div>
+            <div class="notif-content">
+              <div class="notif-text">Exam schedule published for May 2025 end-semester exams</div>
+              <div class="notif-time">Apr 21, 10:00 AM</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot" style="background:#fbbf24; box-shadow: 0 0 6px #fbbf24;"></div>
+            <div class="notif-content">
+              <div class="notif-text">HOD meeting rescheduled to Friday, 3:00 PM – Conference Hall 1</div>
+              <div class="notif-time">Apr 20, 2:45 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4: RESOURCES -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-title-icon" style="background:rgba(52,211,153,0.12);">📁</div>
+            Recently Shared Resources
+          </div>
+          <a class="view-link" onclick="nav('staffresources.html')">View All →</a>
+        </div>
+        <div class="resource-list">
+          <div class="resource-item">
+            <div class="resource-icon" style="background:rgba(244,114,182,0.12);">📄</div>
+            <div class="resource-info">
+              <div class="resource-name">Unit-4 Lecture Notes – DSA</div>
+              <div class="resource-meta">Section B · 3rd Year</div>
+            </div>
+            <div class="resource-date">Apr 23</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon" style="background:rgba(56,189,248,0.12);">📊</div>
+            <div class="resource-info">
+              <div class="resource-name">OS Process Management Slides</div>
+              <div class="resource-meta">Section A · 2nd Year</div>
+            </div>
+            <div class="resource-date">Apr 21</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon" style="background:rgba(124,107,255,0.12);">🗂</div>
+            <div class="resource-info">
+              <div class="resource-name">CN Transport Layer – Practice Q's</div>
+              <div class="resource-meta">Section C · 3rd Year</div>
+            </div>
+            <div class="resource-date">Apr 20</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon" style="background:rgba(52,211,153,0.1);">💾</div>
+            <div class="resource-info">
+              <div class="resource-name">DBMS Lab Manual – Exp 7 & 8</div>
+              <div class="resource-meta">Section A · 2nd Year</div>
+            </div>
+            <div class="resource-date">Apr 18</div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon" style="background:rgba(251,191,36,0.1);">📑</div>
+            <div class="resource-info">
+              <div class="resource-name">Internal Assessment Rubric – IA2</div>
+              <div class="resource-meta">All Sections</div>
+            </div>
+            <div class="resource-date">Apr 15</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  // =========================
+  // NAVIGATION
+  // =========================
+  function nav(page) {
+    window.location.href = page;
+  }
+
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.getElementById('overlay');
+
+    sb.classList.toggle('open');
+    ov.classList.toggle('visible');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('visible');
+  }
+
+  // =========================
+  // ACTIVE NAV ITEM
+  // =========================
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function () {
+      document.querySelectorAll('.nav-item').forEach(i => {
+        i.classList.remove('active');
+      });
+
+      this.classList.add('active');
+    });
+  });
+
+  // =========================
+  // BUTTON PRESS EFFECT
+  // =========================
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('mousedown', function () {
+      this.style.transform = 'scale(0.96)';
+    });
+
+    btn.addEventListener('mouseup', function () {
+      this.style.transform = '';
+    });
+
+    btn.addEventListener('mouseleave', function () {
+      this.style.transform = '';
+    });
+  });
+
+  // =========================
+  // LOAD REAL STAFF DATA
+  // =========================
+  const staffData = JSON.parse(localStorage.getItem("staffProfile"));
+console.log("Staff Data:", staffData);
+if (staffData) {
+  const staff = staffData;
+
+    // -------------------------
+    // STAFF NAME
+    // -------------------------
+    const profileName = document.querySelector(".profile-name");
+
+    if (profileName) {
+    profileName.textContent = staff.name || "Staff";
+    }
+
+    // -------------------------
+    // STAFF ROLE / SUBJECT
+    // -------------------------
+    const profileRole = document.querySelector(".profile-role");
+
+    if (profileRole) {
+      profileRole.textContent = staff.departments?.name || '';
+    }
+
+    // -------------------------
+    // STAFF ID BADGE
+    // -------------------------
+    const badgeId = document.querySelector(".badge-id");
+
+    if (badgeId) {
+      badgeId.innerHTML = `🪪 Staff ID: ${staff.staff_id}`;
+    }
+
+    // -------------------------
+    // DEPARTMENT BADGE
+    // -------------------------
+    const badgeDept = document.querySelector(".badge-dept");
+
+    if (badgeDept) {
+     badgeDept.innerHTML = `🏛 Dept: ${staff.departments?.name || ''}`;
+    }
+
+    // -------------------------
+    // AVATAR LETTERS
+    // -------------------------
+    const avatar = document.querySelector(".avatar");
+
+    if (avatar && staff.staff_name) {
+
+     const names = staff.name.trim().split(" ");
+
+      let initials = "";
+
+      if (names.length >= 2) {
+        initials =
+          names[0][0] + names[1][0];
+      } else {
+        initials =
+          names[0][0];
+      }
+
+      avatar.textContent =
+        initials.toUpperCase();
+    }
+
+    // -------------------------
+    // ADD HANDLING SECTION
+    // -------------------------
+    const badgeContainer =
+      document.querySelector(".profile-badges");
+
+    if (badgeContainer) {
+
+      const existingSection =
+        document.querySelector(".badge-section");
+
+      if (!existingSection) {
+
+        const sectionBadge =
+          document.createElement("span");
+
+        sectionBadge.className =
+          "badge badge-section";
+
+        sectionBadge.style.background =
+          "rgba(52,211,153,0.12)";
+
+        sectionBadge.style.color =
+          "#34d399";
+
+        sectionBadge.style.border =
+          "1px solid rgba(52,211,153,0.25)";
+
+        sectionBadge.innerHTML = `📘 Section: Incharge`;
+
+        badgeContainer.appendChild(sectionBadge);
+      }
+    }
+
+  } else {
+
+    alert("Staff data not found. Please login again.");
+
+    window.location.href = "stafflogin.html";
+  }
+</script>
+</body>
+</html>
