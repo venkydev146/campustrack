@@ -734,7 +734,7 @@
   const token               = localStorage.getItem('token')               || '';
   const staffAssignments    = JSON.parse(localStorage.getItem('staffAssignments') || '[]');
 
-  const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://campustrack-backend-2.onrender.com/api';
 
   if (!token) {
     window.location.href = 'stafflogin.html';
