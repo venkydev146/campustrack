@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -691,7 +693,7 @@
 
 /* ── Page config ── */
 const PAGE_CONFIG = {
-  examType:   'CAT-3',
+ examType: 'CAT-3',
   title:      'CONTINUOUS ASSESMENT TEST -3     MARKS',
   tableTitle: 'CAT 3 — Subject-wise Marks',
   crumb:      'CAT 3',
@@ -712,7 +714,7 @@ try {
 
 const studentId = studentProfile.id || null;
 const token     = localStorage.getItem('token');
-const BASE_URL = 'https://campustrack-backend-2.onrender.com/api';
+const BASE_URL  = 'http://localhost:5000/api';
 
 /* ── Helpers ── */
 function setText(id, val) {

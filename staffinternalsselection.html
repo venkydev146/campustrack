@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -467,24 +470,29 @@
           Select Examination Type
         </div>
         <div class="exam-cards">
-          <div class="exam-card" data-value="CIA1" onclick="selectExam(this)">
+          <div class="exam-card" data-value="CAT-1" onclick="selectExam(this)">
             <span class="exam-card-icon">📝</span>
             <span class="exam-card-label">CAT 1</span>
             <span class="exam-card-sub">Internal 1</span>
           </div>
-          <div class="exam-card" data-value="CIA2" onclick="selectExam(this)">
+          <div class="exam-card" data-value="CAT-2" onclick="selectExam(this)">
             <span class="exam-card-icon">📋</span>
             <span class="exam-card-label">CAT 2</span>
             <span class="exam-card-sub">Internal 2</span>
           </div>
-          <div class="exam-card" data-value="MODEL" onclick="selectExam(this)">
+          <div class="exam-card" data-value="CAT-3" onclick="selectExam(this)">
             <span class="exam-card-icon">📊</span>
-            <span class="exam-card-label">MODEL</span>
-            <span class="exam-card-sub">Model Exam</span>
+            <span class="exam-card-label">CAT 3</span>
+            <span class="exam-card-sub">Internal 3</span>
           </div>
         </div>
         <input type="hidden" id="examTypeInput"/>
       </div>
+      <div class="exam-card" data-value="THEORY" onclick="selectExam(this)">
+  <span class="exam-card-icon">📖</span>
+  <span class="exam-card-label">THEORY</span>
+  <span class="exam-card-sub">Theory Exam</span>
+</div>
 
       <!-- Continue button -->
       <button class="btn-continue" id="continueBtn" disabled>
@@ -506,7 +514,7 @@
 (() => {
   'use strict';
 
-const BASE_URL = 'https://campustrack-backend-2.onrender.com/api';
+  const BASE_URL = 'http://localhost:5000/api';
   const token    = localStorage.getItem('token');
 
   if (!token) {
