@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1628,13 +1630,24 @@ body {
      JAVASCRIPT
 ══════════════════════════════════ -->
 <script>
+'use strict';
+
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
+const BASE_URL = 'http://localhost:5000/api';
+const token    = localStorage.getItem('token');
+
+if (!token) window.location.href = 'stafflogin.html';
+
 /* ═══════════════════════════════════════
    STATE
 ═══════════════════════════════════════ */
 const state = {
-  resources: [],        // All uploaded resources
-  selectedFile: null,   // Current file object
-  nextId: 1,
+  resources:       [],
+  selectedFile:    null,
+  staffAssignments: [],
+  renderedIds:     new Set(), // prevent duplicates
 };
 
 /* ═══════════════════════════════════════
@@ -1667,10 +1680,156 @@ const dom = {
   sortOrder:     document.getElementById('sortOrder'),
   statTotal:     document.getElementById('stat-total'),
   statWeek:      document.getElementById('stat-this-week'),
-  step1: document.getElementById('step1'),
-  step2: document.getElementById('step2'),
-  step3: document.getElementById('step3'),
+  step1:         document.getElementById('step1'),
+  step2:         document.getElementById('step2'),
+  step3:         document.getElementById('step3'),
 };
+
+/* ═══════════════════════════════════════
+   INIT — load staff + sections + resources
+═══════════════════════════════════════ */
+async function init() {
+  await loadStaffSections();
+  await loadResources();
+}
+
+/* ═══════════════════════════════════════
+   LOAD STAFF ASSIGNED SECTIONS
+═══════════════════════════════════════ */
+async function loadStaffSections() {
+  try {
+    const res  = await fetch(`${BASE_URL}/staff/sections`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (!res.ok || !Array.isArray(data)) return;
+
+    state.staffAssignments = data;
+
+    // Populate section dropdown with only assigned sections
+    if (dom.section) {
+      dom.section.innerHTML = '<option value="">Choose section…</option>';
+      const seen = new Set();
+      data.forEach(s => {
+        if (!seen.has(s.section_id)) {
+          seen.add(s.section_id);
+          const o       = document.createElement('option');
+          o.value       = s.section_id;
+          o.textContent = s.section_name;
+          dom.section.appendChild(o);
+        }
+      });
+    }
+
+    // Populate filter section dropdown
+    if (dom.filterSection) {
+      dom.filterSection.innerHTML = '<option value="">All Sections</option>';
+      const seen2 = new Set();
+      data.forEach(s => {
+        if (!seen2.has(s.section_id)) {
+          seen2.add(s.section_id);
+          const o       = document.createElement('option');
+          o.value       = s.section_id;
+          o.textContent = s.section_name;
+          dom.filterSection.appendChild(o);
+        }
+      });
+    }
+
+    // Also load assignments for subject dropdown
+    await loadAssignments();
+
+  } catch (err) {
+    console.error('Load sections error:', err);
+  }
+}
+
+/* ═══════════════════════════════════════
+   LOAD ASSIGNMENTS (for subject dropdown)
+═══════════════════════════════════════ */
+async function loadAssignments() {
+  try {
+    const res  = await fetch(`${BASE_URL}/staff/assignments`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    if (!res.ok || !Array.isArray(data)) return;
+
+    // Populate subject dropdown with unique subjects
+    if (dom.subject) {
+      dom.subject.innerHTML = '<option value="">Choose subject…</option>';
+      const seen = new Set();
+      data.forEach(a => {
+        if (!seen.has(a.subject_id)) {
+          seen.add(a.subject_id);
+          const o       = document.createElement('option');
+          o.value       = a.assignment_id;
+          o.textContent = a.subject_name;
+          dom.subject.appendChild(o);
+        }
+      });
+    }
+
+    // Populate filter subject dropdown
+    if (dom.filterSubject) {
+      dom.filterSubject.innerHTML = '<option value="">All Subjects</option>';
+      const seen2 = new Set();
+      data.forEach(a => {
+        if (!seen2.has(a.subject_id)) {
+          seen2.add(a.subject_id);
+          const o       = document.createElement('option');
+          o.value       = a.assignment_id;
+          o.textContent = a.subject_name;
+          dom.filterSubject.appendChild(o);
+        }
+      });
+    }
+
+    localStorage.setItem('staffAssignments', JSON.stringify(data));
+
+  } catch (err) {
+    console.error('Load assignments error:', err);
+  }
+}
+
+/* ═══════════════════════════════════════
+   LOAD RESOURCES FROM API
+═══════════════════════════════════════ */
+async function loadResources() {
+  try {
+    const assignments = JSON.parse(localStorage.getItem('staffAssignments') || '[]');
+
+    if (!assignments.length) return;
+
+    const allResources = [];
+
+    for (const a of assignments) {
+      const res  = await fetch(
+        `${BASE_URL}/resources/section?assignment_id=${a.assignment_id}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (Array.isArray(data)) allResources.push(...data);
+    }
+
+    // Deduplicate by id
+    const seen = new Set();
+    state.resources = allResources.filter(r => {
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
+
+    updateStats();
+    renderResources();
+
+  } catch (err) {
+    console.error('Load resources error:', err);
+  }
+}
 
 /* ═══════════════════════════════════════
    RESOURCE TYPE CHANGE
@@ -1678,82 +1837,99 @@ const dom = {
 document.querySelectorAll('input[name="resourceType"]').forEach(radio => {
   radio.addEventListener('change', () => {
     const type = radio.value;
-    // Toggle file vs link input
     if (type === 'LINKS') {
-      dom.fileGroup.style.display = 'none';
-      dom.linkGroup.classList.add('visible');
-      dom.linkGroup.style.display = 'flex';
+      if (dom.fileGroup)  dom.fileGroup.style.display  = 'none';
+      if (dom.linkGroup)  dom.linkGroup.style.display  = 'flex';
     } else {
-      dom.fileGroup.style.display = 'flex';
-      dom.linkGroup.classList.remove('visible');
-      dom.linkGroup.style.display = 'none';
+      if (dom.fileGroup)  dom.fileGroup.style.display  = 'flex';
+      if (dom.linkGroup)  dom.linkGroup.style.display  = 'none';
     }
     validateForm();
   });
 });
 
 /* ═══════════════════════════════════════
-   FORM VALIDATION — enables upload btn
+   FORM VALIDATION
 ═══════════════════════════════════════ */
 function validateForm() {
-  const section   = dom.section.value;
-  const subject   = dom.subject.value;
-  const title     = dom.title.value.trim();
-  const type      = document.querySelector('input[name="resourceType"]:checked');
+  const section = dom.section?.value;
+  const subject = dom.subject?.value;
+  const title   = dom.title?.value.trim();
+  const type    = document.querySelector('input[name="resourceType"]:checked');
 
   // Update access notice
-  if (section) {
-    dom.accessNotice.style.display = 'flex';
-    dom.noticeSection.textContent = section;
-  } else {
-    dom.accessNotice.style.display = 'none';
+  if (dom.accessNotice && dom.noticeSection) {
+    if (section) {
+      dom.accessNotice.style.display = 'flex';
+      const sectionName = dom.section.options[dom.section.selectedIndex]?.text || section;
+      dom.noticeSection.textContent  = sectionName;
+    } else {
+      dom.accessNotice.style.display = 'none';
+    }
   }
 
-  // Step indicator
-  const hasTarget = section && subject;
+  // Step indicators
+  const hasTarget = !!(section && subject);
   const hasType   = !!type;
-  const hasFile   = type && (type.value === 'LINKS' ? dom.linkInput.value.trim() : !!state.selectedFile);
+  const hasFile   = type && (type.value === 'LINKS'
+    ? !!(dom.linkInput?.value.trim())
+    : !!state.selectedFile);
 
-  dom.step1.classList.toggle('active', hasTarget);
-  dom.step2.classList.toggle('active', hasType);
-  dom.step3.classList.toggle('active', hasFile);
+  if (dom.step1) dom.step1.classList.toggle('active', hasTarget);
+  if (dom.step2) dom.step2.classList.toggle('active', hasType);
+  if (dom.step3) dom.step3.classList.toggle('active', hasFile);
 
-  const allGood = section && subject && title && type && hasFile;
-  dom.uploadBtn.disabled = !allGood;
+  const allGood = !!(section && subject && title && type && hasFile);
+  if (dom.uploadBtn) dom.uploadBtn.disabled = !allGood;
 }
 
-// Attach listeners to all form fields
-[dom.section, dom.subject, dom.title, dom.description, dom.linkInput].forEach(el => {
-  el.addEventListener('input', validateForm);
-  el.addEventListener('change', validateForm);
-});
+// Attach listeners
+[dom.section, dom.subject, dom.title, dom.description, dom.linkInput]
+  .filter(Boolean)
+  .forEach(el => {
+    el.addEventListener('input',  validateForm);
+    el.addEventListener('change', validateForm);
+  });
+
+// Filters
+[dom.searchInput, dom.filterSubject, dom.filterSection, dom.sortOrder]
+  .filter(Boolean)
+  .forEach(el => el.addEventListener('change', renderResources));
+
+if (dom.searchInput) {
+  dom.searchInput.addEventListener('input', renderResources);
+}
 
 /* ═══════════════════════════════════════
    DRAG & DROP
 ═══════════════════════════════════════ */
-dom.uploadZone.addEventListener('click', () => {
-  if (dom.fileGroup.style.display !== 'none') dom.fileInput.click();
-});
+if (dom.uploadZone) {
+  dom.uploadZone.addEventListener('click', () => {
+    if (dom.fileGroup?.style.display !== 'none') dom.fileInput?.click();
+  });
 
-dom.uploadZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dom.uploadZone.classList.add('drag-over');
-});
+  dom.uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dom.uploadZone.classList.add('drag-over');
+  });
 
-dom.uploadZone.addEventListener('dragleave', () => {
-  dom.uploadZone.classList.remove('drag-over');
-});
+  dom.uploadZone.addEventListener('dragleave', () => {
+    dom.uploadZone.classList.remove('drag-over');
+  });
 
-dom.uploadZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dom.uploadZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
-});
+  dom.uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dom.uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+}
 
-dom.fileInput.addEventListener('change', () => {
-  if (dom.fileInput.files[0]) handleFile(dom.fileInput.files[0]);
-});
+if (dom.fileInput) {
+  dom.fileInput.addEventListener('change', () => {
+    if (dom.fileInput.files[0]) handleFile(dom.fileInput.files[0]);
+  });
+}
 
 /* ═══════════════════════════════════════
    FILE HANDLING
@@ -1765,13 +1941,13 @@ function handleFile(file) {
 }
 
 function formatSize(bytes) {
-  if (bytes < 1024)          return bytes + ' B';
-  if (bytes < 1024 * 1024)   return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  if (bytes < 1024)        return bytes + ' B';
+  if (bytes < 1048576)     return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
 function getFileIconMeta(name) {
-  const ext = name.split('.').pop().toLowerCase();
+  const ext = (name || '').split('.').pop().toLowerCase();
   const map = {
     pdf:  { label: 'PDF', bg: '#fef2f2', color: '#dc2626' },
     doc:  { label: 'DOC', bg: '#eff6ff', color: '#2563eb' },
@@ -1785,10 +1961,11 @@ function getFileIconMeta(name) {
     jpeg: { label: 'IMG', bg: '#fdf4ff', color: '#a21caf' },
     png:  { label: 'IMG', bg: '#fdf4ff', color: '#a21caf' },
   };
-  return map[ext] || { label: ext.toUpperCase().slice(0,3), bg: '#f1f5f9', color: '#475569' };
+  return map[ext] || { label: ext.toUpperCase().slice(0, 3) || 'FILE', bg: '#f1f5f9', color: '#475569' };
 }
 
 function renderFilePreview(file) {
+  if (!dom.filePreview) return;
   const meta = getFileIconMeta(file.name);
   dom.filePreview.innerHTML = `
     <div class="file-preview-item">
@@ -1796,232 +1973,264 @@ function renderFilePreview(file) {
       <span class="file-preview-name">${file.name}</span>
       <span class="file-preview-size">${formatSize(file.size)}</span>
       <button class="file-remove-btn" onclick="removeFile()" title="Remove file">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>`;
 }
 
 function removeFile() {
-  state.selectedFile = null;
-  dom.filePreview.innerHTML = '';
-  dom.fileInput.value = '';
+  state.selectedFile  = null;
+  if (dom.filePreview) dom.filePreview.innerHTML = '';
+  if (dom.fileInput)   dom.fileInput.value       = '';
   validateForm();
 }
 
 /* ═══════════════════════════════════════
-   UPLOAD SIMULATION
+   UPLOAD HANDLER → REAL API
 ═══════════════════════════════════════ */
-function handleUpload() {
-  if (dom.uploadBtn.disabled) return;
+async function handleUpload() {
+  if (dom.uploadBtn?.disabled) return;
 
-  dom.uploadBtn.classList.add('loading');
-  dom.uploadBtn.disabled = true;
+  const type       = document.querySelector('input[name="resourceType"]:checked')?.value;
+  const sectionId  = dom.section?.value;
+  const assignmentId = dom.subject?.value;
+  const title      = dom.title?.value.trim();
+  const description = dom.description?.value.trim();
+  const isLink     = type === 'LINKS';
+  const url        = isLink ? dom.linkInput?.value.trim() : null;
 
-  const type = document.querySelector('input[name="resourceType"]:checked').value;
-  const isLink = type === 'LINKS';
+  if (!type || !sectionId || !assignmentId || !title) return;
 
-  // Show progress bar for file uploads
-  if (!isLink) {
+  // Show progress
+  if (dom.uploadBtn) {
+    dom.uploadBtn.classList.add('loading');
+    dom.uploadBtn.disabled = true;
+  }
+
+  if (!isLink && dom.progressWrap) {
     dom.progressWrap.classList.add('active');
-    simulateProgress(() => {
-      dom.progressWrap.classList.remove('active');
-      dom.progressFill.style.width = '0%';
-      finalizeUpload();
+    await simulateProgress();
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/resources/upload`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+     body: JSON.stringify({
+  assignment_id:     assignmentId,
+  title,
+  description,
+  resource_type:     type,
+  resource_category: type,
+  file_url:          url || (state.selectedFile ? state.selectedFile.name : null),
+  file_type:         isLink ? 'link' : (state.selectedFile?.name.split('.').pop() || 'file')
+})
     });
-  } else {
-    setTimeout(finalizeUpload, 900);
+
+    const result = await res.json();
+
+    if (!res.ok) throw new Error(result.error || 'Upload failed');
+
+    showToast('success', `"${title}" uploaded successfully!`);
+    resetForm();
+
+    // Reload resources
+    await loadResources();
+
+  } catch (err) {
+    showToast('error', `Upload failed: ${err.message}`);
+  } finally {
+    if (dom.progressWrap) dom.progressWrap.classList.remove('active');
+    if (dom.progressFill) dom.progressFill.style.width = '0%';
+    if (dom.uploadBtn) {
+      dom.uploadBtn.classList.remove('loading');
+      dom.uploadBtn.disabled = true;
+    }
   }
 }
 
-function simulateProgress(callback) {
-  let pct = 0;
-  const interval = setInterval(() => {
-    pct += Math.random() * 18 + 5;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(interval);
-      dom.progressFill.style.width = '100%';
-      dom.progressText.textContent = 'Upload complete!';
-      dom.progressPct.textContent = '100%';
-      setTimeout(callback, 500);
-    } else {
-      dom.progressFill.style.width = pct + '%';
-      dom.progressText.textContent = 'Uploading…';
-      dom.progressPct.textContent = Math.floor(pct) + '%';
-    }
-  }, 120);
-}
-
-function finalizeUpload() {
-  const type     = document.querySelector('input[name="resourceType"]:checked').value;
-  const isLink   = type === 'LINKS';
-  const section  = dom.section.value;
-  const subject  = dom.subject.value;
-  const title    = dom.title.value.trim();
-  const desc     = dom.description.value.trim();
-  const file     = state.selectedFile;
-  const link     = dom.linkInput.value.trim();
-
-  const resource = {
-    id:        state.nextId++,
-    type,
-    section,
-    subject,
-    title,
-    description: desc,
-    fileName:  isLink ? null : (file ? file.name : ''),
-    fileSize:  isLink ? null : (file ? formatSize(file.size) : ''),
-    url:       isLink ? link : null,
-    date:      new Date(),
-    isLink,
-  };
-
-  state.resources.unshift(resource);
-  updateStats();
-  renderResources();
-
-  showToast('success', `"${title}" uploaded successfully to Section ${section}.`);
-  resetForm();
-
-  dom.uploadBtn.classList.remove('loading');
-  dom.uploadBtn.disabled = true;
+function simulateProgress() {
+  return new Promise(resolve => {
+    let pct = 0;
+    const interval = setInterval(() => {
+      pct += Math.random() * 18 + 5;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(interval);
+        if (dom.progressFill) dom.progressFill.style.width = '100%';
+        if (dom.progressText) dom.progressText.textContent = 'Upload complete!';
+        if (dom.progressPct)  dom.progressPct.textContent  = '100%';
+        setTimeout(resolve, 400);
+      } else {
+        if (dom.progressFill) dom.progressFill.style.width = pct + '%';
+        if (dom.progressText) dom.progressText.textContent = 'Uploading…';
+        if (dom.progressPct)  dom.progressPct.textContent  = Math.floor(pct) + '%';
+      }
+    }, 120);
+  });
 }
 
 /* ═══════════════════════════════════════
    RESET FORM
 ═══════════════════════════════════════ */
 function resetForm() {
-  dom.section.value = '';
-  dom.subject.value = '';
-  dom.title.value = '';
-  dom.description.value = '';
-  dom.linkInput.value = '';
+  if (dom.section)      dom.section.value      = '';
+  if (dom.subject)      dom.subject.value      = '';
+  if (dom.title)        dom.title.value        = '';
+  if (dom.description)  dom.description.value  = '';
+  if (dom.linkInput)    dom.linkInput.value    = '';
+
   document.querySelectorAll('input[name="resourceType"]').forEach(r => r.checked = false);
+
   state.selectedFile = null;
-  dom.filePreview.innerHTML = '';
-  dom.fileInput.value = '';
-  dom.fileGroup.style.display = 'flex';
-  dom.linkGroup.style.display = 'none';
-  dom.accessNotice.style.display = 'none';
-  dom.uploadBtn.disabled = true;
-  dom.uploadBtn.classList.remove('loading');
-  dom.progressWrap.classList.remove('active');
-  dom.progressFill.style.width = '0%';
-  dom.step1.classList.remove('active');
-  dom.step2.classList.remove('active');
-  dom.step3.classList.remove('active');
+  if (dom.filePreview) dom.filePreview.innerHTML = '';
+  if (dom.fileInput)   dom.fileInput.value       = '';
+  if (dom.fileGroup)   dom.fileGroup.style.display  = 'flex';
+  if (dom.linkGroup)   dom.linkGroup.style.display  = 'none';
+  if (dom.accessNotice) dom.accessNotice.style.display = 'none';
+  if (dom.uploadBtn)   dom.uploadBtn.disabled    = true;
+  if (dom.step1)       dom.step1.classList.remove('active');
+  if (dom.step2)       dom.step2.classList.remove('active');
+  if (dom.step3)       dom.step3.classList.remove('active');
 }
 
 /* ═══════════════════════════════════════
-   RENDER RESOURCE CARDS
+   RENDER RESOURCES — no duplicates
 ═══════════════════════════════════════ */
-function filterResources() {
-  const query   = dom.searchInput.value.toLowerCase();
-  const subject = dom.filterSubject.value;
-  const section = dom.filterSection.value;
-  const sort    = dom.sortOrder.value;
+function renderResources() {
+  const query   = dom.searchInput?.value.toLowerCase()  || '';
+  const subject = dom.filterSubject?.value || '';
+  const section = dom.filterSection?.value || '';
+  const sort    = dom.sortOrder?.value     || 'newest';
 
-  let list = [...state.resources].filter(r => {
-    const matchQ = !query || r.title.toLowerCase().includes(query) || r.subject.toLowerCase().includes(query);
-    const matchS = !subject || r.subject === subject;
-    const matchSec = !section || r.section === section;
-    return matchQ && matchS && matchSec;
+  let list = state.resources.filter(r => {
+    const title   = (r.title || '').toLowerCase();
+    const subName = r.staff_subject_assignments?.subjects?.name || '';
+    const secName = r.staff_subject_assignments?.sections?.name || '';
+
+    const matchQ   = !query   || title.includes(query) || subName.toLowerCase().includes(query);
+    const matchSub = !subject || r.staff_subject_assignment_id === subject;
+    const matchSec = !section || r.staff_subject_assignments?.sections?.id === section ||
+                     r.staff_subject_assignment_id === section;
+    return matchQ && matchSub && matchSec;
   });
 
-  if (sort === 'oldest') list.reverse();
+  if (sort === 'oldest') {
+    list.sort((a, b) => new Date(a.uploaded_at) - new Date(b.uploaded_at));
+  } else {
+    list.sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
+  }
 
   renderCards(list);
 }
 
-function renderResources() { filterResources(); }
-
 function renderCards(list) {
-  const grid = dom.resourcesGrid;
+  if (!dom.resourcesGrid) return;
 
-  // Remove old cards (keep empty state element)
-  grid.querySelectorAll('.resource-card').forEach(c => c.remove());
-  const empty = dom.emptyState;
+  // Clear all existing cards
+  dom.resourcesGrid.querySelectorAll('.resource-card').forEach(c => c.remove());
+  state.renderedIds.clear();
 
-  if (list.length === 0) {
-    empty.classList.add('visible');
-    dom.resourceCount.textContent = 0;
+  if (!list.length) {
+    if (dom.emptyState)    dom.emptyState.classList.add('visible');
+    if (dom.resourceCount) dom.resourceCount.textContent = '0';
     return;
   }
 
-  empty.classList.remove('visible');
-  dom.resourceCount.textContent = list.length;
+  if (dom.emptyState)    dom.emptyState.classList.remove('visible');
+  if (dom.resourceCount) dom.resourceCount.textContent = list.length;
 
   list.forEach((res, idx) => {
+    if (state.renderedIds.has(res.id)) return;
+    state.renderedIds.add(res.id);
     const card = buildCard(res, idx);
-    grid.insertBefore(card, empty);
+    if (dom.emptyState) {
+      dom.resourcesGrid.insertBefore(card, dom.emptyState);
+    } else {
+      dom.resourcesGrid.appendChild(card);
+    }
   });
 }
 
 function buildCard(res, idx) {
-  const typeLabels = {
-    NOTES: 'Notes', TUTORIALS: 'Tutorial', ASSIGNMENTS: 'Assignment', LINKS: 'Link'
-  };
-  const typeClass = {
-    NOTES: 'tag-type-notes', TUTORIALS: 'tag-type-tutorials',
-    ASSIGNMENTS: 'tag-type-assignments', LINKS: 'tag-type-links'
-  };
-  const typeIcons = {
-    NOTES: `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>`,
-    TUTORIALS: `<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>`,
+  const type      = res.resource_type || 'NOTES';
+  const title     = res.title         || 'Untitled';
+  const subName   = res.staff_subject_assignments?.subjects?.name || '';
+  const secName   = res.staff_subject_assignments?.sections?.name || '';
+  const uploadedAt = res.uploaded_at
+    ? new Date(res.uploaded_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+    : '';
+  const isLink    = type === 'LINKS';
+
+  const typeLabels = { NOTES:'Notes', TUTORIALS:'Tutorial', ASSIGNMENTS:'Assignment', LINKS:'Link' };
+  const typeClass  = { NOTES:'tag-type-notes', TUTORIALS:'tag-type-tutorials', ASSIGNMENTS:'tag-type-assignments', LINKS:'tag-type-links' };
+  const typeIcons  = {
+    NOTES:       `<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>`,
+    TUTORIALS:   `<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>`,
     ASSIGNMENTS: `<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>`,
-    LINKS: `<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>`,
+    LINKS:       `<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>`,
   };
   const iconColors = { NOTES:'#3d5af1', TUTORIALS:'#7c3aed', ASSIGNMENTS:'#d97706', LINKS:'#059669' };
   const iconBgs    = { NOTES:'#eef0fd', TUTORIALS:'#f5f3ff', ASSIGNMENTS:'#fffbeb', LINKS:'#ecfdf5' };
 
-  const dateStr = res.date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-  const fileMeta = res.isLink
-    ? `<span class="resource-card-size">URL</span>`
-    : `<span class="resource-card-size">${res.fileSize || ''}</span>`;
-
   const card = document.createElement('div');
-  card.className = 'resource-card';
-  card.dataset.type = res.type;
-  card.dataset.id   = res.id;
+  card.className        = 'resource-card';
+  card.dataset.type     = type;
+  card.dataset.id       = res.id;
   card.style.animationDelay = (idx * 0.06) + 's';
 
   card.innerHTML = `
     <div class="resource-card-top">
-      <div class="resource-file-icon" style="background:${iconBgs[res.type]};color:${iconColors[res.type]};">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${typeIcons[res.type]}</svg>
+      <div class="resource-file-icon" style="background:${iconBgs[type]||'#f1f5f9'};color:${iconColors[type]||'#475569'};">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          ${typeIcons[type] || typeIcons.NOTES}
+        </svg>
       </div>
       <div class="resource-card-info">
-        <div class="resource-card-title" title="${res.title}">${res.title}</div>
-        <div class="resource-card-subject">${res.subject}</div>
+        <div class="resource-card-title" title="${title}">${title}</div>
+        <div class="resource-card-subject">${subName}</div>
       </div>
     </div>
 
     <div class="resource-card-tags">
-      <span class="tag ${typeClass[res.type]}">${typeLabels[res.type]}</span>
-      <span class="tag tag-section">Section ${res.section}</span>
+      <span class="tag ${typeClass[type]||''}">${typeLabels[type]||type}</span>
+      ${secName ? `<span class="tag tag-section">Section ${secName}</span>` : ''}
     </div>
 
     ${res.description ? `<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${res.description}</div>` : ''}
 
     <div class="resource-card-meta">
       <div class="resource-card-date">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        ${dateStr}
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        ${uploadedAt}
       </div>
-      ${fileMeta}
+      <span class="resource-card-size">${isLink ? 'URL' : 'File'}</span>
     </div>
 
     <div class="resource-card-actions">
-      <button class="action-btn" onclick="handlePreview(${res.id})" title="Preview">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <button class="action-btn" onclick="handlePreview('${res.id}')" title="Preview">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
         Preview
       </button>
-      <button class="action-btn" onclick="handleDownload(${res.id})" title="Download">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download
-      </button>
-      <button class="action-btn action-btn-delete" onclick="handleDelete(${res.id})" title="Delete">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      <button class="action-btn action-btn-delete" onclick="handleDelete('${res.id}')" title="Delete">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+        </svg>
         Delete
       </button>
     </div>`;
@@ -2035,33 +2244,46 @@ function buildCard(res, idx) {
 function handlePreview(id) {
   const res = state.resources.find(r => r.id === id);
   if (!res) return;
-  if (res.isLink && res.url) {
+  if (res.url) {
     window.open(res.url, '_blank');
   } else {
-    showToast('info', `Previewing "${res.title}" — file viewer would open here.`);
+    showToast('info', `Preview not available for "${res.title}".`);
   }
 }
 
-function handleDownload(id) {
+async function handleDelete(id) {
   const res = state.resources.find(r => r.id === id);
   if (!res) return;
-  showToast('info', `Downloading "${res.title}"…`);
-}
 
-function handleDelete(id) {
-  const res = state.resources.find(r => r.id === id);
-  if (!res) return;
-  const card = dom.resourcesGrid.querySelector(`[data-id="${id}"]`);
+  const card = dom.resourcesGrid?.querySelector(`[data-id="${id}"]`);
   if (card) {
-    card.style.transition = 'all 0.35s cubic-bezier(0.4,0,0.2,1)';
-    card.style.opacity = '0';
-    card.style.transform = 'scale(0.95) translateY(-8px)';
+    card.style.transition = 'all 0.3s ease';
+    card.style.opacity    = '0';
+    card.style.transform  = 'scale(0.95)';
+  }
+
+  try {
+    const apiRes = await fetch(`${BASE_URL}/resources/${id}`, {
+      method:  'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!apiRes.ok) throw new Error('Delete failed');
+
+    state.resources = state.resources.filter(r => r.id !== id);
+    updateStats();
+
     setTimeout(() => {
-      state.resources = state.resources.filter(r => r.id !== id);
-      updateStats();
       renderResources();
       showToast('success', `"${res.title}" deleted.`);
-    }, 340);
+    }, 300);
+
+  } catch (err) {
+    if (card) {
+      card.style.opacity   = '1';
+      card.style.transform = 'none';
+    }
+    showToast('error', `Failed to delete: ${err.message}`);
   }
 }
 
@@ -2069,16 +2291,23 @@ function handleDelete(id) {
    STATS
 ═══════════════════════════════════════ */
 function updateStats() {
-  dom.statTotal.textContent = state.resources.length;
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  dom.statWeek.textContent = state.resources.filter(r => r.date >= weekAgo).length;
+  if (dom.statTotal) dom.statTotal.textContent = state.resources.length;
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  if (dom.statWeek) {
+    dom.statWeek.textContent = state.resources.filter(r =>
+      new Date(r.uploaded_at) >= weekAgo
+    ).length;
+  }
 }
 
 /* ═══════════════════════════════════════
-   TOAST SYSTEM
+   TOAST
 ═══════════════════════════════════════ */
 function showToast(type, message) {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
 
@@ -2092,76 +2321,25 @@ function showToast(type, message) {
     <div class="toast-icon">${icons[type] || icons.info}</div>
     <span>${message}</span>
     <button class="toast-close" onclick="dismissToast(this.parentElement)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
     </button>`;
 
   container.appendChild(toast);
-
   setTimeout(() => dismissToast(toast), 4200);
 }
 
 function dismissToast(toast) {
   if (!toast || toast.classList.contains('removing')) return;
   toast.classList.add('removing');
-  setTimeout(() => toast.remove(), 300);
+  setTimeout(() => toast?.remove(), 300);
 }
 
 /* ═══════════════════════════════════════
-   INIT — pre-populate with sample resources
+   BOOT
 ═══════════════════════════════════════ */
-(function init() {
-  const samples = [
-    {
-      type: 'NOTES', section: 'BA', subject: 'Machine Learning',
-      title: 'Introduction to Neural Networks — Week 3',
-      description: 'Covers perceptrons, activation functions, and backpropagation.',
-      fileName: 'neural_networks_week3.pdf', fileSize: '4.2 MB', isLink: false,
-      date: new Date(Date.now() - 1 * 86400000),
-    },
-    {
-      type: 'ASSIGNMENTS', section: 'BB', subject: 'Python',
-      title: 'Python OOP Assignment — Deadline 25 May',
-      description: 'Implement a class hierarchy for a library management system.',
-      fileName: 'oop_assignment.pdf', fileSize: '890 KB', isLink: false,
-      date: new Date(Date.now() - 2 * 86400000),
-    },
-    {
-      type: 'TUTORIALS', section: 'BA', subject: 'Data Structures',
-      title: 'Binary Search Tree — Animated Walkthrough',
-      description: 'Recorded lecture covering insertion, deletion, and traversal.',
-      url: 'https://youtube.com/watch?v=example', isLink: true,
-      date: new Date(Date.now() - 3 * 86400000),
-    },
-    {
-      type: 'LINKS', section: 'BC', subject: 'Operating System',
-      title: 'OS Quiz Form — Chapter 4 & 5',
-      description: 'Google Form quiz to be submitted before Friday.',
-      url: 'https://forms.google.com/example', isLink: true,
-      date: new Date(Date.now() - 4 * 86400000),
-    },
-    {
-      type: 'NOTES', section: 'BD', subject: 'Computer Networks',
-      title: 'OSI Model — Complete Reference Notes',
-      description: 'Detailed notes covering all 7 layers with diagrams.',
-      fileName: 'osi_model_complete.pdf', fileSize: '2.1 MB', isLink: false,
-      date: new Date(Date.now() - 5 * 86400000),
-    },
-    {
-      type: 'ASSIGNMENTS', section: 'BA', subject: 'Database Management System',
-      title: 'ER Diagram Assignment — Hospital Database',
-      description: 'Design a complete ER diagram for a hospital management system.',
-      fileName: 'er_diagram_hospital.pdf', fileSize: '1.3 MB', isLink: false,
-      date: new Date(Date.now() - 7 * 86400000),
-    },
-  ];
-
-  samples.forEach((s, i) => {
-    state.resources.push({ ...s, id: state.nextId++ });
-  });
-
-  updateStats();
-  renderResources();
-})();
+init();
 </script>
 
 </body>
