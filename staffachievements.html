@@ -1,0 +1,1133 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Faculty Achievements — CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f4f6fc;--card:#fff;--card-2:#f8faff;
+      --border:#e5eaf5;--border-hi:#c8d3f0;
+      --blue:#3a5cf5;--blue-dk:#2743d4;--blue-lt:#edf0ff;--blue-mid:#c7d0fb;
+      --violet:#7c3aed;--violet-lt:#f5f3ff;--violet-mid:#ddd6fe;
+      --teal:#00b69b;--teal-lt:#e6faf7;
+      --rose:#f0284a;--rose-lt:#fff0f3;
+      --amber:#f59e0b;--amber-lt:#fffbeb;
+      --green:#16a34a;--green-lt:#f0fdf4;
+      --sky:#0ea5e9;--sky-lt:#f0f9ff;
+      --orange:#ea580c;--orange-lt:#fff7ed;
+      --tx-h:#0c1635;--tx-b:#2e3d5f;--tx-m:#5c6f94;--tx-s:#8fa0c0;--tx-xs:#b3c2d9;
+      --sh-xs:0 1px 3px rgba(12,22,53,.06);
+      --sh-sm:0 2px 12px rgba(12,22,53,.08);
+      --sh-md:0 6px 28px rgba(12,22,53,.10);
+      --sh-lg:0 12px 48px rgba(12,22,53,.13);
+      --sh-xl:0 24px 72px rgba(12,22,53,.16);
+      --r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:26px;--r-2xl:34px;
+      --ease:cubic-bezier(.4,0,.2,1);
+      --spring:cubic-bezier(.34,1.56,.64,1);
+      --t:.22s;--sans:'DM Sans',sans-serif;--serif:'Syne',sans-serif;--mono:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{font-size:16px;-webkit-font-smoothing:antialiased;}
+    body{font-family:var(--sans);background:var(--bg);color:var(--tx-b);min-height:100vh;overflow-x:hidden;}
+
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 70% 45% at 3% 0%,rgba(58,92,245,.07) 0%,transparent 55%),
+        radial-gradient(ellipse 55% 42% at 97% 100%,rgba(124,58,237,.06) 0%,transparent 55%),
+        radial-gradient(ellipse 40% 30% at 85% 5%,rgba(0,182,155,.05) 0%,transparent 48%);
+    }
+
+    ::-webkit-scrollbar{width:5px;height:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:99px;}
+
+    /* ── Topbar ── */
+    .topbar{
+      position:sticky;top:0;z-index:200;
+      background:rgba(255,255,255,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);box-shadow:var(--sh-xs);
+      height:62px;display:flex;align-items:center;padding:0 28px;gap:16px;
+    }
+    .tb-logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--violet));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(58,92,245,.3);flex-shrink:0;}
+    .tb-logo svg{width:17px;height:17px;display:block;}
+    .tb-brand{font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--tx-h);letter-spacing:-.01em;}
+    .tb-brand span{color:var(--blue);}
+    .tb-sep{width:1px;height:20px;background:var(--border);}
+    .tb-page{font-size:.78rem;font-weight:600;color:var(--tx-s);letter-spacing:.04em;}
+    .tb-spacer{flex:1;}
+    .tb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.72rem;font-weight:700;color:#fff;border:2px solid var(--border);cursor:pointer;}
+
+    /* ── Wrapper ── */
+    .page-wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 24px 80px;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes countUp{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+    @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+
+    .anim{animation:fadeUp .5s var(--ease) both;}
+    .anim2{animation:fadeUp .5s .08s var(--ease) both;}
+    .anim3{animation:fadeUp .5s .16s var(--ease) both;}
+    .anim4{animation:fadeUp .5s .24s var(--ease) both;}
+
+    /* ══════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════ */
+    .hero{
+      padding:52px 0 44px;
+      display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;
+    }
+    .hero-left{flex:1;min-width:0;}
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:5px 14px;border-radius:99px;
+      background:linear-gradient(135deg,var(--blue-lt),var(--violet-lt));
+      border:1px solid var(--blue-mid);
+      font-family:var(--mono);font-size:.68rem;font-weight:600;
+      color:var(--blue);letter-spacing:.12em;text-transform:uppercase;
+      margin-bottom:14px;animation:fadeUp .5s .05s var(--ease) both;
+    }
+    .hero-eyebrow::before{content:'🏆';}
+    .hero h1{
+      font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);
+      font-weight:800;color:var(--tx-h);letter-spacing:-.03em;line-height:1.1;
+      animation:fadeUp .5s .1s var(--ease) both;
+    }
+    .hero h1 em{
+      font-style:italic;font-weight:600;
+      background:linear-gradient(135deg,var(--blue),var(--violet));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .hero-sub{font-size:1rem;color:var(--tx-m);margin-top:10px;line-height:1.65;max-width:500px;animation:fadeUp .5s .15s var(--ease) both;}
+    .hero-actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;animation:fadeUp .5s .2s var(--ease) both;}
+
+    .btn-upload{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 24px;border-radius:var(--r-md);
+      background:linear-gradient(135deg,var(--blue),var(--violet));
+      color:#fff;font-family:var(--sans);font-size:.9rem;font-weight:700;
+      border:none;cursor:pointer;box-shadow:0 4px 18px rgba(58,92,245,.32);
+      transition:all var(--t) var(--ease);
+    }
+    .btn-upload:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(58,92,245,.42);}
+    .btn-upload svg{width:16px;height:16px;}
+
+    .btn-explore{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:12px 22px;border-radius:var(--r-md);
+      background:var(--card);border:1.5px solid var(--border);
+      color:var(--tx-m);font-family:var(--sans);font-size:.9rem;font-weight:600;
+      cursor:pointer;transition:all var(--t) var(--ease);
+    }
+    .btn-explore:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-lt);}
+
+    /* Hero right — floating banner */
+    .hero-right{flex-shrink:0;animation:fadeUp .5s .25s var(--ease) both;}
+    .excellence-card{
+      background:linear-gradient(135deg,#0c1a35 0%,#1a3066 55%,#2d4a8a 100%);
+      border-radius:var(--r-2xl);padding:28px 30px;min-width:280px;
+      position:relative;overflow:hidden;
+      box-shadow:0 16px 52px rgba(12,26,53,.22);
+      animation:float 4s ease infinite;
+    }
+    .excellence-card::before{
+      content:'';position:absolute;width:280px;height:280px;border-radius:50%;
+      background:radial-gradient(circle,rgba(79,120,255,.15) 0%,transparent 65%);
+      top:-80px;right:-60px;pointer-events:none;
+    }
+    .excellence-card::after{
+      content:'';position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+      background-size:24px 24px;
+    }
+    .ec-label{font-family:var(--mono);font-size:.65rem;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;position:relative;z-index:1;}
+    .ec-title{font-family:var(--serif);font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:4px;position:relative;z-index:1;}
+    .ec-sub{font-size:.8rem;color:rgba(255,255,255,.5);position:relative;z-index:1;}
+    .ec-stats{display:flex;gap:18px;margin-top:18px;position:relative;z-index:1;}
+    .ec-stat{text-align:center;}
+    .ec-stat-val{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#fff;line-height:1;}
+    .ec-stat-val.gold{color:#fbbf24;}
+    .ec-stat-lbl{font-size:.68rem;color:rgba(255,255,255,.4);margin-top:2px;text-transform:uppercase;letter-spacing:.06em;}
+
+    /* ══════════════════════════════════════════════
+       STAT CARDS
+    ══════════════════════════════════════════════ */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px;}
+
+    .stat-card{
+      background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-lg);
+      padding:20px 22px;box-shadow:var(--sh-xs);
+      position:relative;overflow:hidden;
+      transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+    }
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+    .stat-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);border-color:var(--border-hi);}
+
+    .sc-blue::before{background:linear-gradient(90deg,var(--blue),var(--sky));}
+    .sc-violet::before{background:linear-gradient(90deg,var(--violet),var(--rose));}
+    .sc-teal::before{background:linear-gradient(90deg,var(--teal),#2dd4bf);}
+    .sc-amber::before{background:linear-gradient(90deg,var(--amber),var(--orange));}
+
+    .stat-inner{display:flex;align-items:center;gap:14px;}
+    .stat-icon{width:46px;height:46px;border-radius:var(--r-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+    .si-blue{background:var(--blue-lt);}
+    .si-violet{background:var(--violet-lt);}
+    .si-teal{background:var(--teal-lt);}
+    .si-amber{background:var(--amber-lt);}
+    .stat-val{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--tx-h);letter-spacing:-.03em;line-height:1;}
+    .stat-lbl{font-size:.78rem;font-weight:600;color:var(--tx-s);margin-top:4px;}
+
+    /* ══════════════════════════════════════════════
+       MAIN LAYOUT
+    ══════════════════════════════════════════════ */
+    .main-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+
+    /* ── Section header ── */
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;}
+    .section-head-left{display:flex;align-items:center;gap:10px;}
+    .section-icon{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .section-icon svg{width:15px;height:15px;}
+    .si2-blue{background:var(--blue-lt);color:var(--blue);}
+    .si2-violet{background:var(--violet-lt);color:var(--violet);}
+    .si2-amber{background:var(--amber-lt);color:var(--amber);}
+    .section-title{font-family:var(--sans);font-size:.95rem;font-weight:700;color:var(--tx-h);}
+    .section-sub{font-size:.74rem;color:var(--tx-s);margin-top:1px;}
+
+    .count-pill{padding:3px 10px;border-radius:99px;font-family:var(--mono);font-size:.7rem;font-weight:700;background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue-mid);}
+
+    .link-btn{font-size:.8rem;font-weight:600;color:var(--blue);cursor:pointer;padding:5px 10px;border-radius:var(--r-sm);transition:background var(--t);border:none;background:none;font-family:var(--sans);}
+    .link-btn:hover{background:var(--blue-lt);}
+
+    /* ══════════════════════════════════════════════
+       FILTER TABS
+    ══════════════════════════════════════════════ */
+    .filter-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px;}
+    .filter-tab{
+      padding:7px 16px;border-radius:99px;
+      border:1.5px solid var(--border);background:var(--card);
+      font-family:var(--sans);font-size:.78rem;font-weight:600;color:var(--tx-m);
+      cursor:pointer;transition:all var(--t);
+    }
+    .filter-tab:hover{border-color:var(--border-hi);color:var(--tx-b);}
+    .filter-tab.active{background:linear-gradient(135deg,var(--blue),var(--violet));border-color:transparent;color:#fff;box-shadow:0 4px 12px rgba(58,92,245,.28);}
+
+    /* ══════════════════════════════════════════════
+       ACHIEVEMENT CARD
+    ══════════════════════════════════════════════ */
+    .achieve-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+
+    .achieve-card{
+      background:var(--card);border-radius:var(--r-xl);
+      border:1.5px solid var(--border);box-shadow:var(--sh-sm);
+      overflow:hidden;transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+      position:relative;display:flex;flex-direction:column;
+      animation:fadeUp .45s var(--ease) both;
+    }
+    .achieve-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:var(--border-hi);}
+
+    /* Coloured top strip */
+    .achieve-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--r-xl) var(--r-xl) 0 0;}
+    .ac-blue::before{background:linear-gradient(90deg,var(--blue),var(--sky));}
+    .ac-violet::before{background:linear-gradient(90deg,var(--violet),var(--rose));}
+    .ac-teal::before{background:linear-gradient(90deg,var(--teal),#34d399);}
+    .ac-amber::before{background:linear-gradient(90deg,var(--amber),var(--orange));}
+    .ac-green::before{background:linear-gradient(90deg,var(--green),var(--teal));}
+    .ac-rose::before{background:linear-gradient(90deg,var(--rose),var(--amber));}
+
+    /* Preview image */
+    .achieve-img{
+      width:100%;height:130px;overflow:hidden;position:relative;
+      background:linear-gradient(135deg,var(--card-2),var(--blue-lt));
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .achieve-img img{width:100%;height:100%;object-fit:cover;}
+    .achieve-img-placeholder{font-size:2.8rem;opacity:.3;}
+
+    /* Type badge on image */
+    .achieve-type-badge{
+      position:absolute;top:10px;right:10px;
+      padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:800;
+      letter-spacing:.05em;text-transform:uppercase;backdrop-filter:blur(8px);
+    }
+    .atb-certificate{background:rgba(58,92,245,.85);color:#fff;}
+    .atb-workshop{background:rgba(0,182,155,.85);color:#fff;}
+    .atb-fdp{background:rgba(124,58,237,.85);color:#fff;}
+    .atb-research{background:rgba(14,165,233,.85);color:#fff;}
+    .atb-award{background:rgba(245,158,11,.85);color:#fff;}
+    .atb-seminar{background:rgba(240,40,74,.85);color:#fff;}
+
+    /* Card body */
+    .achieve-body{padding:16px 18px 14px;flex:1;display:flex;flex-direction:column;}
+    .achieve-faculty{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+    .achieve-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .achieve-faculty-info{}
+    .achieve-faculty-name{font-size:.82rem;font-weight:700;color:var(--tx-h);}
+    .achieve-dept{font-size:.7rem;color:var(--tx-s);}
+    .achieve-title{font-size:.92rem;font-weight:700;color:var(--tx-h);line-height:1.35;margin-bottom:6px;}
+    .achieve-desc{font-size:.78rem;color:var(--tx-m);line-height:1.55;flex:1;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
+    .achieve-footer{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 18px 14px;border-top:1px solid var(--border);gap:8px;flex-wrap:wrap;
+    }
+    .achieve-date{font-family:var(--mono);font-size:.68rem;color:var(--tx-xs);}
+    .achieve-actions{display:flex;gap:6px;}
+    .act-btn{
+      display:flex;align-items:center;gap:4px;
+      padding:5px 11px;border-radius:var(--r-sm);
+      font-family:var(--sans);font-size:.74rem;font-weight:600;
+      border:1.5px solid var(--border);background:var(--card);
+      color:var(--tx-m);cursor:pointer;transition:all var(--t);
+    }
+    .act-btn svg{width:11px;height:11px;}
+    .act-btn:hover{border-color:var(--border-hi);color:var(--tx-b);}
+    .act-btn.primary{background:var(--blue-lt);border-color:var(--blue-mid);color:var(--blue);}
+    .act-btn.primary:hover{background:var(--blue-mid);}
+    .act-btn.danger{background:var(--rose-lt);border-color:#fca5a5;color:var(--rose);}
+    .act-btn.danger:hover{background:#fecdd3;}
+
+    /* ── Empty state ── */
+    .empty-state{
+      display:flex;flex-direction:column;align-items:center;
+      padding:60px 24px;text-align:center;
+      background:var(--card);border:1.5px dashed var(--border);border-radius:var(--r-xl);
+    }
+    .empty-illo{font-size:4rem;margin-bottom:14px;animation:float 3s ease infinite;}
+    .empty-title{font-family:var(--serif);font-size:1.2rem;color:var(--tx-m);margin-bottom:6px;}
+    .empty-sub{font-size:.84rem;color:var(--tx-xs);max-width:280px;line-height:1.6;margin-bottom:18px;}
+
+    /* ══════════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════════ */
+    .sidebar{display:flex;flex-direction:column;gap:18px;}
+
+    .side-card{
+      background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-lg);
+      box-shadow:var(--sh-xs);overflow:hidden;
+    }
+    .side-card-head{
+      padding:14px 18px;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:8px;
+    }
+    .side-card-head .section-icon{width:26px;height:26px;}
+    .side-card-head .section-title{font-size:.84rem;}
+    .side-card-body{padding:14px 18px;}
+
+    /* Trending faculty list */
+    .trending-list{display:flex;flex-direction:column;gap:10px;}
+    .trending-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+    .trending-item:last-child{border-bottom:none;padding-bottom:0;}
+    .trending-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .trending-info{flex:1;min-width:0;}
+    .trending-name{font-size:.82rem;font-weight:700;color:var(--tx-h);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .trending-count{font-size:.7rem;color:var(--tx-s);}
+    .trending-rank{font-family:var(--mono);font-size:.68rem;font-weight:700;color:var(--tx-xs);}
+
+    /* Categories */
+    .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+    .cat-item{
+      padding:9px 10px;border-radius:var(--r-sm);border:1.5px solid var(--border);
+      background:var(--card-2);cursor:pointer;transition:all var(--t);
+      display:flex;align-items:center;gap:6px;
+    }
+    .cat-item:hover{border-color:var(--blue-mid);background:var(--blue-lt);}
+    .cat-emoji{font-size:.95rem;}
+    .cat-label{font-size:.74rem;font-weight:600;color:var(--tx-m);}
+    .cat-item:hover .cat-label{color:var(--blue);}
+
+    /* Recent awards */
+    .award-list{display:flex;flex-direction:column;gap:8px;}
+    .award-item{
+      display:flex;align-items:flex-start;gap:9px;
+      padding:9px 0;border-bottom:1px solid var(--border);
+    }
+    .award-item:last-child{border-bottom:none;padding-bottom:0;}
+    .award-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+    .award-text{font-size:.78rem;color:var(--tx-b);line-height:1.45;}
+    .award-time{font-size:.68rem;color:var(--tx-xs);font-family:var(--mono);margin-top:2px;}
+
+    /* ══════════════════════════════════════════════
+       EXPLORE SECTION
+    ══════════════════════════════════════════════ */
+    .explore-section{margin-top:36px;}
+    .explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+    /* Compact explore card */
+    .explore-card{
+      background:var(--card);border:1.5px solid var(--border);border-radius:var(--r-lg);
+      padding:16px 18px;box-shadow:var(--sh-xs);
+      transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+      position:relative;overflow:hidden;
+      animation:fadeUp .4s var(--ease) both;
+    }
+    .explore-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+    .explore-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);border-color:var(--border-hi);}
+
+    .ec2-blue::before{background:var(--blue);}
+    .ec2-violet::before{background:var(--violet);}
+    .ec2-teal::before{background:var(--teal);}
+    .ec2-amber::before{background:var(--amber);}
+    .ec2-green::before{background:var(--green);}
+    .ec2-rose::before{background:var(--rose);}
+
+    .explore-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+    .explore-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;flex-shrink:0;}
+    .explore-faculty{font-size:.78rem;font-weight:700;color:var(--tx-h);}
+    .explore-dept-small{font-size:.68rem;color:var(--tx-s);}
+    .explore-title{font-size:.84rem;font-weight:700;color:var(--tx-h);margin-bottom:4px;line-height:1.35;}
+    .explore-desc{font-size:.74rem;color:var(--tx-m);line-height:1.5;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:8px;}
+    .explore-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .explore-badge{padding:2px 8px;border-radius:5px;font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+
+    /* ══════════════════════════════════════════════
+       UPLOAD MODAL
+    ══════════════════════════════════════════════ */
+    .modal-bd{
+      position:fixed;inset:0;z-index:500;
+      background:rgba(12,22,53,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      opacity:0;pointer-events:none;transition:opacity .28s;
+    }
+    .modal-bd.open{opacity:1;pointer-events:all;}
+    .modal-box{
+      background:var(--card);border-radius:var(--r-2xl);box-shadow:var(--sh-xl);
+      width:100%;max-width:560px;overflow:hidden;
+      transform:scale(.94) translateY(16px);
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-bd.open .modal-box{transform:scale(1) translateY(0);}
+
+    .modal-head{
+      background:linear-gradient(135deg,var(--blue),var(--violet));
+      padding:24px 28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      position:relative;overflow:hidden;
+    }
+    .modal-head::before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);top:-80px;right:-60px;pointer-events:none;}
+    .modal-head-text{}
+    .modal-head-label{font-family:var(--mono);font-size:.65rem;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+    .modal-head-title{font-family:var(--serif);font-size:1.4rem;font-weight:800;color:#fff;}
+    .modal-close{width:30px;height:30px;border-radius:var(--r-sm);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);transition:all var(--t);flex-shrink:0;}
+    .modal-close:hover{background:rgba(255,255,255,.22);color:#fff;}
+    .modal-close svg{width:14px;height:14px;display:block;}
+
+    .modal-body{padding:24px 28px;display:flex;flex-direction:column;gap:16px;}
+
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .field{display:flex;flex-direction:column;gap:6px;}
+    .field.full{grid-column:1/-1;}
+    .field-label{font-size:.76rem;font-weight:700;color:var(--tx-m);letter-spacing:.02em;}
+    .field-label .req{color:var(--rose);font-size:.68rem;}
+    .field-input,.field-select,.field-textarea{
+      padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);
+      background:var(--card-2);font-family:var(--sans);font-size:.88rem;color:var(--tx-h);
+      outline:none;transition:border-color var(--t),box-shadow var(--t),background var(--t);
+    }
+    .field-input::placeholder,.field-textarea::placeholder{color:var(--tx-xs);}
+    .field-input:hover,.field-select:hover{border-color:var(--border-hi);background:var(--card);}
+    .field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--blue);background:var(--card);box-shadow:0 0 0 3px rgba(58,92,245,.1);}
+    .field-select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238fa0c0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;background-color:var(--card-2);}
+    .field-select:focus{background-color:var(--card);}
+    .field-textarea{resize:vertical;min-height:80px;line-height:1.6;}
+
+    /* Drop zone */
+    .drop-zone{
+      border:2px dashed var(--border);border-radius:var(--r-lg);
+      background:var(--card-2);padding:28px 20px;text-align:center;
+      cursor:pointer;position:relative;transition:all var(--t);
+    }
+    .drop-zone:hover,.drop-zone.drag-over{border-color:var(--blue);background:var(--blue-lt);}
+    .drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .drop-icon{font-size:2.2rem;margin-bottom:8px;}
+    .drop-text{font-size:.84rem;color:var(--tx-m);font-weight:500;}
+    .drop-text strong{color:var(--blue);}
+    .drop-hint{font-size:.72rem;color:var(--tx-s);margin-top:4px;}
+    .drop-preview{font-size:.78rem;color:var(--green);font-weight:600;margin-top:8px;}
+
+    .modal-footer{
+      padding:16px 28px 22px;border-top:1px solid var(--border);
+      display:flex;gap:10px;justify-content:flex-end;
+    }
+    .btn-cancel{padding:10px 20px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--card);font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--tx-m);cursor:pointer;transition:all var(--t);}
+    .btn-cancel:hover{border-color:var(--border-hi);background:var(--card-2);}
+    .btn-submit{
+      padding:10px 26px;border-radius:var(--r-sm);
+      background:linear-gradient(135deg,var(--blue),var(--violet));
+      color:#fff;font-family:var(--sans);font-size:.86rem;font-weight:700;
+      border:none;cursor:pointer;box-shadow:0 4px 14px rgba(58,92,245,.28);
+      transition:all var(--t);display:flex;align-items:center;gap:7px;
+    }
+    .btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(58,92,245,.38);}
+    .btn-spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+    .btn-submit.loading .btn-label{display:none;}.btn-submit.loading .btn-spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── Success modal ── */
+    .success-modal{
+      background:var(--card);border-radius:var(--r-2xl);box-shadow:var(--sh-xl);
+      width:100%;max-width:380px;text-align:center;padding:44px 36px 36px;
+      transform:scale(.94) translateY(16px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-bd.open .success-modal{transform:scale(1) translateY(0);}
+    .success-icon{width:70px;height:70px;border-radius:50%;background:var(--green-lt);border:2px solid #86efac;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2rem;}
+    .success-modal h3{font-family:var(--serif);font-size:1.4rem;color:var(--tx-h);margin-bottom:8px;}
+    .success-modal p{font-size:.86rem;color:var(--tx-m);line-height:1.6;margin-bottom:22px;}
+    .btn-done{width:100%;padding:11px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-family:var(--sans);font-size:.88rem;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(58,92,245,.28);transition:all var(--t);}
+    .btn-done:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(58,92,245,.38);}
+
+    /* ── Toast ── */
+    .toast-wrap{position:fixed;top:74px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999;}
+    .toast{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--r-md);box-shadow:var(--sh-md);font-size:.82rem;font-weight:600;min-width:230px;transform:translateX(110%);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+    .toast.show{transform:translateX(0);opacity:1;}
+    .toast.success{background:#fff;border:1.5px solid #86efac;color:#14532d;}
+    .toast.error{background:#fff;border:1.5px solid #fca5a5;color:#9f1239;}
+    .toast.info{background:#fff;border:1.5px solid var(--blue-mid);color:var(--blue);}
+
+    /* ── Counter animation ── */
+    .counter-val{display:inline-block;animation:countUp .6s var(--spring) both;}
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media(max-width:1100px){.main-layout{grid-template-columns:1fr;}.explore-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr;}.achieve-grid{grid-template-columns:1fr;}.explore-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:768px){.hero{flex-direction:column;}.hero-right{display:none;}.topbar{padding:0 14px;}.page-wrap{padding:0 14px 60px;}.stats-grid{grid-template-columns:1fr 1fr;}.explore-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}}
+    @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}.filter-tabs{gap:5px;}.filter-tab{padding:6px 12px;font-size:.72rem;}}
+  </style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<nav class="topbar">
+  <div class="tb-logo">
+    <svg viewBox="0 0 17 17" fill="none"><rect x="1" y="7.5" width="15" height="8" rx="1" fill="white" opacity=".85"/><path d="M0 8.5L8.5 2l8.5 6.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/><rect x="6" y="10.5" width="5" height="5" rx=".5" fill="#3a5cf5"/></svg>
+  </div>
+  <span class="tb-brand">Campus<span>Track</span></span>
+  <div class="tb-sep"></div>
+  <span class="tb-page">Faculty Achievements</span>
+  <div class="tb-spacer"></div>
+  <div class="tb-avatar" id="tbAvatar">DR</div>
+</nav>
+
+<!-- ══ PAGE ══ -->
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left anim">
+      <div class="hero-eyebrow">Faculty Excellence Portal</div>
+      <h1>Showcase Your<br/><em>Academic Excellence</em></h1>
+      <p class="hero-sub">Celebrate your professional milestones — certificates, research papers, workshops, awards, and more. Build your academic portfolio in one place.</p>
+      <div class="hero-actions">
+        <button class="btn-upload" onclick="openUploadModal()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4.5 4.5L8 1l3.5 3.5"/><path d="M1 11v2.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5V11"/></svg>
+          Upload Achievement
+        </button>
+        <button class="btn-explore" onclick="scrollToExplore()">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M4.5 7h5M7 4.5l2.5 2.5-2.5 2.5"/></svg>
+          Explore All
+        </button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="excellence-card">
+        <div class="ec-label">Faculty Excellence</div>
+        <div class="ec-title">Department of CSE</div>
+        <div class="ec-sub">Achievements this academic year</div>
+        <div class="ec-stats">
+          <div class="ec-stat"><div class="ec-stat-val gold" id="heroTotal">0</div><div class="ec-stat-lbl">Total</div></div>
+          <div class="ec-stat"><div class="ec-stat-val" id="heroFaculty">0</div><div class="ec-stat-lbl">Faculty</div></div>
+          <div class="ec-stat"><div class="ec-stat-val" id="heroAwards">0</div><div class="ec-stat-lbl">Awards</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid anim2">
+    <div class="stat-card sc-blue"><div class="stat-inner"><div class="stat-icon si-blue">📜</div><div><div class="stat-val" id="statCerts">0</div><div class="stat-lbl">Total Certificates</div></div></div></div>
+    <div class="stat-card sc-violet"><div class="stat-inner"><div class="stat-icon si-violet">🎓</div><div><div class="stat-val" id="statWorkshops">0</div><div class="stat-lbl">Workshops & FDPs</div></div></div></div>
+    <div class="stat-card sc-teal"><div class="stat-inner"><div class="stat-icon si-teal">🔬</div><div><div class="stat-val" id="statResearch">0</div><div class="stat-lbl">Research Papers</div></div></div></div>
+    <div class="stat-card sc-amber"><div class="stat-inner"><div class="stat-icon si-amber">🏅</div><div><div class="stat-val" id="statAwards">0</div><div class="stat-lbl">Awards Won</div></div></div></div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- LEFT: My Achievements + Explore -->
+    <div>
+
+      <!-- MY ACHIEVEMENTS -->
+      <div class="anim3">
+        <div class="section-head">
+          <div class="section-head-left">
+            <div class="section-icon si2-blue">
+              <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7.5 1l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L1.7 5.2l4-.6L7.5 1z"/></svg>
+            </div>
+            <div><div class="section-title">My Achievements</div><div class="section-sub">Your uploaded certificates and accomplishments</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="count-pill" id="myCountPill">0</span>
+            <button class="link-btn" onclick="openUploadModal()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-tab" onclick="setFilter('certificate',this)">Certificates</button>
+          <button class="filter-tab" onclick="setFilter('workshop',this)">Workshops</button>
+          <button class="filter-tab" onclick="setFilter('fdp',this)">FDPs</button>
+          <button class="filter-tab" onclick="setFilter('research',this)">Research</button>
+          <button class="filter-tab" onclick="setFilter('award',this)">Awards</button>
+          <button class="filter-tab" onclick="setFilter('seminar',this)">Seminars</button>
+        </div>
+
+        <div id="myAchievements"><!-- JS --></div>
+      </div>
+
+      <!-- EXPLORE -->
+      <div class="explore-section anim4" id="exploreSection">
+        <div class="section-head">
+          <div class="section-head-left">
+            <div class="section-icon si2-violet">
+              <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="5.5"/><path d="M4.5 7.5h6M7.5 4.5l3 3-3 3"/></svg>
+            </div>
+            <div><div class="section-title">Explore Faculty Achievements</div><div class="section-sub">Celebrating excellence across the department</div></div>
+          </div>
+          <span class="count-pill">10+</span>
+        </div>
+        <div class="explore-grid" id="exploreGrid"><!-- JS --></div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar anim4">
+
+      <!-- Trending Faculty -->
+      <div class="side-card">
+        <div class="side-card-head">
+          <div class="section-icon si2-amber"><svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7.5 1l1.8 3.6 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L1.7 5.2l4-.6L7.5 1z"/></svg></div>
+          <div><div class="section-title">Top Contributors</div></div>
+        </div>
+        <div class="side-card-body">
+          <div class="trending-list" id="trendingList"><!-- JS --></div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="side-card">
+        <div class="side-card-head">
+          <div class="section-icon si2-blue"><svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="8.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="8.5" width="5" height="5" rx="1"/><rect x="8.5" y="8.5" width="5" height="5" rx="1"/></svg></div>
+          <div><div class="section-title">Categories</div></div>
+        </div>
+        <div class="side-card-body">
+          <div class="cat-grid">
+            <div class="cat-item" onclick="setFilter('certificate',null)"><span class="cat-emoji">📜</span><span class="cat-label">Certificates</span></div>
+            <div class="cat-item" onclick="setFilter('workshop',null)"><span class="cat-emoji">🎓</span><span class="cat-label">Workshops</span></div>
+            <div class="cat-item" onclick="setFilter('fdp',null)"><span class="cat-emoji">📚</span><span class="cat-label">FDPs</span></div>
+            <div class="cat-item" onclick="setFilter('research',null)"><span class="cat-emoji">🔬</span><span class="cat-label">Research</span></div>
+            <div class="cat-item" onclick="setFilter('award',null)"><span class="cat-emoji">🏅</span><span class="cat-label">Awards</span></div>
+            <div class="cat-item" onclick="setFilter('seminar',null)"><span class="cat-emoji">🎤</span><span class="cat-label">Seminars</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Awards -->
+      <div class="side-card">
+        <div class="side-card-head">
+          <div class="section-icon si2-violet"><svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="5" r="3"/><path d="M3.5 13c0-2.2 1.8-4 4-4s4 1.8 4 4"/></svg></div>
+          <div><div class="section-title">Recent Awards</div></div>
+        </div>
+        <div class="side-card-body">
+          <div class="award-list" id="recentAwards"><!-- JS --></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ UPLOAD MODAL ══ -->
+<div class="modal-bd" id="uploadModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-text">
+        <div class="modal-head-label">Add to Portfolio</div>
+        <div class="modal-head-title">Upload Achievement</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('uploadModal')">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label">Achievement Title <span class="req">*</span></label>
+          <input type="text" class="field-input" id="fTitle" placeholder="e.g. Best Faculty Award 2025" oninput="validateUpload()" />
+        </div>
+        <div class="field">
+          <label class="field-label">Type <span class="req">*</span></label>
+          <select class="field-select" id="fType" onchange="validateUpload()">
+            <option value="">Select type…</option>
+            <option value="certificate">📜 Certificate</option>
+            <option value="workshop">🎓 Workshop</option>
+            <option value="fdp">📚 FDP</option>
+            <option value="research">🔬 Research Paper</option>
+            <option value="award">🏅 Award</option>
+            <option value="seminar">🎤 Seminar</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Description <span style="font-weight:400;color:var(--tx-xs)">(optional)</span></label>
+        <textarea class="field-textarea" id="fDesc" placeholder="Brief description of this achievement…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Certificate / Image / PDF</label>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fFile" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelect()" />
+          <div class="drop-icon">📎</div>
+          <div class="drop-text"><strong>Click to upload</strong> or drag & drop</div>
+          <div class="drop-hint">PDF, JPG, PNG, DOC — Max 10 MB</div>
+          <div class="drop-preview" id="dropPreview"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('uploadModal')">Cancel</button>
+      <button class="btn-submit" id="uploadSubmitBtn" disabled onclick="submitAchievement()">
+        <span class="btn-label" style="display:flex;align-items:center;gap:7px">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 1v8M3 4.5l3.5-3.5 3.5 3.5"/><path d="M1 10v1.5A.5.5 0 001.5 12h10a.5.5 0 00.5-.5V10"/></svg>
+          Upload Achievement
+        </span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUCCESS MODAL ══ -->
+<div class="modal-bd" id="successModal">
+  <div class="success-modal">
+    <div class="success-icon">🏆</div>
+    <h3>Achievement Added!</h3>
+    <p>Your achievement has been added to your portfolio and is now visible to the department.</p>
+    <button class="btn-done" onclick="closeModal('successModal')">Done</button>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+  /* ══════════════════════════════════════════════
+     DATA
+  ══════════════════════════════════════════════ */
+
+  /* Current logged-in faculty (from localStorage in production) */
+  const CURRENT_FACULTY = {
+    id: 'f001', name: 'Dr. Ramesh Babu', dept: 'Computer Science',
+    initials: 'RB', avatar_color: '#3a5cf5',
+  };
+
+  /* My achievements — load from localStorage, seed with samples */
+  const MY_SEED = [
+    { id:'m1', title:'AWS Solutions Architect — Associate', type:'certificate', desc:'Completed AWS certification covering cloud architecture, security, and deployment strategies.', date:'2025-03-14', color:'ac-blue', file:null },
+    { id:'m2', title:'FDP on Machine Learning & AI', type:'fdp', desc:'5-day Faculty Development Programme conducted by IIT Madras on emerging ML techniques.', date:'2025-02-20', color:'ac-violet', file:null },
+    { id:'m3', title:'Best Paper Award — ICCCI 2025', type:'award', desc:'Received Best Paper Award at the International Conference on Computer Communication and Informatics.', date:'2025-01-10', color:'ac-amber', file:null },
+  ];
+
+  /* Faculty explore data — 10+ realistic records */
+  const EXPLORE_DATA = [
+    { id:'e1',  name:'Dr. Priya Sharma',   dept:'AI & Data Science',      title:'Deep Learning Research Publication in IEEE',    type:'research',     desc:'Published a paper on transformer architectures in IEEE Transactions on Neural Networks.',          color:'ec2-blue',   ac:'#7c3aed' },
+    { id:'e2',  name:'Prof. Arun Kumar',   dept:'Computer Science',       title:'FDP on Cloud Computing — IIT Bombay',           type:'fdp',          desc:'Completed a 5-day intensive FDP covering AWS, Azure and GCP cloud architectures.',                color:'ec2-violet', ac:'#00b69b' },
+    { id:'e3',  name:'Dr. Meena Ravi',     dept:'Information Technology', title:'Best Faculty Award — Anna University 2025',     type:'award',        desc:'Recognized as Best Faculty for outstanding academic contributions in the region.',                color:'ec2-amber',  ac:'#f59e0b' },
+    { id:'e4',  name:'Prof. Karthik S.',   dept:'Cybersecurity',          title:'National Workshop on Cybersecurity & Forensics', type:'workshop',     desc:'Participated as resource person in the National Workshop on Digital Forensics at NIT Trichy.',    color:'ec2-rose',   ac:'#f0284a' },
+    { id:'e5',  name:'Dr. Anitha Devi',    dept:'AI & Data Science',      title:'Patent Filed: Smart Traffic AI System',          type:'research',     desc:'Filed a patent for an AI-powered real-time traffic management system with adaptive signaling.', color:'ec2-teal',   ac:'#0ea5e9' },
+    { id:'e6',  name:'Prof. Suresh Raja',  dept:'Computer Science',       title:'International Seminar on Blockchain Technology', type:'seminar',      desc:'Delivered a keynote lecture on decentralized finance and blockchain applications in education.',   color:'ec2-green',  ac:'#16a34a' },
+    { id:'e7',  name:'Dr. Lakshmi Nair',   dept:'Electronics',            title:'Coursera Deep Learning Specialization',          type:'certificate',  desc:'Completed the 5-course deep learning specialization by deeplearning.ai with distinction.',        color:'ec2-blue',   ac:'#ea580c' },
+    { id:'e8',  name:'Prof. Vijay Menon',  dept:'Mechanical Engineering', title:'FDP on Advanced Manufacturing — IIT Delhi',      type:'fdp',          desc:'Attended a week-long FDP on Industry 4.0 and smart manufacturing processes.',                    color:'ec2-violet', ac:'#3a5cf5' },
+    { id:'e9',  name:'Dr. Rekha Pillai',   dept:'Information Technology', title:'Best Researcher Award — State Level 2024',       type:'award',        desc:'Awarded for exceptional research contributions in the domain of natural language processing.',     color:'ec2-amber',  ac:'#7c3aed' },
+    { id:'e10', name:'Prof. Ganesh Kumar', dept:'Computer Science',       title:'Workshop: Ethical AI & Responsible Innovation',  type:'workshop',     desc:'Organized and participated in a two-day workshop on responsible AI frameworks and policy.',      color:'ec2-rose',   ac:'#00b69b' },
+    { id:'e11', name:'Dr. Sindhu T.P.',    dept:'Biomedical Engineering', title:'Journal Publication in Elsevier',                type:'research',     desc:'Co-authored a high-impact research article on biosensors published in Elsevier\'s Sensors journal.', color:'ec2-teal',   ac:'#f59e0b' },
+    { id:'e12', name:'Prof. Rohit Das',    dept:'AI & Data Science',      title:'Google Cloud Professional Certificate',           type:'certificate',  desc:'Earned Google Cloud Professional Data Engineer certification with a score of 92%.',                color:'ec2-green',  ac:'#f0284a' },
+  ];
+
+  /* Trending contributors */
+  const TRENDING = [
+    { name:'Dr. Anitha Devi',   dept:'AI & Data Science',  count:8, initials:'AD', color:'#3a5cf5' },
+    { name:'Dr. Priya Sharma',  dept:'AI & Data Science',  count:6, initials:'PS', color:'#7c3aed' },
+    { name:'Prof. Karthik S.', dept:'Cybersecurity',       count:5, initials:'KS', color:'#00b69b' },
+    { name:'Dr. Lakshmi Nair', dept:'Electronics',         count:4, initials:'LN', color:'#f59e0b' },
+    { name:'Prof. Suresh Raja', dept:'Computer Science',   count:4, initials:'SR', color:'#f0284a' },
+  ];
+
+  /* Recent awards */
+  const RECENT_AWARDS = [
+    { text:'Dr. Meena Ravi — Best Faculty Award, Anna University', time:'Jan 2025', color:'#f59e0b' },
+    { text:'Dr. Rekha Pillai — Best Researcher, State Level',      time:'Dec 2024', color:'#3a5cf5' },
+    { text:'Dr. Priya Sharma — Best Paper Award, ICCCI',           time:'Nov 2024', color:'#7c3aed' },
+    { text:'Prof. Vijay Menon — Excellence in Teaching Award',     time:'Oct 2024', color:'#00b69b' },
+  ];
+
+  /* Type config */
+  const TYPE_CFG = {
+    certificate:{ label:'Certificate', badge:'atb-certificate', emoji:'📜' },
+    workshop:   { label:'Workshop',    badge:'atb-workshop',    emoji:'🎓' },
+    fdp:        { label:'FDP',         badge:'atb-fdp',         emoji:'📚' },
+    research:   { label:'Research',    badge:'atb-research',    emoji:'🔬' },
+    award:      { label:'Award',       badge:'atb-award',       emoji:'🏅' },
+    seminar:    { label:'Seminar',     badge:'atb-seminar',     emoji:'🎤' },
+  };
+  const TYPE_COLOR_CYCLE = ['ac-blue','ac-violet','ac-teal','ac-amber','ac-green','ac-rose'];
+
+  /* ══════════════════════════════════════════════
+     STATE
+  ══════════════════════════════════════════════ */
+  let myAchievements = [];
+  let activeFilter   = 'all';
+  let attachedFile   = null;
+
+  /* ══════════════════════════════════════════════
+     INIT
+  ══════════════════════════════════════════════ */
+  function init() {
+    loadMyAchievements();
+    renderMyAchievements();
+    renderExplore();
+    renderTrending();
+    renderRecentAwards();
+    animateCounters();
+    setupDragDrop();
+  }
+
+  /* ══════════════════════════════════════════════
+     PERSISTENCE
+     → replace localStorage with Supabase calls
+  ══════════════════════════════════════════════ */
+  function loadMyAchievements() {
+    try {
+      const stored = localStorage.getItem('ct_achievements');
+      myAchievements = stored ? JSON.parse(stored) : [...MY_SEED];
+    } catch { myAchievements = [...MY_SEED]; }
+  }
+
+  function saveMyAchievements() {
+    localStorage.setItem('ct_achievements', JSON.stringify(myAchievements));
+  }
+
+  /* ══════════════════════════════════════════════
+     RENDER MY ACHIEVEMENTS
+  ══════════════════════════════════════════════ */
+  function renderMyAchievements() {
+    const container = document.getElementById('myAchievements');
+    const filtered  = activeFilter === 'all'
+      ? myAchievements
+      : myAchievements.filter(a => a.type === activeFilter);
+
+    document.getElementById('myCountPill').textContent = myAchievements.length;
+
+    if (!filtered.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-illo">${activeFilter === 'all' ? '🌟' : (TYPE_CFG[activeFilter]?.emoji || '📂')}</div>
+          <div class="empty-title">No achievements here yet</div>
+          <div class="empty-sub">Upload your first ${activeFilter === 'all' ? 'achievement' : TYPE_CFG[activeFilter]?.label || 'item'} to get started.</div>
+          <button class="btn-upload" onclick="openUploadModal()" style="margin-top:0">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4.5 4.5L8 1l3.5 3.5"/><path d="M1 11v2.5A1.5 1.5 0 002.5 15h11a1.5 1.5 0 001.5-1.5V11"/></svg>
+            Upload Now
+          </button>
+        </div>`;
+      updateStats(); return;
+    }
+
+    const grid = document.createElement('div'); grid.className = 'achieve-grid';
+    filtered.forEach((item, i) => {
+      const cfg   = TYPE_CFG[item.type] || { label: item.type, badge:'atb-certificate', emoji:'📄' };
+      const date  = new Date(item.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      const card  = document.createElement('div');
+      card.className = `achieve-card ${item.color || 'ac-blue'}`;
+      card.style.animationDelay = `${i * .06}s`;
+      card.innerHTML = `
+        <div class="achieve-img">
+          <div class="achieve-img-placeholder">${cfg.emoji}</div>
+          <span class="achieve-type-badge ${cfg.badge}">${cfg.label}</span>
+        </div>
+        <div class="achieve-body">
+          <div class="achieve-faculty">
+            <div class="achieve-avatar" style="background:${CURRENT_FACULTY.avatar_color}">${CURRENT_FACULTY.initials}</div>
+            <div class="achieve-faculty-info">
+              <div class="achieve-faculty-name">${escHtml(CURRENT_FACULTY.name)}</div>
+              <div class="achieve-dept">${escHtml(CURRENT_FACULTY.dept)}</div>
+            </div>
+          </div>
+          <div class="achieve-title">${escHtml(item.title)}</div>
+          <div class="achieve-desc">${escHtml(item.desc || 'No description provided.')}</div>
+        </div>
+        <div class="achieve-footer">
+          <span class="achieve-date">${date}</span>
+          <div class="achieve-actions">
+            <button class="act-btn primary">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="6" r="4"/><path d="M6 4v2l1.5 1"/></svg>
+              View
+            </button>
+            <button class="act-btn" onclick="downloadAchievement('${item.id}')">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 1v7M3.5 5.5l2.5 2.5 2.5-2.5"/><path d="M1 9.5v1A.5.5 0 001.5 11h9a.5.5 0 00.5-.5v-1"/></svg>
+              Download
+            </button>
+            <button class="act-btn danger" onclick="deleteAchievement('${item.id}')">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    container.innerHTML = ''; container.appendChild(grid);
+    updateStats();
+  }
+
+  /* ══════════════════════════════════════════════
+     RENDER EXPLORE
+  ══════════════════════════════════════════════ */
+  function renderExplore() {
+    const grid = document.getElementById('exploreGrid');
+    grid.innerHTML = '';
+    EXPLORE_DATA.forEach((item, i) => {
+      const cfg  = TYPE_CFG[item.type] || { label: item.type, badge:'atb-certificate', emoji:'📄' };
+      const card = document.createElement('div');
+      card.className = `explore-card ${item.color}`;
+      card.style.animationDelay = `${i * .05}s`;
+      card.innerHTML = `
+        <div class="explore-head">
+          <div class="explore-avatar" style="background:${item.ac}">${item.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div><div class="explore-faculty">${escHtml(item.name)}</div><div class="explore-dept-small">${escHtml(item.dept)}</div></div>
+        </div>
+        <div class="explore-title">${escHtml(item.title)}</div>
+        <div class="explore-desc">${escHtml(item.desc)}</div>
+        <div class="explore-footer">
+          <span class="explore-badge ${cfg.badge}" style="font-size:.63rem">${cfg.label}</span>
+          <button class="act-btn primary" style="padding:4px 10px;font-size:.72rem">
+            <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5.5" cy="5.5" r="4.5"/><path d="M5.5 3v3l1.5 1"/></svg>
+            View
+          </button>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  /* ══════════════════════════════════════════════
+     RENDER SIDEBAR
+  ══════════════════════════════════════════════ */
+  function renderTrending() {
+    const list = document.getElementById('trendingList');
+    list.innerHTML = '';
+    TRENDING.forEach((f, i) => {
+      const el = document.createElement('div'); el.className = 'trending-item';
+      el.innerHTML = `
+        <div class="trending-avatar" style="background:${f.color}">${f.initials}</div>
+        <div class="trending-info">
+          <div class="trending-name">${escHtml(f.name)}</div>
+          <div class="trending-count">${f.count} achievements</div>
+        </div>
+        <div class="trending-rank">#${i+1}</div>`;
+      list.appendChild(el);
+    });
+  }
+
+  function renderRecentAwards() {
+    const list = document.getElementById('recentAwards');
+    list.innerHTML = '';
+    RECENT_AWARDS.forEach(a => {
+      const el = document.createElement('div'); el.className = 'award-item';
+      el.innerHTML = `
+        <div class="award-dot" style="background:${a.color}"></div>
+        <div><div class="award-text">${escHtml(a.text)}</div><div class="award-time">${a.time}</div></div>`;
+      list.appendChild(el);
+    });
+  }
+
+  /* ══════════════════════════════════════════════
+     STATS + COUNTERS
+  ══════════════════════════════════════════════ */
+  function updateStats() {
+    const certs     = myAchievements.filter(a=>a.type==='certificate').length;
+    const workshops = myAchievements.filter(a=>a.type==='workshop'||a.type==='fdp').length;
+    const research  = myAchievements.filter(a=>a.type==='research').length;
+    const awards    = myAchievements.filter(a=>a.type==='award').length;
+    const total     = myAchievements.length;
+
+    animateNum('statCerts',     certs);
+    animateNum('statWorkshops', workshops);
+    animateNum('statResearch',  research);
+    animateNum('statAwards',    awards);
+    animateNum('heroTotal',     total + EXPLORE_DATA.length);
+    animateNum('heroFaculty',   TRENDING.length);
+    animateNum('heroAwards',    awards + 3);
+  }
+
+  function animateNum(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let current = 0; const step = Math.max(1, Math.ceil(target / 18));
+    const iv = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(iv);
+    }, 60);
+  }
+
+  function animateCounters() { updateStats(); }
+
+  /* ══════════════════════════════════════════════
+     FILTER
+  ══════════════════════════════════════════════ */
+  function setFilter(f, btn) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderMyAchievements();
+  }
+
+  /* ══════════════════════════════════════════════
+     DELETE
+  ══════════════════════════════════════════════ */
+  function deleteAchievement(id) {
+    if (!confirm('Delete this achievement?')) return;
+    myAchievements = myAchievements.filter(a => a.id !== id);
+    saveMyAchievements(); renderMyAchievements();
+    showToast('Achievement deleted.', 'error');
+  }
+
+  function downloadAchievement(id) {
+    showToast('Download started!', 'info');
+  }
+
+  /* ══════════════════════════════════════════════
+     UPLOAD MODAL
+  ══════════════════════════════════════════════ */
+  function openUploadModal() {
+    document.getElementById('fTitle').value = '';
+    document.getElementById('fType').value  = '';
+    document.getElementById('fDesc').value  = '';
+    document.getElementById('fFile').value  = '';
+    document.getElementById('dropPreview').textContent = '';
+    attachedFile = null;
+    document.getElementById('uploadSubmitBtn').disabled = true;
+    openModal('uploadModal');
+  }
+
+  function handleFileSelect() {
+    const file = document.getElementById('fFile').files[0];
+    if (file) {
+      attachedFile = file;
+      document.getElementById('dropPreview').textContent = '✅ ' + file.name;
+    }
+    validateUpload();
+  }
+
+  function validateUpload() {
+    const t = document.getElementById('fTitle').value.trim();
+    const p = document.getElementById('fType').value;
+    document.getElementById('uploadSubmitBtn').disabled = !(t && p);
+  }
+
+  function submitAchievement() {
+    const btn   = document.getElementById('uploadSubmitBtn');
+    const title = document.getElementById('fTitle').value.trim();
+    const type  = document.getElementById('fType').value;
+    const desc  = document.getElementById('fDesc').value.trim();
+
+    btn.classList.add('loading'); btn.disabled = true;
+
+    /* Simulate async → replace with: await supabase.from('achievements').insert(...) */
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      const idx = myAchievements.length;
+      myAchievements.unshift({
+        id:    'a' + Date.now(),
+        title, type, desc, file: attachedFile ? attachedFile.name : null,
+        date:  new Date().toISOString().split('T')[0],
+        color: TYPE_COLOR_CYCLE[idx % TYPE_COLOR_CYCLE.length],
+      });
+      saveMyAchievements();
+      closeModal('uploadModal');
+      renderMyAchievements();
+      openModal('successModal');
+    }, 1600);
+  }
+
+  /* ══════════════════════════════════════════════
+     DRAG & DROP
+  ══════════════════════════════════════════════ */
+  function setupDragDrop() {
+    const dz = document.getElementById('dropZone');
+    if (!dz) return;
+    dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        attachedFile = file;
+        document.getElementById('dropPreview').textContent = '✅ ' + file.name;
+        validateUpload();
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════════════
+     MODAL HELPERS
+  ══════════════════════════════════════════════ */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  document.querySelectorAll('.modal-bd').forEach(bd => {
+    bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+  });
+
+  /* ══════════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════════ */
+  function showToast(msg, type='info') {
+    const icons = { success:'✅', error:'🗑️', info:'⬇️' };
+    const wrap  = document.getElementById('toastWrap');
+    const t = document.createElement('div'); t.className = `toast ${type}`;
+    t.textContent = `${icons[type]||'ℹ️'} ${msg}`;
+    wrap.appendChild(t);
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  /* ══════════════════════════════════════════════
+     SCROLL
+  ══════════════════════════════════════════════ */
+  function scrollToExplore() {
+    document.getElementById('exploreSection')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  /* ══════════════════════════════════════════════
+     XSS
+  ══════════════════════════════════════════════ */
+  function escHtml(str) {
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ══════════════════════════════════════════════
+     BOOT
+  ══════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

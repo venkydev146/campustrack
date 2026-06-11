@@ -1,0 +1,723 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Faculty Communication Center — CampusTrack</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fb;
+  --surface:#ffffff;
+  --border:#e8ecf4;
+  --border2:#d0d8eb;
+  --accent:#4361ee;
+  --accent2:#7b8cde;
+  --accent-lt:#eef0fd;
+  --green:#10b981;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --text-1:#0d1321;
+  --text-2:#4a5568;
+  --text-3:#94a3b8;
+  --unread:#4361ee;
+  --radius:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --shadow-md:0 4px 24px rgba(67,97,238,.1),0 1px 4px rgba(0,0,0,.05);
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-1);-webkit-font-smoothing:antialiased}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d0d8eb;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#b0bdd8}
+
+/* ── Layout ── */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── Header ── */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:68px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(67,97,238,.15),transparent)}
+.header-left{display:flex;align-items:center;gap:16px}
+.header-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4361ee,#7b8cde);display:flex;align-items:center;justify-content:center}
+.header-logo svg{width:18px;height:18px;color:#fff}
+.header-titles{}
+.header-title{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--text-1);letter-spacing:-.2px}
+.header-sub{font-size:11.5px;color:var(--text-3);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:14px}
+.faculty-chip{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px}
+.faculty-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4361ee,#7b8cde);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.online-dot{position:absolute;bottom:0;right:0;width:8px;height:8px;background:var(--green);border-radius:50%;border:1.5px solid var(--surface)}
+.faculty-info{}
+.faculty-name{font-size:13px;font-weight:600;color:var(--text-1)}
+.faculty-dept{font-size:11px;color:var(--text-3)}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);text-decoration:none;padding:7px 12px;border-radius:8px;border:1px solid var(--border);transition:all .2s;background:var(--surface)}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.back-btn svg{width:13px;height:13px}
+
+/* ── Main ── */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* ── Left Panel ── */
+.left-panel{width:380px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-top{padding:20px 20px 0;flex-shrink:0}
+.panel-heading{font-family:'Lora',serif;font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.unread-pill{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;font-family:'Plus Jakarta Sans',sans-serif}
+
+/* search */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-3)}
+.search-input{width:100%;height:38px;padding:0 14px 0 36px;background:var(--bg);border:1px solid var(--border);border-radius:9px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;color:var(--text-1);outline:none;transition:border-color .2s}
+.search-input::placeholder{color:var(--text-3)}
+.search-input:focus{border-color:var(--accent);background:#fff}
+
+/* filters */
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:500;border:1px solid var(--border);background:var(--bg);color:var(--text-2);cursor:pointer;transition:all .18s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.filter-btn.active{background:var(--accent-lt);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* stats row */
+.stats-row{display:flex;gap:8px;margin-bottom:16px}
+.stat-chip{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 10px;text-align:center}
+.stat-chip-val{font-size:16px;font-weight:700;color:var(--text-1);display:block}
+.stat-chip-lbl{font-size:10px;color:var(--text-3);display:block;margin-top:1px}
+.stat-chip.s-unread .stat-chip-val{color:var(--accent)}
+.stat-chip.s-attach .stat-chip-val{color:var(--amber)}
+
+/* divider */
+.panel-divider{height:1px;background:var(--border);margin:0 20px}
+
+/* inbox list */
+.inbox-list{flex:1;overflow-y:auto;padding:8px}
+
+/* feedback card */
+.fb-card{display:flex;gap:11px;padding:13px 12px;border-radius:10px;cursor:pointer;transition:all .2s;position:relative;border:1px solid transparent;margin-bottom:2px}
+.fb-card:hover{background:var(--accent-lt);border-color:rgba(67,97,238,.1)}
+.fb-card.active{background:var(--accent-lt);border-color:rgba(67,97,238,.2);box-shadow:inset 3px 0 0 var(--accent)}
+.fb-card.unread .fb-name{font-weight:700}
+.fb-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.fb-body{flex:1;min-width:0}
+.fb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.fb-name{font-size:13px;color:var(--text-1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.fb-time{font-size:10.5px;color:var(--text-3);white-space:nowrap}
+.fb-mid{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.fb-regno{font-size:10.5px;color:var(--text-3)}
+.section-badge{font-size:9.5px;font-weight:700;padding:1.5px 6px;border-radius:4px;letter-spacing:.3px}
+.sec-ba{background:#eef0fd;color:#4361ee}
+.sec-bb{background:#ecfdf5;color:#059669}
+.sec-bc{background:#fff7ed;color:#d97706}
+.sec-bd{background:#fdf4ff;color:#9333ea}
+.fb-preview{font-size:12px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb-indicators{display:flex;align-items:center;gap:5px;margin-top:4px}
+.unread-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.attach-icon{color:var(--text-3)}
+.attach-icon svg{width:11px;height:11px}
+.status-chip{font-size:9.5px;font-weight:600;padding:1.5px 6px;border-radius:4px}
+.chip-resolved{background:#ecfdf5;color:#059669}
+.chip-seen{background:#f1f5f9;color:#64748b}
+.chip-unread{background:#eef0fd;color:#4361ee}
+
+/* ── Right Panel ── */
+.right-panel{flex:1;overflow-y:auto;background:var(--bg);padding:28px}
+
+/* empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:14px}
+.empty-icon-wrap{width:88px;height:88px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.empty-icon-wrap svg{width:36px;height:36px;color:var(--text-3)}
+.empty-title{font-family:'Lora',serif;font-size:18px;color:var(--text-1)}
+.empty-sub{font-size:13px;color:var(--text-3);max-width:280px;line-height:1.6}
+
+/* detail */
+.detail{display:none;flex-direction:column;gap:20px;animation:fadeUp .3s ease both}
+.detail.visible{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* detail card */
+.d-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+
+/* student info */
+.student-info-top{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.student-avatar-lg{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.student-name-lg{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--text-1);margin-bottom:3px}
+.student-meta{font-size:12.5px;color:var(--text-2)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-item{background:var(--bg);border-radius:9px;padding:11px 14px}
+.info-label{font-size:10.5px;color:var(--text-3);font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin-bottom:3px}
+.info-value{font-size:13px;color:var(--text-1);font-weight:600}
+
+/* message card */
+.msg-label{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.msg-text{font-size:14px;color:var(--text-2);line-height:1.75;background:var(--bg);border-radius:10px;padding:18px}
+
+/* attachment */
+.attachment-card{display:flex;align-items:center;gap:14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+.att-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700}
+.att-pdf{background:#fef2f2;color:#dc2626}
+.att-img{background:#fdf4ff;color:#9333ea}
+.att-doc{background:#eff6ff;color:#2563eb}
+.att-info{flex:1}
+.att-name{font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:2px}
+.att-size{font-size:11px;color:var(--text-3)}
+.att-actions{display:flex;gap:8px}
+.att-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
+.att-btn-preview{background:var(--accent-lt);color:var(--accent)}
+.att-btn-preview:hover{background:#dde2fc}
+.att-btn-dl{background:#f1f5f9;color:#475569}
+.att-btn-dl:hover{background:#e2e8f0}
+.att-btn svg{width:11px;height:11px}
+
+/* action buttons */
+.actions-row{display:flex;gap:10px;flex-wrap:wrap}
+.action-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-seen{background:#fff;border-color:var(--border);color:var(--text-2)}
+.btn-seen:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-lt)}
+.btn-resolved{background:#fff;border-color:var(--border);color:var(--text-2)}
+.btn-resolved:hover{border-color:var(--green);color:var(--green);background:#ecfdf5}
+.btn-archive{background:#fff;border-color:var(--border);color:var(--text-2)}
+.btn-archive:hover{border-color:var(--amber);color:var(--amber);background:#fffbeb}
+.action-btn svg{width:14px;height:14px}
+
+/* detail header */
+.detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.detail-title{font-family:'Lora',serif;font-size:13px;font-weight:600;color:var(--text-1)}
+.detail-time{font-size:11px;color:var(--text-3)}
+
+/* responsive */
+@media(max-width:768px){
+  .left-panel{width:100%;position:absolute;z-index:5;height:100%}
+  .right-panel{display:none;padding:16px}
+  .right-panel.mobile-open{display:block;position:absolute;z-index:6;inset:0;overflow-y:auto}
+  .header{padding:0 16px}
+  .header-sub,.faculty-dept{display:none}
+  .faculty-chip{padding:6px 10px}
+  .main{position:relative}
+  .mobile-back{display:flex!important}
+}
+.mobile-back{display:none;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;font-family:'Plus Jakarta Sans',sans-serif}
+.mobile-back svg{width:16px;height:16px}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-logo">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+      </div>
+      <div class="header-titles">
+        <div class="header-title">Faculty Communication Center</div>
+        <div class="header-sub">Review and manage student feedback and academic communication.</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="faculty-chip">
+        <div class="faculty-avatar" id="facultyAvatar">
+          V
+          <div class="online-dot"></div>
+        </div>
+        <div class="faculty-info">
+          <div class="faculty-name" id="facultyName">Venky</div>
+          <div class="faculty-dept" id="facultyDept">B.TECH · CSE-AI</div>
+        </div>
+      </div>
+      <a class="back-btn" href="staffdashboard.html">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Left Panel -->
+    <div class="left-panel" id="leftPanel">
+      <div class="panel-top">
+        <div class="panel-heading">
+          Inbox
+          <span class="unread-pill" id="unreadPill">0</span>
+        </div>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Search by name, reg number or section…"/>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters" id="filterBtns">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="unread">Unread</button>
+          <button class="filter-btn" data-filter="seen">Seen</button>
+          <button class="filter-btn" data-filter="attachment">Attachments</button>
+          <button class="filter-btn" data-filter="resolved">Resolved</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-chip">
+            <span class="stat-chip-val" id="statTotal">0</span>
+            <span class="stat-chip-lbl">Total</span>
+          </div>
+          <div class="stat-chip s-unread">
+            <span class="stat-chip-val" id="statUnread">0</span>
+            <span class="stat-chip-lbl">Unread</span>
+          </div>
+          <div class="stat-chip s-attach">
+            <span class="stat-chip-val" id="statAttach">0</span>
+            <span class="stat-chip-lbl">Attachments</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+      <div class="inbox-list" id="inboxList"></div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel" id="rightPanel">
+
+      <!-- Mobile back -->
+      <button class="mobile-back" id="mobileBack" onclick="closeMobile()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Back to Inbox
+      </button>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon-wrap">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+        </div>
+        <div class="empty-title">No message selected</div>
+        <p class="empty-sub">Select a feedback message from the inbox to view the full details and respond.</p>
+      </div>
+
+      <!-- Detail view -->
+      <div class="detail" id="detailView">
+
+        <!-- Student Info -->
+        <div class="d-card">
+          <div class="student-info-top">
+            <div class="student-avatar-lg" id="dAvatar">S</div>
+            <div>
+              <div class="student-name-lg" id="dName">Student Name</div>
+              <div class="student-meta" id="dMeta">Reg No · Section</div>
+            </div>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Register No</div>
+              <div class="info-value" id="dRegno">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Section</div>
+              <div class="info-value" id="dSection">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Department</div>
+              <div class="info-value" id="dDept">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Semester</div>
+              <div class="info-value" id="dSem">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div class="d-card">
+          <div class="detail-header">
+            <div class="detail-title" id="dSubject">Message</div>
+            <div class="detail-time" id="dTime">—</div>
+          </div>
+          <div class="msg-label">Message</div>
+          <div class="msg-text" id="dMessage">—</div>
+        </div>
+
+        <!-- Attachment -->
+        <div class="d-card" id="dAttachCard" style="display:none">
+          <div class="msg-label">Attachment</div>
+          <div class="attachment-card">
+            <div class="att-icon" id="dAttIcon">PDF</div>
+            <div class="att-info">
+              <div class="att-name" id="dAttName">—</div>
+              <div class="att-size" id="dAttSize">—</div>
+            </div>
+            <div class="att-actions">
+              <button class="att-btn att-btn-preview">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Preview
+              </button>
+              <button class="att-btn att-btn-dl">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-card">
+          <div class="msg-label">Actions</div>
+          <div class="actions-row">
+            <button class="action-btn btn-seen" id="btnSeen" onclick="markStatus('seen')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Mark as Seen
+            </button>
+            <button class="action-btn btn-resolved" id="btnResolved" onclick="markStatus('resolved')">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Mark as Resolved
+            </button>
+            <button class="action-btn btn-archive" onclick="archiveMessage()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+              Archive
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── Avatar colors ── */
+const COLORS = ['#4361ee','#7c3aed','#059669','#d97706','#dc2626','#0891b2','#9333ea'];
+const getColor = i => COLORS[i % COLORS.length];
+
+/* ── Dummy Data ── */
+const MESSAGES = [
+  {
+    id:1, name:'SAI RATHISH RAGAVENDAR E', regno:'23101', section:'BA',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'CAT-1 Marks Clarification',
+    message:'Respected sir, I wanted to bring to your attention that my CAT-1 marks for Machine Learning seem to be incorrect. I scored well in the exam but the portal shows only 12/30. Could you please recheck the marksheet and update accordingly? I have my answer sheet copy if needed.',
+    time:'Today, 9:14 AM', status:'unread', attachment:{ name:'answer_sheet_ml.pdf', size:'1.2 MB', type:'pdf' }
+  },
+  {
+    id:2, name:'SAI DUGARI SURENDRA', regno:'23102', section:'BA',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Attendance Shortage Issue',
+    message:'Sir, I have been marked absent on May 14th for the Data Structures class but I was present. My attendance percentage has dropped below 75% due to this error. Request you to please verify the attendance register and correct the entry.',
+    time:'Today, 8:45 AM', status:'unread', attachment:null
+  },
+  {
+    id:3, name:'SAIKAM DINESH REDDY', regno:'23103', section:'BA',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Assignment Submission Doubt',
+    message:'Good morning sir. I had submitted my OS assignment on 10th May through the portal but it is still showing as pending. Could you please confirm if the submission was received? I have the submission confirmation screenshot as proof.',
+    time:'Yesterday, 4:22 PM', status:'seen', attachment:{ name:'submission_proof.png', size:'890 KB', type:'img' }
+  },
+  {
+    id:4, name:'SAM MATHEW A', regno:'23104', section:'BB',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Resource Request — Python Notes',
+    message:'Dear sir, I am having difficulty understanding the concepts covered in Unit 3 of Python Programming. Could you please share additional reference notes or any recommended textbook chapters? The current notes provided are not sufficient for exam preparation.',
+    time:'Yesterday, 2:10 PM', status:'resolved', attachment:null
+  },
+  {
+    id:5, name:'KAREEMANEHI SAMEERA', regno:'23105', section:'BB',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Internal Marks Correction Request',
+    message:'Sir, I believe there is an error in my CAT-2 marks for Computer Networks. I scored 24 out of 30 in the test but only 18 is reflected in the portal. I kindly request you to review and correct the marks at the earliest.',
+    time:'May 18, 3:45 PM', status:'unread', attachment:{ name:'cat2_paper.pdf', size:'2.1 MB', type:'pdf' }
+  },
+  {
+    id:6, name:'SANGLE CHANG', regno:'23106', section:'BC',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Lab Submission Issue',
+    message:'Respected faculty, I was unable to submit my Database lab record on time due to a medical emergency. I have the hospital records to prove my absence. Kindly grant me permission to submit the lab record late without any penalty.',
+    time:'May 17, 11:30 AM', status:'seen', attachment:{ name:'medical_certificate.pdf', size:'780 KB', type:'pdf' }
+  },
+  {
+    id:7, name:'SANJAY M', regno:'23107', section:'BC',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Marks Not Updated in Portal',
+    message:'Sir, my CAT-1 marks for Operating Systems are not yet updated in the student portal even though the results were announced last week in class. All my classmates have their marks updated but mine is still showing as pending. Please look into this.',
+    time:'May 16, 5:00 PM', status:'resolved', attachment:null
+  },
+  {
+    id:8, name:'SANJEEVA REDDY GAJULA PALLI', regno:'23108', section:'BD',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Doubt in Data Structures Concept',
+    message:'Good evening sir. I am having trouble understanding the concept of AVL tree rotations covered in class. Could you please provide a simple explanation or share any video resource that explains single and double rotations with examples? Thank you.',
+    time:'May 15, 7:15 PM', status:'unread', attachment:null
+  },
+  {
+    id:9, name:'SANKABATHULA VEERENDRA', regno:'23109', section:'BD',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Attendance Percentage Query',
+    message:'Sir, my attendance for Machine Learning is showing 68% in the portal. I have attended all classes and I believe there might be some sessions that were not recorded correctly. Request you to kindly verify and update the attendance records.',
+    time:'May 14, 9:00 AM', status:'seen', attachment:null
+  },
+  {
+    id:10, name:'SANKARAKRISHNAN S', regno:'23110', section:'BA',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Request for Extra Classes',
+    message:'Dear sir, a few of us students are finding the Soft Computing subject challenging due to the mathematical foundations involved. We would like to request if you could arrange extra doubt-clearing sessions on weekends or after college hours. We will coordinate timings as per your convenience.',
+    time:'May 13, 3:30 PM', status:'unread', attachment:null
+  },
+  {
+    id:11, name:'SANTOSH S', regno:'23111', section:'BB',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Assignment PDF Upload Issue',
+    message:'Sir, I am unable to upload my assignment PDF on the portal. The system keeps showing an error saying the file size exceeds the limit, but my file is only 3.2 MB. Could you please help resolve this issue or provide an alternate submission method?',
+    time:'May 12, 6:45 PM', status:'resolved', attachment:{ name:'assignment_draft.docx', size:'3.2 MB', type:'doc' }
+  },
+  {
+    id:12, name:'SARAVANA K', regno:'23112', section:'BC',
+    dept:'CSE-AI', sem:'Semester 3',
+    subject:'Model Exam Schedule Inquiry',
+    message:'Respected sir, could you please confirm the schedule for the upcoming model examinations? We have not received any official notification yet and the exam is reportedly next week. It would be helpful if you could share the timetable so we can prepare accordingly.',
+    time:'May 11, 10:00 AM', status:'seen', attachment:null
+  },
+];
+
+/* ── State ── */
+let activeFilter  = 'all';
+let activeId      = null;
+let messages      = [...MESSAGES];
+
+/* ── Load staff from localStorage ── */
+(function loadStaff() {
+  try {
+    const p = JSON.parse(localStorage.getItem('staffProfile') || '{}');
+    if (p.name) {
+      document.getElementById('facultyName').textContent = p.name;
+      document.getElementById('facultyAvatar').textContent = p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    }
+    if (p.departments?.name) {
+      document.getElementById('facultyDept').textContent = p.departments.name;
+    }
+  } catch(_) {}
+})();
+
+/* ── Section badge class ── */
+function secClass(sec) {
+  const map = { BA:'sec-ba', BB:'sec-bb', BC:'sec-bc', BD:'sec-bd' };
+  return map[sec] || 'sec-ba';
+}
+
+/* ── Initials ── */
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+/* ── Format status chip ── */
+function statusChip(status) {
+  if (status === 'resolved') return '<span class="status-chip chip-resolved">Resolved</span>';
+  if (status === 'seen')     return '<span class="status-chip chip-seen">Seen</span>';
+  return '<span class="status-chip chip-unread">New</span>';
+}
+
+/* ── Update stats ── */
+function updateStats() {
+  const total   = messages.length;
+  const unread  = messages.filter(m => m.status === 'unread').length;
+  const attach  = messages.filter(m => m.attachment).length;
+  document.getElementById('statTotal').textContent  = total;
+  document.getElementById('statUnread').textContent = unread;
+  document.getElementById('statAttach').textContent = attach;
+  document.getElementById('unreadPill').textContent = unread;
+}
+
+/* ── Render inbox ── */
+function renderInbox() {
+  const query  = document.getElementById('searchInput').value.toLowerCase();
+  const list   = document.getElementById('inboxList');
+
+  let filtered = messages.filter(m => {
+    const matchFilter =
+      activeFilter === 'all'        ? true :
+      activeFilter === 'unread'     ? m.status === 'unread' :
+      activeFilter === 'seen'       ? m.status === 'seen' :
+      activeFilter === 'resolved'   ? m.status === 'resolved' :
+      activeFilter === 'attachment' ? !!m.attachment : true;
+
+    const matchQuery = !query ||
+      m.name.toLowerCase().includes(query) ||
+      m.regno.toLowerCase().includes(query) ||
+      m.section.toLowerCase().includes(query) ||
+      m.subject.toLowerCase().includes(query);
+
+    return matchFilter && matchQuery;
+  });
+
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px">No messages found</div>`;
+    return;
+  }
+
+  filtered.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = `fb-card ${m.status === 'unread' ? 'unread' : ''} ${activeId === m.id ? 'active' : ''}`;
+    card.dataset.id = m.id;
+    card.style.animationDelay = (idx * 0.04) + 's';
+
+    card.innerHTML = `
+      <div class="fb-avatar" style="background:${getColor(idx)}">${initials(m.name)}</div>
+      <div class="fb-body">
+        <div class="fb-top">
+          <div class="fb-name">${m.name}</div>
+          <div class="fb-time">${m.time.split(',')[0]}</div>
+        </div>
+        <div class="fb-mid">
+          <span class="fb-regno">${m.regno}</span>
+          <span class="section-badge ${secClass(m.section)}">${m.section}</span>
+        </div>
+        <div class="fb-preview">${m.subject}</div>
+        <div class="fb-indicators">
+          ${m.status === 'unread' ? '<div class="unread-dot"></div>' : ''}
+          ${m.attachment ? `<span class="attach-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></span>` : ''}
+          ${statusChip(m.status)}
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => openMessage(m.id));
+    list.appendChild(card);
+  });
+
+  updateStats();
+}
+
+/* ── Open message ── */
+function openMessage(id) {
+  const m = messages.find(x => x.id === id);
+  if (!m) return;
+
+  activeId = id;
+
+  // Mark as seen if unread
+  if (m.status === 'unread') {
+    m.status = 'seen';
+  }
+
+  // Find index for color
+  const idx = messages.indexOf(m);
+
+  // Populate detail
+  document.getElementById('dAvatar').textContent        = initials(m.name);
+  document.getElementById('dAvatar').style.background   = getColor(idx);
+  document.getElementById('dName').textContent          = m.name;
+  document.getElementById('dMeta').textContent          = `${m.regno} · Section ${m.section}`;
+  document.getElementById('dRegno').textContent         = m.regno;
+  document.getElementById('dSection').textContent       = `Section ${m.section}`;
+  document.getElementById('dDept').textContent          = m.dept;
+  document.getElementById('dSem').textContent           = m.sem;
+  document.getElementById('dSubject').textContent       = m.subject;
+  document.getElementById('dTime').textContent          = m.time;
+  document.getElementById('dMessage').textContent       = m.message;
+
+  // Attachment
+  const attCard = document.getElementById('dAttachCard');
+  if (m.attachment) {
+    attCard.style.display = 'block';
+    document.getElementById('dAttName').textContent = m.attachment.name;
+    document.getElementById('dAttSize').textContent = m.attachment.size;
+    const attIcon = document.getElementById('dAttIcon');
+    if (m.attachment.type === 'pdf') {
+      attIcon.className = 'att-icon att-pdf';
+      attIcon.textContent = 'PDF';
+    } else if (m.attachment.type === 'img') {
+      attIcon.className = 'att-icon att-img';
+      attIcon.textContent = 'IMG';
+    } else {
+      attIcon.className = 'att-icon att-doc';
+      attIcon.textContent = 'DOC';
+    }
+  } else {
+    attCard.style.display = 'none';
+  }
+
+  // Show detail
+  document.getElementById('emptyState').style.display = 'none';
+  const detail = document.getElementById('detailView');
+  detail.classList.remove('visible');
+  requestAnimationFrame(() => detail.classList.add('visible'));
+
+  // Mobile
+  if (window.innerWidth <= 768) {
+    document.getElementById('rightPanel').classList.add('mobile-open');
+  }
+
+  renderInbox();
+}
+
+/* ── Mark status ── */
+function markStatus(status) {
+  if (!activeId) return;
+  const m = messages.find(x => x.id === activeId);
+  if (!m) return;
+  m.status = status;
+  renderInbox();
+  showToast(status === 'resolved' ? '✅ Marked as resolved' : '👁 Marked as seen');
+}
+
+/* ── Archive ── */
+function archiveMessage() {
+  if (!activeId) return;
+  messages = messages.filter(m => m.id !== activeId);
+  activeId = null;
+  document.getElementById('emptyState').style.display = '';
+  document.getElementById('detailView').classList.remove('visible');
+  renderInbox();
+  showToast('📦 Message archived');
+}
+
+/* ── Mobile close ── */
+function closeMobile() {
+  document.getElementById('rightPanel').classList.remove('mobile-open');
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  let t = document.getElementById('globalToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'globalToast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0d1321;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transition:opacity .3s;font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+/* ── Filters ── */
+document.getElementById('filterBtns').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.filter;
+  renderInbox();
+});
+
+/* ── Search ── */
+document.getElementById('searchInput').addEventListener('input', renderInbox);
+
+/* ── Init ── */
+renderInbox();
+</script>
+</body>
+</html>

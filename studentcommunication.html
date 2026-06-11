@@ -1,0 +1,1088 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Communication Portal — CampusTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════════ */
+    :root {
+      --sb-bg-start: #0c1a35; --sb-bg-end: #0f2347;
+      --sb-border: rgba(255,255,255,.07); --sb-hover: rgba(255,255,255,.08);
+      --sb-active: rgba(79,120,255,.20); --sb-bar: #4f78ff;
+      --sb-text: rgba(255,255,255,.55); --sb-text-hi: #fff; --sb-w: 256px;
+
+      --bg: #f0f3fa; --card: #fff; --card-2: #f8faff;
+      --border: #e5eaf5; --border-hi: #c8d3f0;
+
+      --blue: #3a5cf5; --blue-dk: #2743d4; --blue-lt: #edf0ff; --blue-mid: #c7d0fb;
+      --violet: #6d4af5; --violet-lt: #f0ecff;
+      --teal: #00b69b; --teal-lt: #e6faf7;
+      --amber: #f5a623; --amber-lt: #fff8ec;
+      --rose: #f0284a; --rose-lt: #fff0f3;
+      --green: #22c55e; --green-lt: #f0fdf4;
+      --sky: #0ea5e9; --sky-lt: #f0f9ff;
+
+      /* Message status */
+      --delivered-bg: #f0fdf4; --delivered-bd: #86efac; --delivered-tx: #14532d;
+      --pending-bg: #fffbeb;   --pending-bd: #fde68a;   --pending-tx: #92400e;
+      --seen-bg: #eff6ff;      --seen-bd: #bfdbfe;      --seen-tx: #1e40af;
+
+      --tx-h: #0c1635; --tx-b: #2e3d5f; --tx-m: #5c6f94; --tx-s: #8fa0c0; --tx-xs: #b3c2d9;
+
+      --sh-xs: 0 1px 3px rgba(12,22,53,.06);
+      --sh-sm: 0 2px 10px rgba(12,22,53,.08);
+      --sh-md: 0 4px 24px rgba(12,22,53,.10);
+      --sh-lg: 0 10px 44px rgba(12,22,53,.13);
+
+      --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 26px;
+      --ease: cubic-bezier(.4,0,.2,1); --t: .22s; --t-spring: .44s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--tx-b); min-height: 100vh; display: flex; overflow-x: hidden; }
+
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 44% at 5% 0%, rgba(58,92,245,.06) 0%, transparent 55%),
+        radial-gradient(ellipse 46% 38% at 96% 100%, rgba(109,74,245,.05) 0%, transparent 55%);
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 99px; }
+
+    /* ══════════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════════ */
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: var(--sb-w);
+      background: linear-gradient(175deg, var(--sb-bg-start) 0%, var(--sb-bg-end) 100%);
+      display: flex; flex-direction: column; z-index: 200; overflow: hidden;
+      border-right: 1px solid var(--sb-border);
+    }
+    .sidebar::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 200% 50% at 50% 0%, rgba(79,120,255,.12) 0%, transparent 60%),
+        radial-gradient(ellipse 120% 40% at 50% 100%, rgba(58,92,245,.08) 0%, transparent 60%);
+    }
+    .sb-logo { height: 66px; display: flex; align-items: center; gap: 11px; padding: 0 18px; border-bottom: 1px solid var(--sb-border); flex-shrink: 0; position: relative; z-index: 1; }
+    .sb-mark { width: 36px; height: 36px; background: linear-gradient(135deg, #4f78ff, #6d4af5); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(79,120,255,.45); flex-shrink: 0; }
+    .sb-mark svg { width: 18px; height: 18px; color: #fff; }
+    .sb-word { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -.02em; white-space: nowrap; }
+    .sb-word span { color: #4f78ff; }
+    .sb-nav { flex: 1; padding: 14px 10px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; position: relative; z-index: 1; }
+    .sb-grp { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.25); padding: 12px 10px 6px; }
+    .sb-item { display: flex; align-items: center; gap: 11px; padding: 10px 10px; border-radius: var(--r-md); color: var(--sb-text); font-size: 14px; font-weight: 500; cursor: pointer; position: relative; white-space: nowrap; text-decoration: none; transition: color var(--t) var(--ease), background var(--t) var(--ease); }
+    .sb-item:hover { color: var(--sb-text-hi); background: var(--sb-hover); }
+    .sb-item.active { color: #fff; background: var(--sb-active); }
+    .sb-item.active::before { content: ''; position: absolute; left: 0; top: 22%; bottom: 22%; width: 3px; background: var(--sb-bar); border-radius: 0 3px 3px 0; }
+    .sb-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,.06); transition: background var(--t); }
+    .sb-item:hover .sb-ico { background: rgba(255,255,255,.10); }
+    .sb-item.active .sb-ico { background: rgba(79,120,255,.30); }
+    .sb-ico svg { width: 15px; height: 15px; }
+    .sb-label { flex: 1; }
+    .sb-badge { padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 700; background: var(--blue); color: #fff; }
+    .sb-bottom { padding: 10px 10px 18px; border-top: 1px solid var(--sb-border); flex-shrink: 0; position: relative; z-index: 1; }
+    .sb-logout { display: flex; align-items: center; gap: 11px; padding: 10px 10px; border-radius: var(--r-md); color: rgba(255,120,120,.75); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: color var(--t), background var(--t); text-decoration: none; }
+    .sb-logout:hover { color: #ff8080; background: rgba(244,63,94,.10); }
+
+    /* ══════════════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════════════ */
+    .main { margin-left: var(--sb-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+
+    .topbar { height: 66px; background: rgba(255,255,255,.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; gap: 14px; position: sticky; top: 0; z-index: 100; box-shadow: var(--sh-xs); }
+    .tb-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--tx-h); letter-spacing: -.02em; }
+    .tb-title span { color: var(--blue); }
+    .tb-spacer { flex: 1; }
+    .tb-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--violet)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; border: 2px solid var(--border); cursor: pointer; }
+
+    /* ══════════════════════════════════════════════
+       PAGE
+    ══════════════════════════════════════════════ */
+    .page { flex: 1; padding: 28px 32px 64px; display: flex; flex-direction: column; gap: 24px; max-width: 900px; width: 100%; margin: 0 auto; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .anim { animation: fadeUp .46s var(--ease) both; }
+    .d1{animation-delay:.05s} .d2{animation-delay:.10s} .d3{animation-delay:.15s} .d4{animation-delay:.20s} .d5{animation-delay:.25s}
+
+    /* ── Page heading ── */
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .ph-eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; color: var(--tx-s); text-transform: uppercase; letter-spacing: .10em; margin-bottom: 6px; }
+    .ph-eyebrow svg { width: 12px; height: 12px; }
+    .page-head h1 { font-family: 'DM Sans', sans-serif; font-size: clamp(18px,2.5vw,24px); font-weight: 700; color: var(--tx-h); letter-spacing: -.01em; }
+    .page-head p  { font-size: 13.5px; color: var(--tx-s); margin-top: 4px; }
+
+    /* ── Card ── */
+    .card { background: var(--card); border-radius: var(--r-xl); border: 1.5px solid var(--border); box-shadow: var(--sh-sm); overflow: hidden; transition: box-shadow var(--t) var(--ease), border-color var(--t) var(--ease); }
+    .card:hover { box-shadow: var(--sh-md); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px 0; gap: 12px; }
+    .card-head-left { display: flex; align-items: center; gap: 10px; }
+    .card-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-icon svg { width: 16px; height: 16px; }
+    .ci-blue   { background: var(--blue-lt); color: var(--blue); }
+    .ci-violet { background: var(--violet-lt); color: var(--violet); }
+    .ci-sky    { background: var(--sky-lt); color: var(--sky); }
+    .card-title { font-family: 'DM Sans', sans-serif; font-size: 14.5px; font-weight: 700; color: var(--tx-h); }
+    .card-sub   { font-size: 11.5px; color: var(--tx-s); margin-top: 1px; }
+    .card-body  { padding: 20px 28px 28px; }
+
+    /* ══════════════════════════════════════════════
+       STUDENT CARD
+    ══════════════════════════════════════════════ */
+    .student-card {
+      background: linear-gradient(140deg, #0c1a35 0%, #0f2347 55%, #14204f 100%);
+      border-radius: var(--r-xl); border-color: rgba(79,120,255,.15);
+      padding: 24px 28px; display: flex; align-items: center; gap: 24px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(12,26,53,.2);
+    }
+    .student-card::before { content: ''; position: absolute; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(79,120,255,.10) 0%, transparent 65%); top: -120px; right: -60px; pointer-events: none; }
+    .student-card::after { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px); background-size: 30px 30px; }
+    .sc-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4f78ff, #6d4af5); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; box-shadow: 0 0 0 3px rgba(79,120,255,.3); flex-shrink: 0; z-index: 1; }
+    .sc-info { flex: 1; z-index: 1; }
+    .sc-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+    .sc-sub  { font-size: 12.5px; color: rgba(255,255,255,.45); margin-top: 3px; }
+    .sc-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .sc-chip  { display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 99px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.10); font-size: 12px; font-weight: 500; color: rgba(255,255,255,.80); }
+    .sc-chip svg { width: 11px; height: 11px; opacity: .65; }
+    .sc-status { display: flex; align-items: center; gap: 6px; z-index: 1; font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,.35); }
+    .sc-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.6); }
+
+    /* ══════════════════════════════════════════════
+       FORM ELEMENTS
+    ══════════════════════════════════════════════ */
+    .form-stack { display: flex; flex-direction: column; gap: 20px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field-label { font-size: 12.5px; font-weight: 700; color: var(--tx-m); letter-spacing: .01em; display: flex; align-items: center; justify-content: space-between; }
+    .field-label .req { color: var(--rose); font-size: 11px; font-weight: 700; }
+    .field-label .opt { font-size: 11px; font-weight: 400; color: var(--tx-xs); }
+    .char-counter { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--tx-xs); font-weight: 500; transition: color var(--t); }
+    .char-counter.warn { color: var(--amber); }
+    .char-counter.over { color: var(--rose); }
+
+    /* Input with icon */
+    .input-wrap { position: relative; }
+    .input-wrap .i-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--tx-xs); pointer-events: none; transition: color var(--t); }
+    .input-wrap:focus-within .i-icon { color: var(--blue); }
+    .input-wrap input { padding-left: 38px; }
+
+    .field-input, .field-textarea {
+      width: 100%; padding: 11px 14px;
+      background: var(--card-2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+      outline: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--tx-h);
+      transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), background var(--t) var(--ease);
+    }
+    .field-input::placeholder, .field-textarea::placeholder { color: var(--tx-xs); }
+    .field-input:hover, .field-textarea:hover { border-color: var(--border-hi); background: #fff; }
+    .field-input:focus, .field-textarea:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(58,92,245,.10); }
+    .field-input.valid   { border-color: #86efac; background: #f0fdf4; }
+    .field-input.invalid { border-color: #fca5a5; background: #fff0f3; box-shadow: 0 0 0 3px rgba(240,40,74,.08); }
+    .field-textarea { resize: vertical; min-height: 120px; line-height: 1.65; }
+
+    /* Staff validation indicator */
+    .staff-indicator {
+      display: none; align-items: center; gap: 8px;
+      padding: 9px 14px; border-radius: var(--r-sm);
+      font-size: 12.5px; font-weight: 600; margin-top: 6px;
+      animation: fadeUp .3s var(--ease) both;
+    }
+    .staff-indicator.found    { display: flex; background: var(--green-lt); border: 1px solid #86efac; color: #14532d; }
+    .staff-indicator.notfound { display: flex; background: var(--rose-lt); border: 1px solid #fca5a5; color: #9f1239; }
+    .staff-indicator svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .staff-name-tag { background: rgba(20,83,45,.10); padding: 2px 8px; border-radius: 6px; font-family: 'DM Mono', monospace; }
+
+    /* Attachment drop zone */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: var(--r-md);
+      background: var(--card-2); padding: 24px 20px;
+      text-align: center; cursor: pointer; position: relative;
+      transition: all var(--t) var(--ease);
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-lt); }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .drop-icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .drop-text { font-size: .82rem; color: var(--tx-m); font-weight: 500; }
+    .drop-text strong { color: var(--blue); }
+    .drop-hint { font-size: .7rem; color: var(--tx-s); margin-top: 3px; }
+
+    .file-preview { display: none; align-items: center; gap: 12px; padding: 12px 14px; background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--r-sm); margin-top: 10px; }
+    .file-preview.show { display: flex; animation: fadeUp .3s var(--ease) both; }
+    .fp-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .fp-info { flex: 1; min-width: 0; }
+    .fp-name { font-size: .83rem; font-weight: 600; color: #14532d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fp-size { font-size: .71rem; color: #16a34a; margin-top: 1px; }
+    .fp-remove { width: 22px; height: 22px; border-radius: 50%; background: rgba(220,38,38,.08); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--rose); transition: all var(--t); flex-shrink: 0; }
+    .fp-remove:hover { background: rgba(220,38,38,.18); }
+    .fp-remove svg { width: 9px; height: 9px; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; align-items: center; gap: 12px; padding-top: 6px; }
+    .btn-send {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 24px; border-radius: var(--r-sm);
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: #fff; font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 700;
+      border: none; cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(58,92,245,.30);
+      transition: all var(--t) var(--ease);
+    }
+    .btn-send::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,255,255,.14),transparent); opacity: 0; transition: opacity var(--t); }
+    .btn-send:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(58,92,245,.40); }
+    .btn-send:hover:not(:disabled)::before { opacity: 1; }
+    .btn-send:active:not(:disabled) { transform: translateY(0); }
+    .btn-send:disabled { background: linear-gradient(135deg, #94a3b8, #94a3b8); box-shadow: none; cursor: not-allowed; opacity: .7; }
+
+    .btn-spinner { display: none; width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+    .btn-send.loading .btn-label { display: none; }
+    .btn-send.loading .btn-spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-clear { display: flex; align-items: center; gap: 7px; padding: 13px 20px; border-radius: var(--r-sm); background: var(--card); border: 1.5px solid var(--border); color: var(--tx-m); font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; transition: all var(--t) var(--ease); }
+    .btn-clear:hover { border-color: var(--border-hi); background: var(--card-2); color: var(--tx-b); }
+    .btn-clear svg { width: 14px; height: 14px; }
+
+    /* ══════════════════════════════════════════════
+       MESSAGE CARDS
+    ══════════════════════════════════════════════ */
+    .msg-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .msg-card {
+      background: var(--card-2); border: 1.5px solid var(--border); border-radius: var(--r-md);
+      padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px;
+      transition: all var(--t) var(--ease); position: relative; overflow: hidden;
+      animation: fadeUp .4s var(--ease) both; cursor: default;
+    }
+    .msg-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px; }
+    .msg-card.delivered::before { background: var(--green); }
+    .msg-card.pending::before   { background: var(--amber); }
+    .msg-card.seen::before      { background: var(--sky); }
+    .msg-card:hover { background: var(--card); border-color: var(--border-hi); box-shadow: var(--sh-sm); transform: translateX(3px); }
+
+    .msg-avatar {
+      width: 38px; height: 38px; border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace; font-size: .72rem; font-weight: 700;
+      flex-shrink: 0; border: 1.5px solid;
+    }
+    .msg-avatar.delivered { background: var(--green-lt); color: #14532d; border-color: #86efac; }
+    .msg-avatar.pending   { background: var(--pending-bg); color: var(--pending-tx); border-color: var(--pending-bd); }
+    .msg-avatar.seen      { background: var(--seen-bg); color: var(--seen-tx); border-color: var(--seen-bd); }
+
+    .msg-body { flex: 1; min-width: 0; }
+    .msg-top  { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+    .msg-staff-id { font-family: 'DM Mono', monospace; font-size: .82rem; font-weight: 700; color: var(--tx-h); }
+    .msg-staff-name { font-size: .75rem; color: var(--tx-s); margin-top: 1px; }
+    .msg-preview { font-size: .84rem; color: var(--tx-m); line-height: 1.55; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .msg-footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .msg-time { font-size: .71rem; color: var(--tx-xs); display: flex; align-items: center; gap: 4px; }
+    .msg-time svg { width: 10px; height: 10px; }
+
+    .status-pill { padding: 3px 10px; border-radius: 99px; font-size: .68rem; font-weight: 700; letter-spacing: .04em; }
+    .status-delivered { background: var(--delivered-bg); border: 1px solid var(--delivered-bd); color: var(--delivered-tx); }
+    .status-pending   { background: var(--pending-bg);   border: 1px solid var(--pending-bd);   color: var(--pending-tx);   }
+    .status-seen      { background: var(--seen-bg);      border: 1px solid var(--seen-bd);      color: var(--seen-tx);      }
+
+    .msg-attachment-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; background: var(--border); font-size: .68rem; font-weight: 600; color: var(--tx-m); }
+
+    /* ── Empty state ── */
+    .empty-state { display: flex; flex-direction: column; align-items: center; padding: 52px 24px; text-align: center; }
+    .empty-icon  { margin-bottom: 14px; }
+    .empty-title { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; color: var(--tx-m); margin-bottom: 4px; }
+    .empty-sub   { font-size: .84rem; color: var(--tx-xs); }
+
+    /* SVG illustration */
+    .empty-svg { width: 120px; height: 90px; opacity: .45; }
+
+    /* ══════════════════════════════════════════════
+       SUCCESS MODAL
+    ══════════════════════════════════════════════ */
+    .modal-bd { position: fixed; inset: 0; z-index: 500; background: rgba(12,22,53,.55); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .modal-bd.open { opacity: 1; pointer-events: all; }
+    .modal-box { background: var(--card); border-radius: var(--r-xl); box-shadow: var(--sh-lg); width: 100%; max-width: 400px; text-align: center; padding: 44px 36px 36px; transform: scale(.93) translateY(16px); transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .modal-bd.open .modal-box { transform: scale(1) translateY(0); }
+    .modal-anim { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--blue-lt), var(--violet-lt)); border: 2px solid rgba(58,92,245,.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 2rem; animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-box h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; color: var(--tx-h); margin-bottom: 8px; }
+    .modal-box p  { font-size: .88rem; color: var(--tx-m); line-height: 1.6; margin-bottom: 24px; }
+    .modal-btn { width: 100%; padding: 12px; border-radius: var(--r-sm); background: linear-gradient(135deg, var(--blue), var(--violet)); color: #fff; font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(58,92,245,.28); transition: all var(--t); }
+    .modal-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,92,245,.38); }
+
+    /* ══════════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════════ */
+    .toast-wrap { position: fixed; top: 80px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
+    .toast { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: var(--r-md); box-shadow: var(--sh-md); font-size: .83rem; font-weight: 600; min-width: 240px; transform: translateX(110%); opacity: 0; transition: all .35s cubic-bezier(.34,1.56,.64,1); }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.success { background: #0f172a; color: #fff; border-left: 3px solid var(--green); }
+    .toast.error   { background: #0f172a; color: #fff; border-left: 3px solid var(--rose);  }
+    .toast.info    { background: #0f172a; color: #fff; border-left: 3px solid var(--blue);  }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .page { padding: 18px 16px 60px; }
+      .topbar { padding: 0 16px; }
+      .student-card { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .card-body { padding: 16px 18px 22px; }
+      .card-head { padding: 16px 18px 0; }
+    }
+    @media (max-width: 480px) {
+      .btn-row { flex-direction: column; }
+      .btn-send, .btn-clear { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">
+      <svg viewBox="0 0 18 18" fill="none"><rect x="1" y="8" width="16" height="8" rx="1" fill="currentColor" opacity=".85"/><path d="M0 9L9 2l9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="6.5" y="11" width="5" height="5" rx=".5" fill="#0c1a35"/></svg>
+    </div>
+    <span class="sb-word">Campus<span>Track</span></span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-grp">Main</div>
+    <a href="studentdashboard.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2"/><rect x="9.5" y="1" width="5.5" height="5.5" rx="1.2"/><rect x="1" y="9.5" width="5.5" height="5.5" rx="1.2"/><rect x="9.5" y="9.5" width="5.5" height="5.5" rx="1.2"/></svg></div>
+      <span class="sb-label">Dashboard</span>
+    </a>
+    <a href="studentattendance.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.5v4l2.5 2"/></svg></div>
+      <span class="sb-label">Attendance</span>
+    </a>
+    <a href="studentmarks.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13l3-3 2.5 2.5L12 7l2 2"/><path d="M2 3h12"/></svg></div>
+      <span class="sb-label">Marks</span>
+    </a>
+    <a href="studentresources.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3.5 2h6l3 3v9a1 1 0 01-1 1h-8a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M9.5 2v4h3"/></svg></div>
+      <span class="sb-label">Resources</span>
+    </a>
+    <a href="studentleave.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1.5" y="2" width="13" height="13" rx="1.5"/><path d="M11 1v3M5 1v3M1.5 7h13"/></svg></div>
+      <span class="sb-label">Leave</span>
+    </a>
+    <a href="studentcommunication.html" class="sb-item active">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13.5 2.5H2.5A1 1 0 001.5 3.5v7a1 1 0 001 1H6l2 2 2-2h3.5a1 1 0 001-1v-7a1 1 0 00-1-1z"/><path d="M5 6.5h6M5 9h4"/></svg></div>
+      <span class="sb-label">Communication</span>
+      <span class="sb-badge">1</span>
+    </a>
+    <a href="studentnotifications.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.5A4.5 4.5 0 013.5 6v3L2 11h12l-1.5-2V6A4.5 4.5 0 018 1.5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg></div>
+      <span class="sb-label">Notifications</span>
+    </a>
+    <a href="studentprofile.html" class="sb-item">
+      <div class="sb-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="3"/><path d="M1.5 14c0-3 2.9-5.5 6.5-5.5s6.5 2.5 6.5 5.5"/></svg></div>
+      <span class="sb-label">Profile</span>
+    </a>
+    <div class="sb-grp" style="margin-top:8px">Account</div>
+    <a href="studentlogin.html" class="sb-logout">
+      <div class="sb-ico" style="background:rgba(244,63,94,.10)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 13H3a1 1 0 01-1-1V4a1 1 0 011-1h3M10.5 11l3.5-3-3.5-3M14 8H7"/></svg></div>
+      <span class="sb-label">Log Out</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- ══════ MAIN ══════ -->
+<div class="main">
+  <header class="topbar">
+    <div class="tb-title">Student <span>Communication</span></div>
+    <div class="tb-spacer"></div>
+    <div class="tb-avatar">AK</div>
+  </header>
+
+  <div class="page">
+
+    <!-- Heading -->
+    <div class="page-head anim d1">
+      <div>
+        <div class="ph-eyebrow">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M11 1.5H1a.5.5 0 00-.5.5v6a.5.5 0 00.5.5h3.5l1.5 2 1.5-2H11a.5.5 0 00.5-.5V2a.5.5 0 00-.5-.5z"/><path d="M3 4.5h6M3 6.5h4"/></svg>
+          Academic Communication Portal
+        </div>
+        <h1>Student Communication Portal</h1>
+        <p>Send feedback or communicate directly with your faculty mentor.</p>
+      </div>
+    </div>
+
+    <!-- Student Info -->
+    <div class="student-card anim d2">
+      <div class="sc-avatar">AK</div>
+      <div class="sc-info">
+        <div class="sc-name">Aravind Kumar</div>
+        <div class="sc-sub">Undergraduate · Even Semester 2024–25</div>
+        <div class="sc-chips">
+          <span class="sc-chip"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="1" y="1" width="10" height="10" rx="1.5"/><path d="M3 6h6M3 8h4"/></svg>23101</span>
+          <span class="sc-chip"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6 1l1.5 3h3l-2.5 2 1 3.5L6 8l-3 1.5 1-3.5L1.5 4h3L6 1z"/></svg>CSE-AI</span>
+          <span class="sc-chip"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="6" cy="4" r="2"/><path d="M1 11c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>Section BG</span>
+        </div>
+      </div>
+      <div class="sc-status"><span class="sc-dot"></span>Active Session</div>
+    </div>
+
+    <!-- Feedback Form -->
+    <div class="card anim d3">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon ci-blue">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13.5 2.5H2.5A1 1 0 001.5 3.5v7a1 1 0 001 1H6l2 2 2-2h3.5a1 1 0 001-1v-7a1 1 0 00-1-1z"/><path d="M5 6.5h6M5 9h4"/></svg>
+          </div>
+          <div>
+            <div class="card-title">New Feedback / Message</div>
+            <div class="card-sub">Enter the Staff ID and compose your message</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="feedbackForm" novalidate>
+          <div class="form-stack">
+
+            <!-- Staff ID -->
+            <div class="field">
+              <label class="field-label">Staff ID <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="i-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="5" r="3"/><path d="M1.5 13.5c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+                <input type="text" class="field-input" id="staffId" placeholder="e.g. STP001" autocomplete="off" maxlength="10" oninput="validateStaffId()" />
+              </div>
+              <div class="staff-indicator" id="staffIndicator">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 7l3.5 3.5 6.5-7"/></svg>
+                <span id="staffIndicatorText">Staff found: <span class="staff-name-tag" id="staffNameTag">—</span></span>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="field">
+              <label class="field-label">
+                Feedback / Message
+                <span class="req">*</span>
+                <span class="char-counter" id="charCounter">0 / 1000</span>
+              </label>
+              <textarea class="field-textarea" id="feedbackMsg" placeholder="Write your feedback or message here. Be clear and professional…" maxlength="1000" oninput="onMsgInput(); validateForm()"></textarea>
+            </div>
+
+            <!-- Attachment -->
+            <div class="field">
+              <label class="field-label">Attachment <span class="opt">(optional)</span></label>
+              <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFile()" />
+                <div class="drop-icon">📎</div>
+                <div class="drop-text"><strong>Click to attach</strong> or drag & drop</div>
+                <div class="drop-hint">PDF, JPG, PNG, DOC — Max 10 MB</div>
+              </div>
+              <div class="file-preview" id="filePreview">
+                <div class="fp-icon" id="fpIcon">📄</div>
+                <div class="fp-info">
+                  <div class="fp-name" id="fpName">—</div>
+                  <div class="fp-size" id="fpSize">—</div>
+                </div>
+                <button type="button" class="fp-remove" onclick="removeFile()">
+                  <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l6 6M8 2l-6 6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Info note -->
+            <div style="background:var(--blue-lt);border:1px solid var(--blue-mid);border-radius:var(--r-sm);padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="7" cy="7" r="5.5"/><path d="M7 5v3.5M7 10v.5"/></svg>
+              <p style="font-size:12px;color:var(--blue-dk);line-height:1.55"><strong>Secure delivery:</strong> Your message will be stored and delivered only to the staff member matching the provided Staff ID. Your register number and section will be automatically attached.</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-row">
+              <button type="button" class="btn-clear" onclick="clearForm()">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 7A5.5 5.5 0 107 1.5a5.5 5.5 0 00-5 3.2"/><path d="M1.5 1.5v3.2H4.7"/></svg>
+                Clear
+              </button>
+              <button type="submit" class="btn-send" id="sendBtn" disabled>
+                <span class="btn-label" style="display:flex;align-items:center;gap:8px">
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 1.5L7 8M13.5 1.5L9.5 13l-2.5-5-5-2.5 12-4z"/></svg>
+                  Send Feedback
+                </span>
+                <div class="btn-spinner"></div>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="card anim d4">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon ci-violet">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13l3-3 2.5 2.5L12 6l2 2"/><path d="M2 3h12"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Recent Messages</div>
+            <div class="card-sub">Your sent communications and their delivery status</div>
+          </div>
+        </div>
+        <span id="msgCountBadge" style="font-family:'DM Mono',monospace;font-size:.72rem;color:var(--tx-s);background:var(--card-2);border:1px solid var(--border);padding:3px 10px;border-radius:99px"></span>
+      </div>
+      <div class="card-body">
+        <div class="msg-list" id="msgList"><!-- JS --></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bd" id="successModal">
+  <div class="modal-box">
+    <div class="modal-anim">💬</div>
+    <h3>Message Sent!</h3>
+    <p>Your feedback has been securely delivered to <strong id="modalStaffName">the staff member</strong>. You'll be notified once it's read.</p>
+    <button class="modal-btn" onclick="closeModal()">Done</button>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+  /* ══════════════════════════════════════════════
+     STAFF DIRECTORY (dummy — real fetch from backend later)
+  ══════════════════════════════════════════════ */
+  const STAFF_DIR = {
+    'STP001': 'Dr. Meera Nair',
+    'STP002': 'Prof. Ramesh Babu',
+    'STP003': 'Dr. Priya Suresh',
+    'STP004': 'Mr. Arun Krishnan',
+    'STP005': 'Dr. Sunita Venkat',
+  };
+
+  /* ══════════════════════════════════════════════
+     MESSAGE HISTORY (stored in localStorage)
+  ══════════════════════════════════════════════ */
+  const SEED_MESSAGES = [
+    {
+      id: 1,
+      staffId: 'STP001',
+      staffName: 'Dr. Meera Nair',
+      message: 'I wanted to clarify a doubt regarding the Data Structures assignment submitted last week. The question on balanced BST was unclear to me. Could you guide me on the approach?',
+      date: '2025-04-28T10:32:00',
+      status: 'seen',
+      hasFile: false
+    },
+    {
+      id: 2,
+      staffId: 'STP002',
+      staffName: 'Prof. Ramesh Babu',
+      message: 'Sir, I had a query about the internal marks for Computer Networks. The marks displayed seem different from the total I calculated. Could you please verify?',
+      date: '2025-04-20T14:15:00',
+      status: 'delivered',
+      hasFile: true
+    },
+  ];
+
+  function loadMessages() {
+    const stored = localStorage.getItem('ct_messages');
+    return stored ? JSON.parse(stored) : [...SEED_MESSAGES];
+  }
+
+  function saveMessages(msgs) {
+    localStorage.setItem('ct_messages', JSON.stringify(msgs));
+  }
+
+  let messages = loadMessages();
+
+  /* ══════════════════════════════════════════════
+     RENDER MESSAGES
+  ══════════════════════════════════════════════ */
+  function renderMessages() {
+
+    const list = document.getElementById('msgList');
+    const badge = document.getElementById('msgCountBadge');
+
+    list.innerHTML = '';
+
+    badge.textContent =
+      `${messages.length} message${messages.length !== 1 ? 's' : ''}`;
+
+    if (messages.length === 0) {
+
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg class="empty-svg" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="20" width="100" height="60" rx="8" fill="#edf0ff" stroke="#c7d0fb" stroke-width="2"/>
+              <rect x="22" y="32" width="76" height="8" rx="4" fill="#c7d0fb"/>
+              <rect x="22" y="48" width="55" height="6" rx="3" fill="#dde4f8"/>
+              <rect x="22" y="62" width="40" height="6" rx="3" fill="#dde4f8"/>
+              <circle cx="98" cy="22" r="12" fill="#f0ecff" stroke="#c7b8fb" stroke-width="2"/>
+              <path d="M93 22l3 3 6-6" stroke="#6d4af5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="empty-title">No communication history yet</div>
+          <div class="empty-sub">
+            Messages you send to faculty will appear here with their delivery status.
+          </div>
+        </div>
+      `;
+
+      return;
+    }
+
+    [...messages].reverse().forEach((msg, i) => {
+
+      const date = new Date(msg.date).toLocaleDateString(
+        'en-IN',
+        {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }
+      );
+
+      const preview =
+        msg.message.length > 120
+          ? msg.message.slice(0, 120) + '…'
+          : msg.message;
+
+      const initials =
+        msg.staffId.replace(/[^A-Z0-9]/gi, '').slice(0, 3).toUpperCase();
+
+      const el = document.createElement('div');
+
+      el.className = `msg-card ${msg.status}`;
+
+      el.style.animationDelay = `${.2 + i * .06}s`;
+
+      el.innerHTML = `
+        <div class="msg-avatar ${msg.status}">
+          ${initials}
+        </div>
+
+        <div class="msg-body">
+
+          <div class="msg-top">
+
+            <div>
+              <div class="msg-staff-id">${msg.staffId}</div>
+              <div class="msg-staff-name">${msg.staffName}</div>
+            </div>
+
+            <span class="status-pill status-${msg.status}">
+              ${capitalize(msg.status)}
+            </span>
+
+          </div>
+
+          <div class="msg-preview">${preview}</div>
+
+          <div class="msg-footer">
+
+            <span class="msg-time">
+              <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+                <circle cx="5" cy="5" r="4"/>
+                <path d="M5 2.5v3l1.5 1.5"/>
+              </svg>
+              ${date}
+            </span>
+
+            ${msg.hasFile
+              ? '<span class="msg-attachment-chip">📎 Attachment</span>'
+              : ''
+            }
+
+          </div>
+
+        </div>
+      `;
+
+      list.appendChild(el);
+
+    });
+
+  }
+
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  /* ══════════════════════════════════════════════
+     STAFF ID VALIDATION
+     (Relaxed validation for development)
+  ══════════════════════════════════════════════ */
+
+  let staffValid = false;
+
+  function validateStaffId() {
+
+    const input = document.getElementById('staffId');
+
+    const indicator = document.getElementById('staffIndicator');
+
+    const val = input.value.trim();
+
+    // Allow ANY alphanumeric code
+    input.value = val.replace(/[^a-zA-Z0-9]/g, '');
+
+    if (input.value.length < 3) {
+
+      input.classList.remove('valid', 'invalid');
+
+      indicator.classList.remove('found', 'notfound');
+
+      staffValid = false;
+
+      validateForm();
+
+      return;
+    }
+
+    input.classList.add('valid');
+
+    input.classList.remove('invalid');
+
+    indicator.className = 'staff-indicator found';
+
+    indicator.innerHTML = `
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M2 7l3 3 7-7"/>
+      </svg>
+      <span>Staff ID accepted</span>
+    `;
+
+    staffValid = true;
+
+    validateForm();
+  }
+
+  /* ══════════════════════════════════════════════
+     CHARACTER COUNTER
+  ══════════════════════════════════════════════ */
+
+  function onMsgInput() {
+
+    const len =
+      document.getElementById('feedbackMsg').value.length;
+
+    const counter =
+      document.getElementById('charCounter');
+
+    counter.textContent = `${len} / 1000`;
+
+    counter.classList.toggle('warn', len >= 800 && len < 950);
+
+    counter.classList.toggle('over', len >= 950);
+
+    validateForm();
+  }
+
+  /* ══════════════════════════════════════════════
+     FORM VALIDATION
+  ══════════════════════════════════════════════ */
+
+  function validateForm() {
+
+    const msg =
+      document.getElementById('feedbackMsg').value.trim();
+
+    document.getElementById('sendBtn').disabled =
+      !(staffValid && msg.length >= 10);
+  }
+
+  /* ══════════════════════════════════════════════
+     FILE UPLOAD HANDLING
+  ══════════════════════════════════════════════ */
+
+  function handleFile(fileFromDrop = null) {
+
+    const fileInput =
+      document.getElementById('fileInput');
+
+    const file =
+      fileFromDrop || fileInput.files[0];
+
+    if (!file) return;
+
+    // Max size validation
+    if (file.size > 10 * 1024 * 1024) {
+
+      showToast('File size should be below 10 MB', 'error');
+
+      removeFile();
+
+      return;
+    }
+
+    const ext =
+      file.name.split('.').pop().toLowerCase();
+
+    const icons = {
+      pdf: '📄',
+      jpg: '🖼️',
+      jpeg: '🖼️',
+      png: '🖼️',
+      doc: '📝',
+      docx: '📝'
+    };
+
+    document.getElementById('fpIcon').textContent =
+      icons[ext] || '📎';
+
+    document.getElementById('fpName').textContent =
+      file.name;
+
+    document.getElementById('fpSize').textContent =
+      (file.size / 1024 / 1024).toFixed(2) + ' MB';
+
+    document
+      .getElementById('filePreview')
+      .classList.add('show');
+  }
+
+  function removeFile() {
+
+    document.getElementById('fileInput').value = '';
+
+    document
+      .getElementById('filePreview')
+      .classList.remove('show');
+  }
+
+  /* ══════════════════════════════════════════════
+     DRAG & DROP
+  ══════════════════════════════════════════════ */
+
+  const dz = document.getElementById('dropZone');
+
+  dz.addEventListener('dragover', (e) => {
+
+    e.preventDefault();
+
+    dz.classList.add('drag-over');
+
+  });
+
+  dz.addEventListener('dragleave', () => {
+
+    dz.classList.remove('drag-over');
+
+  });
+
+  dz.addEventListener('drop', (e) => {
+
+    e.preventDefault();
+
+    dz.classList.remove('drag-over');
+
+    const file = e.dataTransfer.files[0];
+
+    if (!file) return;
+
+    // Properly assign dropped file
+    const dt = new DataTransfer();
+
+    dt.items.add(file);
+
+    document.getElementById('fileInput').files = dt.files;
+
+    handleFile(file);
+
+  });
+
+  /* ══════════════════════════════════════════════
+     SUBMIT FORM
+  ══════════════════════════════════════════════ */
+
+  document
+    .getElementById('feedbackForm')
+    .addEventListener('submit', (e) => {
+
+      e.preventDefault();
+
+      const btn =
+        document.getElementById('sendBtn');
+
+      btn.classList.add('loading');
+
+      btn.disabled = true;
+
+      setTimeout(() => {
+
+        btn.classList.remove('loading');
+
+        const staffId =
+          document.getElementById('staffId').value.trim();
+
+        const staffName =
+          STAFF_DIR[staffId] || staffId;
+
+        const msg =
+          document.getElementById('feedbackMsg').value.trim();
+
+        const hasFile =
+          !!document.getElementById('fileInput').files[0];
+
+        // OPTIONAL attachment
+        let attachmentUrl = null;
+
+        if (hasFile) {
+
+          const file =
+            document.getElementById('fileInput').files[0];
+
+          // Later upload to Supabase here
+          attachmentUrl = file.name;
+
+          console.log('Attachment selected:', file.name);
+        }
+
+        messages.unshift({
+          id: Date.now(),
+          staffId,
+          staffName,
+          message: msg,
+          date: new Date().toISOString(),
+          status: 'delivered',
+          hasFile,
+          attachmentUrl
+        });
+
+        saveMessages(messages);
+
+        clearForm();
+
+        renderMessages();
+
+        document.getElementById('modalStaffName').textContent =
+          staffName;
+
+        document
+          .getElementById('successModal')
+          .classList.add('open');
+
+      }, 1600);
+
+    });
+
+  /* ══════════════════════════════════════════════
+     CLEAR FORM
+  ══════════════════════════════════════════════ */
+
+  function clearForm() {
+
+    document.getElementById('feedbackForm').reset();
+
+    document
+      .getElementById('staffId')
+      .classList.remove('valid', 'invalid');
+
+    document
+      .getElementById('staffIndicator')
+      .classList.remove('found', 'notfound');
+
+    document.getElementById('charCounter').textContent =
+      '0 / 1000';
+
+    document
+      .getElementById('charCounter')
+      .classList.remove('warn', 'over');
+
+    removeFile();
+
+    staffValid = false;
+
+    document.getElementById('sendBtn').disabled = true;
+  }
+
+  /* ══════════════════════════════════════════════
+     SUCCESS MODAL
+  ══════════════════════════════════════════════ */
+
+  function closeModal() {
+
+    document
+      .getElementById('successModal')
+      .classList.remove('open');
+
+    showToast('Message sent successfully!', 'success');
+  }
+
+  document
+    .getElementById('successModal')
+    .addEventListener('click', function (e) {
+
+      if (e.target === this) {
+
+        closeModal();
+
+      }
+
+    });
+
+  /* ══════════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════════ */
+
+  function showToast(msg, type = 'info') {
+
+    const icons = {
+      success: '✅',
+      error: '❌',
+      info: 'ℹ️'
+    };
+
+    const wrap =
+      document.getElementById('toastWrap');
+
+    const t =
+      document.createElement('div');
+
+    t.className = `toast ${type}`;
+
+    t.textContent = `${icons[type]} ${msg}`;
+
+    wrap.appendChild(t);
+
+    requestAnimationFrame(() => {
+
+      requestAnimationFrame(() => {
+
+        t.classList.add('show');
+
+      });
+
+    });
+
+    setTimeout(() => {
+
+      t.classList.remove('show');
+
+      setTimeout(() => t.remove(), 400);
+
+    }, 3500);
+  }
+
+  /* ══════════════════════════════════════════════
+     INIT
+  ══════════════════════════════════════════════ */
+
+  renderMessages();
+</script>
+</body>
+</html>
